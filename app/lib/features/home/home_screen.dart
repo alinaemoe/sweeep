@@ -472,10 +472,12 @@ class _Header extends StatelessWidget {
     final big = scanning ? (value: '${(progress * 100).round()}', unit: '%') : shownBig;
     final busy = scanning;
     final scale = lerp(1, .4);
-    final ctaW = lerp(width, 182);
-    final ctaH = lerp(48, 44);
-    final ctaL = lerp(0, width - 182 - 0);
-    final ctaT = lerp(212, 46);
+    // collapsed: a compact button with 14 px of air to the card's right edge
+    const chipBtnW = 150.0;
+    final ctaW = lerp(width, chipBtnW);
+    final ctaH = lerp(48, 42);
+    final ctaL = lerp(0, width - chipBtnW - 14);
+    final ctaT = lerp(212, 42);
 
     return Stack(children: [
       Positioned(left: 0, right: 0, top: 0, height: heroTop + heroH + 8, child: const ColoredBox(color: SweeepColors.background)),
@@ -566,7 +568,7 @@ class _Header extends StatelessWidget {
             ),
           ),
           Positioned(
-            left: 160,
+            left: width - chipBtnW - 14,
             top: 20,
             child: Opacity(
               opacity: math.max(0, t * 3 - 2),

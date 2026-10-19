@@ -36,24 +36,42 @@ class _AppShellState extends ConsumerState<AppShell> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(children: [
+        // Home stays alive; it fades in/out instead of popping, so returning
+        // to it animates just like leaving it.
         Positioned.fill(
-          child: TickerMode(enabled: _tab == 0, child: Offstage(offstage: _tab != 0, child: const HomeScreen())),
-        ),
-        if (_tab != 0)
-          Positioned.fill(
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 220),
-              switchInCurve: Curves.easeOut,
-              child: KeyedSubtree(
-                key: ValueKey(_tab),
-                child: switch (_tab) {
-                  1 => const SwipeScreen(source: SwipeSource.all, embedded: true),
-                  2 => const _ToolsSoon(),
-                  _ => const TrashScreen(embedded: true),
-                },
+          child: TickerMode(
+            enabled: _tab == 0,
+            child: IgnorePointer(
+              ignoring: _tab != 0,
+              child: AnimatedOpacity(
+                opacity: _tab == 0 ? 1 : 0,
+                duration: const Duration(milliseconds: 240),
+                curve: Curves.easeInOut,
+                child: const HomeScreen(),
               ),
             ),
           ),
+        ),
+        Positioned.fill(
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 240),
+            switchInCurve: Curves.easeOut,
+            switchOutCurve: Curves.easeIn,
+            transitionBuilder: (child, anim) => FadeTransition(
+              opacity: anim,
+              child: SlideTransition(position: Tween<Offset>(begin: const Offset(0, .02), end: Offset.zero).animate(anim), child: child),
+            ),
+            child: KeyedSubtree(
+              key: ValueKey(_tab),
+              child: switch (_tab) {
+                0 => const SizedBox.shrink(),
+                1 => const SwipeScreen(source: SwipeSource.all, embedded: true),
+                2 => const _ToolsSoon(),
+                _ => const TrashScreen(embedded: true),
+              },
+            ),
+          ),
+        ),
         Positioned(
           left: 20,
           right: 20,
@@ -105,7 +123,7 @@ class SweeepNavBar extends StatelessWidget {
           height: 62,
           padding: const EdgeInsets.symmetric(horizontal: 8),
           decoration: BoxDecoration(
-            color: const Color(0xF2181920),
+            color: SweeepColors.card,
             borderRadius: BorderRadius.circular(31),
             border: Border.all(color: Colors.white.withValues(alpha: .08)),
             boxShadow: const [BoxShadow(color: Color(0x66000000), blurRadius: 18, offset: Offset(0, 6))],
