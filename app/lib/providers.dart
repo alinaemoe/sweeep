@@ -11,6 +11,7 @@ import 'index/analysis_service.dart';
 import 'index/group_service.dart';
 import 'index/home_service.dart';
 import 'index/index_service.dart';
+import 'index/review_service.dart';
 import 'platform/media_source.dart';
 import 'platform/messages.g.dart' show PermissionState;
 
@@ -46,7 +47,16 @@ final homeServiceProvider = Provider<HomeService>((ref) => HomeService(ref.watch
 /// Everything the Home feed shows. Invalidate after groups are rebuilt or items trashed.
 final homeProvider = FutureProvider<HomeData>((ref) => ref.watch(homeServiceProvider).load());
 
-final trashSummaryProvider =FutureProvider<TrashSummary>((ref) => ref.watch(groupServiceProvider).trashSummary());
+final reviewServiceProvider = Provider<ReviewService>((ref) => ReviewService(ref.watch(databaseProvider)));
+
+final trashListProvider = FutureProvider.autoDispose<List<TrashEntry>>((ref) => ref.watch(reviewServiceProvider).trashed());
+
+/// Large preview for the swipe card; released when the card leaves the screen.
+final bigThumbProvider = FutureProvider.autoDispose.family<Uint8List?, String>(
+  (ref, id) => ref.watch(mediaSourceProvider).thumbnail(id, maxSide: 900),
+);
+
+final trashSummaryProvider = FutureProvider<TrashSummary>((ref) => ref.watch(groupServiceProvider).trashSummary());
 
 /// Color JPEG thumbnail, cached for the life of the app.
 typedef ThumbKey = ({String id, int side});
