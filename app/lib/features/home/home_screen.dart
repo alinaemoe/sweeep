@@ -580,7 +580,9 @@ class _Header extends StatelessWidget {
             top: ctaT,
             width: ctaW,
             height: ctaH,
-            child: FilledButton(
+            child: DecoratedBox(
+              decoration: BoxDecoration(borderRadius: BorderRadius.circular(26), boxShadow: onFree == null ? null : neonGlow(SweeepColors.brand)),
+              child: FilledButton(
               onPressed: onFree,
               style: FilledButton.styleFrom(
                 backgroundColor: SweeepColors.brand,
@@ -593,6 +595,7 @@ class _Header extends StatelessWidget {
                 fit: BoxFit.scaleDown,
                 child: Text(reclaim == 0 ? (busy ? 'Scanning…' : 'All clean') : 'Free up ${reclaimBig.value} ${reclaimBig.unit}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
               ),
+            ),
             ),
           ),
         ]),

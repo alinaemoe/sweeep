@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/jelly.dart';
 import '../../core/theme.dart';
+import '../../core/widgets.dart';
 import '../../index/review_service.dart';
 import '../../providers.dart';
 import '../groups/group_widgets.dart';
@@ -44,7 +46,7 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> with TickerProviderSt
   final _history = <({SwipeItem item, int action})>[];
 
   late final AnimationController _move = AnimationController(vsync: this, duration: const Duration(milliseconds: 230));
-  late final AnimationController _wave = AnimationController(vsync: this, duration: const Duration(milliseconds: 900));
+  late final AnimationController _wave = AnimationController(vsync: this, duration: const Duration(milliseconds: 1120));
 
   @override
   void initState() {
@@ -336,10 +338,12 @@ class _Word extends StatelessWidget {
             children: [
               for (var i = 0; i < word.length; i++)
                 Builder(builder: (_) {
-                  final p = ((wave.value * 1.6 - i * .08)).clamp(0.0, 1.0);
-                  final y = waving ? -16 * math.sin(math.pi * p) : 0.0;
-                  return Transform.translate(
-                    offset: Offset(0, y),
+                  // 700 ms hop per letter, letters 70 ms apart (prototype D2)
+                  final p = ((wave.value * 1120 - i * 70) / 700).clamp(0.0, 1.0);
+                  final pose = waving ? jellySample(jellyHop, p) : (dy: 0.0, sy: 1.0);
+                  return Jelly(
+                    dy: pose.dy,
+                    sy: pose.sy,
                     child: Text(word[i], style: TextStyle(fontSize: 46, height: 1, fontWeight: FontWeight.w800, letterSpacing: -1, color: waving ? SweeepColors.trash : color)),
                   );
                 }),
@@ -510,10 +514,13 @@ class _Done extends StatelessWidget {
             const SizedBox(height: 8),
             const Text('You can restore anything from the trash.', textAlign: TextAlign.center, style: TextStyle(color: SweeepColors.textMutedSmall, fontSize: 15)),
             const SizedBox(height: 24),
-            FilledButton(
+            DecoratedBox(
+              decoration: BoxDecoration(borderRadius: BorderRadius.circular(26), boxShadow: neonGlow(SweeepColors.brand)),
+              child: FilledButton(
               onPressed: onBack,
               style: FilledButton.styleFrom(backgroundColor: SweeepColors.brand, foregroundColor: SweeepColors.onAccent, minimumSize: const Size(160, 52), shape: const StadiumBorder()),
               child: const Text('Back', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+            ),
             ),
           ]),
         ),

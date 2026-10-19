@@ -43,6 +43,12 @@ class SweeepCard extends StatelessWidget {
       );
 }
 
+/// Soft neon glow under an accent button (prototype: 0 0 24px accent @ 28%).
+List<BoxShadow> neonGlow(Color c, {double strength = 1}) => [
+      BoxShadow(color: c.withValues(alpha: .34 * strength), blurRadius: 26, spreadRadius: 0),
+      BoxShadow(color: c.withValues(alpha: .22 * strength), blurRadius: 9),
+    ];
+
 class PillButton extends StatelessWidget {
   const PillButton({super.key, required this.label, required this.onPressed, this.color = SweeepColors.brand, this.height = 56});
   final String label;
@@ -51,7 +57,9 @@ class PillButton extends StatelessWidget {
   final double height;
 
   @override
-  Widget build(BuildContext context) => SizedBox(
+  Widget build(BuildContext context) => DecoratedBox(
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(height / 2), boxShadow: onPressed == null ? null : neonGlow(color)),
+        child: SizedBox(
         height: height,
         width: double.infinity,
         child: FilledButton(
@@ -64,5 +72,5 @@ class PillButton extends StatelessWidget {
           ),
           child: FittedBox(fit: BoxFit.scaleDown, child: Text(label, maxLines: 1)),
         ),
-      );
+      ));
 }

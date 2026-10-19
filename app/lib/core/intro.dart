@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import 'jelly.dart';
 import 'theme.dart';
 
 /// Cold-start intro: SW + three E's that stretch in and glow, then the letters
@@ -85,8 +86,8 @@ class _SweeepIntroState extends State<SweeepIntro> with SingleTickerProviderStat
     final a = _seg(t, start, start + (isE ? .3 : .16));
     final grow = isE ? Curves.easeOutBack.transform(a) : Curves.easeOut.transform(a);
     // hop at the end, one letter after another
-    final hop = _seg(t, .6 + i * .04, .6 + i * .04 + .2);
-    final y = -26 * math.sin(math.pi * hop);
+    final hop = _seg(t, .6 + i * .04, .6 + i * .04 + .27);
+    final pose = jellySample(jellyHop, hop);
     final peak = math.sin(math.pi * hop);
     final color = isE ? Color.lerp(SweeepColors.brand, Colors.white, .5 * peak)! : Color.lerp(SweeepColors.text, SweeepColors.brand, .6 * peak)!;
     final style = TextStyle(
@@ -120,6 +121,6 @@ class _SweeepIntroState extends State<SweeepIntro> with SingleTickerProviderStat
         ]),
       );
     }
-    return Transform.translate(offset: Offset(0, y), child: text);
+    return Jelly(dy: pose.dy * 1.6, sy: pose.sy, child: text);
   }
 }

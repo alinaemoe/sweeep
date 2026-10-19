@@ -1,9 +1,8 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/jelly.dart';
 import '../../core/theme.dart';
 import '../../index/review_service.dart';
 import '../../providers.dart';
@@ -206,7 +205,7 @@ class _FreedOverlay extends StatefulWidget {
 }
 
 class _FreedOverlayState extends State<_FreedOverlay> with SingleTickerProviderStateMixin {
-  late final AnimationController _c = AnimationController(vsync: this, duration: const Duration(milliseconds: 1100))..repeat();
+  late final AnimationController _c = AnimationController(vsync: this, duration: const Duration(milliseconds: 1500))..repeat();
 
   @override
   void dispose() {
@@ -219,7 +218,7 @@ class _FreedOverlayState extends State<_FreedOverlay> with SingleTickerProviderS
         child: ColoredBox(
           color: SweeepColors.background.withValues(alpha: .96),
           child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-            _CleanWord(controller: _c, color: SweeepColors.trash, size: 64),
+            _CleanWord(controller: _c, color: SweeepColors.trash, size: 64, periodMs: 1500),
             const SizedBox(height: 16),
             Text('${formatBytes(widget.outcome.bytes)} freed', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
             const SizedBox(height: 4),
@@ -290,10 +289,11 @@ class _Cell extends StatelessWidget {
 
 /// CLEAAAN with a permanent wave; the A's are lavender.
 class _CleanWord extends StatelessWidget {
-  const _CleanWord({required this.controller, this.color, this.size = 58});
+  const _CleanWord({required this.controller, this.color, this.size = 58, this.periodMs = 3000});
   final AnimationController controller;
   final Color? color;
   final double size;
+  final int periodMs; // one full wave cycle; letters follow each other 80 ms apart
 
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
@@ -304,17 +304,20 @@ class _CleanWord extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              for (var i = 0; i < word.length; i++)
-                Transform.translate(
-                  // each letter bounces in the first 40% of the cycle, staggered
-                  offset: Offset(0, _bounce((controller.value - i * .027) % 1.0)),
-                  child: Text(word[i],
-                      style: TextStyle(fontSize: size, height: 1, fontWeight: FontWeight.w800, letterSpacing: -1, color: color ?? ((i >= 3 && i <= 5) ? SweeepColors.brand : SweeepColors.text))),
-                ),
+              for (var i = 0; i < word.length; i++) _letter(word[i], i),
             ],
           );
         },
       );
 
-  double _bounce(double p) => p < .4 ? -14 * math.sin(math.pi * (p / .4)) : 0;
+  Widget _letter(String ch, int i) {
+    final ms = controller.value * periodMs - i * 80;
+    final p = (((ms % periodMs) + periodMs) % periodMs) / periodMs;
+    final pose = jellySample(jellyLoop, p);
+    return Jelly(
+      dy: pose.dy,
+      sy: pose.sy,
+      child: Text(ch, style: TextStyle(fontSize: size, height: 1, fontWeight: FontWeight.w800, letterSpacing: -1, color: color ?? ((i >= 3 && i <= 5) ? SweeepColors.brand : SweeepColors.text))),
+    );
+  }
 }
