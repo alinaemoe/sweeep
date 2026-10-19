@@ -1,0 +1,7 @@
+core/target/
+app/.dart_tool/
+app/build/
+**/*.g.dart
+**/Messages.g.kt
+**/Messages.g.swift
+app/android/app/src/main/jniLibs/
