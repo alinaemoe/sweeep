@@ -1,0 +1,244 @@
+import 'dart:typed_data';
+import 'dart:ui' as ui;
+
+import 'package:drift_flutter/drift_flutter.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'core/gray_image.dart';
+import 'core/native_core.dart';
+import 'data/database.dart';
+import 'index/analysis_service.dart';
+import 'index/group_service.dart';
+import 'index/home_service.dart';
+import 'index/index_service.dart';
+import 'platform/media_source.dart';
+import 'platform/messages.g.dart' show PermissionState;
+
+final databaseProvider = Provider<SweeepDatabase>((ref) {
+  final db = SweeepDatabase(driftDatabase(name: 'sweeep'));
+  ref.onDispose(db.close);
+  return db;
+});
+
+final mediaSourceProvider = Provider<MediaSource>((ref) => PlatformMediaSource());
+
+final analysisCoreProvider = Provider<AnalysisCore>((ref) => NativeCore.load());
+
+final indexServiceProvider = Provider<IndexService>(
+  (ref) => IndexService(ref.watch(databaseProvider), ref.watch(mediaSourceProvider)),
+);
+
+final analysisServiceProvider = Provider<AnalysisService>(
+  (ref) => AnalysisService(ref.watch(databaseProvider), ref.watch(mediaSourceProvider), ref.watch(analysisCoreProvider)),
+);
+
+final groupServiceProvider = Provider<GroupService>(
+  (ref) => GroupService(ref.watch(databaseProvider), ref.watch(mediaSourceProvider), ref.watch(analysisCoreProvider)),
+);
+
+/// Persisted groups of one kind, biggest saving first. Invalidate after trashing.
+final groupsProvider = FutureProvider.family<List<GroupView>, GroupKind>(
+  (ref, kind) => ref.watch(groupServiceProvider).groups(kind),
+);
+
+final homeServiceProvider = Provider<HomeService>((ref) => HomeService(ref.watch(databaseProvider), ref.watch(groupServiceProvider)));
+
+/// Everything the Home feed shows. Invalidate after groups are rebuilt or items trashed.
+final homeProvider = FutureProvider<HomeData>((ref) => ref.watch(homeServiceProvider).load());
+
+final trashSummaryProvider =FutureProvider<TrashSummary>((ref) => ref.watch(groupServiceProvider).trashSummary());
+
+/// Color JPEG thumbnail, cached for the life of the app.
+typedef ThumbKey = ({String id, int side});
+final thumbProvider = FutureProvider.family<Uint8List?, ThumbKey>(
+  (ref, k) => ref.watch(mediaSourceProvider).thumbnail(k.id, maxSide: k.side),
+);
+
+/// Photo/video access state. `null` until first checked.
+class PermissionController extends Notifier<PermissionState?> {
+  @override
+  PermissionState? build() {
+    Future.microtask(check);
+    return null;
+  }
+
+  Future<void> check() async => state = await ref.read(mediaSourceProvider).permissionState();
+
+  Future<void> request() async => state = await ref.read(mediaSourceProvider).requestPermission();
+}
+
+final permissionProvider = NotifierProvider<PermissionController, PermissionState?>(PermissionController.new);
+
+class ThumbSample {
+  const ThumbSample(this.image, this.width, this.height);
+  final ui.Image image;
+  final int width;
+  final int height;
+}
+
+class LibraryState {
+  const LibraryState({
+    this.syncing = false,
+    this.processed = 0,
+    this.result,
+    this.stats,
+    this.thumbs = const [],
+    this.thumbMsAvg,
+    this.syncMs,
+    this.error,
+    this.analyzing = false,
+    this.analysisDone = 0,
+    this.analysisTotal = 0,
+    this.alreadyHashed = 0,
+    this.analysisMs,
+    this.hashStats,
+    this.similar,
+    this.verifyDone = 0,
+    this.verifyTotal = 0,
+    this.verifying = false,
+    this.groupsBuilt,
+  });
+
+  final bool syncing;
+  final int processed;
+  final IndexResult? result;
+  final LibraryStats? stats;
+  final List<ThumbSample> thumbs;
+  final double? thumbMsAvg;
+  final int? syncMs;
+  final String? error;
+
+  // Stage 2 (hashing)
+  final bool analyzing;
+  final int analysisDone; // processed in the current run
+  final int analysisTotal; // pending at the start of the current run
+  final int alreadyHashed; // hashed before this run started (checkpoint resume)
+  final int? analysisMs;
+  final HashStats? hashStats;
+  final SimilarSummary? similar;
+
+  // Stage 3-4 (exact duplicates + groups)
+  final bool verifying;
+  final int verifyDone;
+  final int verifyTotal;
+  final BuildResult? groupsBuilt;
+
+  LibraryState copyWith({
+    bool? syncing,
+    int? processed,
+    IndexResult? result,
+    LibraryStats? stats,
+    List<ThumbSample>? thumbs,
+    double? thumbMsAvg,
+    int? syncMs,
+    String? error,
+    bool? analyzing,
+    int? analysisDone,
+    int? analysisTotal,
+    int? alreadyHashed,
+    int? analysisMs,
+    HashStats? hashStats,
+    SimilarSummary? similar,
+    bool? verifying,
+    int? verifyDone,
+    int? verifyTotal,
+    BuildResult? groupsBuilt,
+  }) =>
+      LibraryState(
+        syncing: syncing ?? this.syncing,
+        processed: processed ?? this.processed,
+        result: result ?? this.result,
+        stats: stats ?? this.stats,
+        thumbs: thumbs ?? this.thumbs,
+        thumbMsAvg: thumbMsAvg ?? this.thumbMsAvg,
+        syncMs: syncMs ?? this.syncMs,
+        error: error,
+        analyzing: analyzing ?? this.analyzing,
+        analysisDone: analysisDone ?? this.analysisDone,
+        analysisTotal: analysisTotal ?? this.analysisTotal,
+        alreadyHashed: alreadyHashed ?? this.alreadyHashed,
+        analysisMs: analysisMs ?? this.analysisMs,
+        hashStats: hashStats ?? this.hashStats,
+        similar: similar ?? this.similar,
+        verifying: verifying ?? this.verifying,
+        verifyDone: verifyDone ?? this.verifyDone,
+        verifyTotal: verifyTotal ?? this.verifyTotal,
+        groupsBuilt: groupsBuilt ?? this.groupsBuilt,
+      );
+}
+
+class LibraryController extends Notifier<LibraryState> {
+  @override
+  LibraryState build() => const LibraryState();
+
+  Future<void> sync() async {
+    if (state.syncing || state.analyzing || state.verifying) return;
+    state = state.copyWith(syncing: true, processed: 0);
+    final index = ref.read(indexServiceProvider);
+    final media = ref.read(mediaSourceProvider);
+    try {
+      final sw = Stopwatch()..start();
+      final result = await index.sync(onProgress: (n) => state = state.copyWith(processed: n));
+      final syncMs = sw.elapsedMilliseconds;
+      final stats = await index.stats();
+      state = state.copyWith(result: result, stats: stats, syncMs: syncMs);
+
+      // Gray thumbnail check: fetch a few of the newest photos, time them.
+      final ids = await index.newestPhotoIds(8);
+      final thumbs = <ThumbSample>[];
+      final tsw = Stopwatch()..start();
+      for (final id in ids) {
+        final t = await media.grayThumbnail(id, maxSide: 128);
+        if (t != null) {
+          thumbs.add(ThumbSample(await grayToImage(t.bytes, t.width, t.height), t.width, t.height));
+        }
+      }
+      final avg = ids.isEmpty ? null : tsw.elapsedMilliseconds / ids.length;
+      state = state.copyWith(syncing: false, thumbs: thumbs, thumbMsAvg: avg);
+    } catch (e) {
+      state = state.copyWith(syncing: false, error: e.toString());
+      return;
+    }
+    await analyze();
+  }
+
+  /// Stage 2: hash everything not yet hashed; resumes after a restart.
+  Future<void> analyze() async {
+    if (state.analyzing) return;
+    final svc = ref.read(analysisServiceProvider);
+    try {
+      final pending = await svc.pendingCount();
+      final total = state.stats?.total ?? pending;
+      state = state.copyWith(analyzing: true, analysisDone: 0, analysisTotal: pending, alreadyHashed: total - pending);
+      final sw = Stopwatch()..start();
+      await svc.run(onProgress: (done, tot) => state = state.copyWith(analysisDone: done, analysisTotal: tot));
+      final ms = sw.elapsedMilliseconds;
+      final hs = await svc.stats();
+      final sim = await svc.similarSummary();
+      state = state.copyWith(analyzing: false, analysisMs: ms, hashStats: hs, similar: sim);
+    } catch (e) {
+      state = state.copyWith(analyzing: false, error: e.toString());
+      return;
+    }
+    await buildGroups();
+  }
+
+  /// Exact-duplicate verification (SHA-256 of same-size files), then persist groups.
+  Future<void> buildGroups() async {
+    if (state.verifying) return;
+    final groups = ref.read(groupServiceProvider);
+    try {
+      state = state.copyWith(verifying: true, verifyDone: 0, verifyTotal: 0);
+      await groups.hashExactCandidates(onProgress: (d, t) => state = state.copyWith(verifyDone: d, verifyTotal: t));
+      final built = await groups.rebuild();
+      ref.invalidate(groupsProvider);
+      ref.invalidate(trashSummaryProvider);
+      ref.invalidate(homeProvider);
+      state = state.copyWith(verifying: false, groupsBuilt: built);
+    } catch (e) {
+      state = state.copyWith(verifying: false, error: e.toString());
+    }
+  }
+}
+
+final libraryProvider = NotifierProvider<LibraryController, LibraryState>(LibraryController.new);
