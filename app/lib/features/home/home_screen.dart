@@ -13,6 +13,7 @@ import '../groups/group_pager.dart';
 import '../groups/group_widgets.dart';
 import '../groups/groups_screen.dart';
 import '../library/library_screen.dart';
+import '../category/category_screen.dart';
 import '../swipe/swipe_screen.dart';
 import '../trash/trash_screen.dart';
 import '../../index/review_service.dart';
@@ -145,7 +146,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
   }
 
   List<Widget> _feed(HomeData d) {
-    final empty = d.duplicates.isEmpty && d.similar.isEmpty && d.screenshots.count == 0 && d.videos.count == 0 && d.blurry.count == 0;
+    final empty = d.chat.count == 0 && d.duplicates.isEmpty && d.similar.isEmpty && d.screenshots.count == 0 && d.videos.count == 0 && d.blurry.count == 0;
     if (empty) {
       return const [
         Padding(
@@ -165,12 +166,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
         _GroupCarousel(groups: d.similar, big: false, onOpen: (i) => _push(GroupPager(kind: GroupKind.similar, initialIndex: i))),
       ],
       if (d.screenshots.count > 0) ...[
-        _SectionHeader('Screenshots', '${_n(d.screenshots.count)} · ${formatBytes(d.screenshots.bytes)}', 'Swipe', () => _push(const SwipeScreen(source: SwipeSource.screenshots))),
+        _SectionHeader('Screenshots', '${_n(d.screenshots.count)} · ${formatBytes(d.screenshots.bytes)}', 'See all', () => _push(const CategoryScreen(kind: CategoryKind.screenshots))),
         _TileRow(height: 130, items: d.screenshots.items, builder: (it) => _Tile(item: it, width: 74, height: 130, radius: 14)),
       ],
       if (d.videos.count > 0) ...[
-        _SectionHeader('Videos', '${_n(d.videos.count)} · ${formatBytes(d.videos.bytes)}', 'See all', () => _soon('Videos')),
+        _SectionHeader('Videos', '${_n(d.videos.count)} · ${formatBytes(d.videos.bytes)}', 'See all', () => _push(const CategoryScreen(kind: CategoryKind.videos))),
         _TileRow(height: 96, items: d.videos.items, builder: (it) => _Tile(item: it, width: 140, height: 96, radius: 18, video: true)),
+      ],
+      if (d.chat.count > 0) ...[
+        _SectionHeader('Chat media', '${_n(d.chat.count)} · ${formatBytes(d.chat.bytes)}', 'See all', () => _push(const CategoryScreen(kind: CategoryKind.chat))),
+        _TileRow(height: 96, items: d.chat.items, builder: (it) => _Tile(item: it, width: 96, height: 96, radius: 18, video: it.durationMs != null)),
       ],
       if (d.blurry.count > 0) ...[
         _SectionHeader('Blurry & dark', '${_n(d.blurry.count)} · ${formatBytes(d.blurry.bytes)}', 'Swipe', () => _push(const SwipeScreen(source: SwipeSource.blurry))),

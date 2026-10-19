@@ -1,3 +1,5 @@
+import 'package:drift/drift.dart' show Variable;
+
 import '../data/database.dart';
 import '../platform/media_source.dart';
 import 'group_service.dart';
@@ -5,11 +7,23 @@ import 'home_service.dart';
 
 enum SwipeSource { all, screenshots, blurry }
 
+enum CategoryKind { videos, screenshots, chat }
+
 class SwipeItem {
   const SwipeItem({required this.id, required this.sizeBytes, required this.createdAtMs});
   final String id;
   final int sizeBytes;
   final int createdAtMs;
+}
+
+class CategoryItem {
+  const CategoryItem({required this.id, required this.sizeBytes, required this.createdAtMs, required this.isVideo, this.durationMs, this.chatSource});
+  final String id;
+  final int sizeBytes;
+  final int createdAtMs;
+  final bool isVideo;
+  final int? durationMs;
+  final String? chatSource;
 }
 
 class TrashEntry {
@@ -53,6 +67,54 @@ class ReviewService {
       ORDER BY a.created_at_ms DESC LIMIT $queueLimit
     ''').get();
     return [for (final r in rows) SwipeItem(id: r.read<String>('id'), sizeBytes: r.read<int>('size'), createdAtMs: r.read<int>('t'))];
+  }
+
+  /// All items of a category (not yet in the app trash). [chatSource] filters
+  /// the chat category to one app; [bySize] sorts largest first, else newest.
+  Future<List<CategoryItem>> category(CategoryKind kind, {String? chatSource, bool bySize = false}) async {
+    final where = switch (kind) {
+      CategoryKind.videos => 'a.media_type = 1',
+      CategoryKind.screenshots => 'a.media_type = 0 AND a.is_screenshot = 1',
+      CategoryKind.chat => chatSource == null ? 'a.chat_source IS NOT NULL' : 'a.chat_source = ?',
+    };
+    final rows = await db.customSelect(
+      '''
+      SELECT a.id AS id, a.size_bytes AS size, a.created_at_ms AS t, a.media_type AS mt, a.duration_ms AS dur, a.chat_source AS cs
+      FROM assets a WHERE $where AND a.id NOT IN (SELECT asset_id FROM trash_items)
+      ORDER BY ${bySize ? 'a.size_bytes' : 'a.created_at_ms'} DESC
+      ''',
+      variables: [if (kind == CategoryKind.chat && chatSource != null) Variable.withString(chatSource)],
+    ).get();
+    return [
+      for (final r in rows)
+        CategoryItem(
+          id: r.read<String>('id'),
+          sizeBytes: r.read<int>('size'),
+          createdAtMs: r.read<int>('t'),
+          isVideo: r.read<int>('mt') == 1,
+          durationMs: r.read<int?>('dur'),
+          chatSource: r.read<String?>('cs'),
+        ),
+    ];
+  }
+
+  Future<List<String>> chatSources() async {
+    final rows = await db.customSelect('SELECT chat_source AS s, COUNT(*) AS n FROM assets WHERE chat_source IS NOT NULL GROUP BY chat_source ORDER BY n DESC').get();
+    return [for (final r in rows) r.read<String>('s')];
+  }
+
+  /// Bulk soft-trash (reason 2 = category).
+  Future<void> trashMany(List<CategoryItem> items) async {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final expires = now + GroupService.trashDays * Duration.millisecondsPerDay;
+    await db.batch((b) {
+      b.insertAllOnConflictUpdate(db.trashItems, [
+        for (final i in items) TrashItemsCompanion.insert(assetId: i.id, sizeBytes: i.sizeBytes, trashedAtMs: now, expiresAtMs: expires, reason: 2),
+      ]);
+      b.insertAllOnConflictUpdate(db.decisions, [
+        for (final i in items) DecisionsCompanion.insert(assetId: i.id, decision: 1, decidedAtMs: now),
+      ]);
+    });
   }
 
   Future<void> keep(SwipeItem item) => db.into(db.decisions).insertOnConflictUpdate(

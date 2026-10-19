@@ -24,8 +24,8 @@ void main() {
   });
   tearDown(() => db.close());
 
-  Future<void> add(String id, {int type = 0, bool shot = false, int t = 0, int size = 10}) => db.into(db.assets).insert(AssetsCompanion.insert(
-        id: id, mediaType: type, width: 1, height: 1, sizeBytes: size, createdAtMs: t, modifiedAtMs: t, isScreenshot: Value(shot)));
+  Future<void> add(String id, {int type = 0, bool shot = false, int t = 0, int size = 10, String? chat}) => db.into(db.assets).insert(AssetsCompanion.insert(
+        id: id, mediaType: type, width: 1, height: 1, sizeBytes: size, createdAtMs: t, modifiedAtMs: t, isScreenshot: Value(shot), chatSource: Value(chat)));
 
   test('queue is newest first, photos only, skips decided items', () async {
     await add('old', t: 1);
@@ -70,5 +70,24 @@ void main() {
     final c = await svc.deleteForever(_Media(DeleteResult(deletedIds: [], cancelled: true)), ['b']);
     expect((c.deleted, c.cancelled), (0, true));
     expect((await svc.trashed()).length, 1);
+  });
+
+  test('category lists filter, sort and bulk trash', () async {
+    await add('v1', type: 1, t: 1, size: 50);
+    await add('v2', type: 1, t: 2, size: 900);
+    await add('s1', shot: true, t: 3);
+    await add('c1', t: 4, chat: 'telegram');
+    await add('c2', t: 5, chat: 'whatsapp', size: 70);
+
+    expect((await svc.category(CategoryKind.videos)).map((e) => e.id), ['v2', 'v1']); // newest first
+    expect((await svc.category(CategoryKind.videos, bySize: true)).map((e) => e.id), ['v2', 'v1']);
+    expect((await svc.category(CategoryKind.screenshots)).map((e) => e.id), ['s1']);
+    expect((await svc.category(CategoryKind.chat)).map((e) => e.id), ['c2', 'c1']);
+    expect((await svc.category(CategoryKind.chat, chatSource: 'telegram')).map((e) => e.id), ['c1']);
+    expect((await svc.chatSources()).toSet(), {'telegram', 'whatsapp'});
+
+    await svc.trashMany(await svc.category(CategoryKind.videos));
+    expect(await svc.category(CategoryKind.videos), isEmpty);
+    expect((await svc.trashed()).length, 2);
   });
 }

@@ -31,6 +31,7 @@ class HomeData {
     required this.screenshots,
     required this.videos,
     required this.blurry,
+    required this.chat,
   });
 
   final int libraryBytes;
@@ -40,6 +41,7 @@ class HomeData {
   final HomeCategory screenshots;
   final HomeCategory videos;
   final HomeCategory blurry;
+  final HomeCategory chat;
 
   int get duplicateBytes => duplicates.fold(0, (s, g) => s + g.savingsBytes);
   int get similarBytes => similar.fold(0, (s, g) => s + g.savingsBytes);
@@ -75,6 +77,7 @@ class HomeService {
       screenshots: await _category('a.is_screenshot = 1 AND a.media_type = 0', 'a.created_at_ms DESC'),
       videos: await _category('a.media_type = 1', 'a.size_bytes DESC', withDuration: true),
       blurry: await _blurry(),
+      chat: await _category('a.chat_source IS NOT NULL', 'a.created_at_ms DESC', withDuration: true),
     );
   }
 
