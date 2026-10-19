@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
@@ -27,13 +28,41 @@ class HomeScreen extends ConsumerStatefulWidget {
   ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProviderStateMixin {
+class _HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderStateMixin {
   static const _collapseAt = 160.0;
   final _scroll = ScrollController();
 
   /// Drives the bubbles running around the oval while the library is processed.
   late final AnimationController _loop = AnimationController(vsync: this, duration: const Duration(milliseconds: 2800));
+
+  /// 1 = idle oval (reclaimable arc), 0 = scanning (progress ring + bubbles).
+  /// Moving between the two is what makes the scan start and end smoothly:
+  /// the ring collapses into the reclaimable segment, bubbles flow into it.
+  late final AnimationController _mix = AnimationController(vsync: this, value: 0) // Home starts a sync right away
+    ..addStatusListener((s) {
+      if (s == AnimationStatus.completed && _mix.value == 1 && !_busy) _loop.stop();
+    });
+  Timer? _settleTimer;
+  bool _busy = false;
   double _shown = 0; // eased progress shown on the ring, 0..1
+  double _reclaimShown = 0; // eased reclaimable bytes, so the number counts up
+  double _shareShown = 0; // eased reclaimable share of the library
+  String _lastLabel = '';
+
+  void _onBusy(bool busy) {
+    _busy = busy;
+    _settleTimer?.cancel();
+    if (busy) {
+      if (_mix.value == 1) _shown = 0;
+      if (!_loop.isAnimating) _loop.repeat();
+      _mix.animateTo(0, duration: const Duration(milliseconds: 800), curve: Curves.easeInOutCubic);
+    } else {
+      // Wait a beat (stages hand over to each other), then fold the ring into the result.
+      _settleTimer = Timer(const Duration(milliseconds: 450), () {
+        if (mounted && !_busy) _mix.animateTo(1, duration: const Duration(milliseconds: 1800), curve: Curves.easeInOutCubic);
+      });
+    }
+  }
 
   /// Overall scan progress 0..1 (read library 0-8%, hash 8-80%, compare 80-100%).
   static double _progressOf(LibraryState s) {
@@ -53,13 +82,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
   @override
   void initState() {
     super.initState();
+    _busy = true;
+    _loop.repeat();
     Future.microtask(() => ref.read(libraryProvider.notifier).sync());
   }
 
   @override
   void dispose() {
     _scroll.dispose();
+    _settleTimer?.cancel();
     _loop.dispose();
+    _mix.dispose();
     super.dispose();
   }
 
@@ -77,15 +110,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
     final lib = ref.watch(libraryProvider);
     final top = MediaQuery.paddingOf(context).top;
     final busy = lib.syncing || lib.analyzing || lib.verifying;
+    ref.listen(libraryProvider.select((s) => s.syncing || s.analyzing || s.verifying), (_, b) => _onBusy(b));
     final data = home.value;
-    if (busy && !_loop.isAnimating) {
-      _loop.repeat();
-    } else if (!busy && _loop.isAnimating) {
-      _loop.stop();
-      _shown = 0;
-    }
-    final target = busy ? _progressOf(lib) : 0.0;
-    final scanLabel = busy ? _labelOf(lib) : '';
+    // While busy follow the real progress; while settling run it to 100%.
+    final target = busy ? _progressOf(lib) : 1.0;
+    final scanLabel = busy ? _labelOf(lib) : _lastLabel;
+    if (busy) _lastLabel = scanLabel;
+    final reclaimNow = (data?.reclaimableBytes ?? 0).toDouble();
+    final libBytes = data?.libraryBytes ?? 0;
+    final shareNow = libBytes == 0 ? 0.0 : (reclaimNow / libBytes).clamp(0.0, 1.0);
 
     return Scaffold(
       body: Stack(
@@ -114,16 +147,26 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
           ),
           // Header: opaque backdrop + wordmark + collapsing oval.
           AnimatedBuilder(
-            animation: Listenable.merge([_scroll, _loop]),
+            animation: Listenable.merge([_scroll, _loop, _mix]),
             builder: (context, _) {
               final off = _scroll.hasClients ? _scroll.offset : 0.0;
               final t = (off / _collapseAt).clamp(0.0, 1.0);
-              _shown += (target - _shown) * .06; // ease toward the real progress
+              if (_mix.value == 1 && !_loop.isAnimating) {
+                // idle: show real values at once
+                _reclaimShown = reclaimNow;
+                _shareShown = shareNow;
+              } else {
+                if (target > _shown) _shown += (target - _shown) * .06; // ease up toward the real progress, never back
+                _reclaimShown += (reclaimNow - _reclaimShown) * .08;
+                _shareShown += (shareNow - _shareShown) * .08;
+              }
               return _Header(
                 top: top,
                 t: t,
                 data: data,
-                busy: busy,
+                mix: _mix.value,
+                reclaimShown: _reclaimShown,
+                shareShown: _shareShown,
                 progress: _shown,
                 phase: _loop.value,
                 scanLabel: scanLabel,
@@ -441,7 +484,9 @@ class _Header extends StatelessWidget {
     required this.top,
     required this.t,
     required this.data,
-    required this.busy,
+    required this.mix,
+    required this.reclaimShown,
+    required this.shareShown,
     required this.progress,
     required this.phase,
     required this.scanLabel,
@@ -451,7 +496,11 @@ class _Header extends StatelessWidget {
   final double top;
   final double t;
   final HomeData? data;
-  final bool busy;
+
+  /// 1 = result shown, 0 = scanning; in between the ring folds into the result.
+  final double mix;
+  final double reclaimShown;
+  final double shareShown;
   final double progress;
   final double phase;
   final String scanLabel;
@@ -466,9 +515,13 @@ class _Header extends StatelessWidget {
     final heroH = lerp(260, 100);
     final reclaim = data?.reclaimableBytes ?? 0;
     final lib = data?.libraryBytes ?? 0;
-    final share = lib == 0 ? 0.0 : (reclaim / lib).clamp(0.0, 1.0);
     final reclaimBig = _splitBytes(reclaim);
-    final big = busy ? (value: '${(progress * 100).round()}', unit: '%') : reclaimBig;
+    final shownBig = _splitBytes(reclaimShown.round());
+    final scanning = mix < .5;
+    // Cross-fade percent -> result in the middle of the fold.
+    final textAlpha = (scanning ? 1 - mix * 2 : mix * 2 - 1).clamp(0.0, 1.0);
+    final big = scanning ? (value: '${(progress * 100).round()}', unit: '%') : shownBig;
+    final busy = scanning;
     final scale = lerp(1, .4);
     final ctaW = lerp(width, 182);
     final ctaH = lerp(48, 44);
@@ -532,9 +585,11 @@ class _Header extends StatelessWidget {
               alignment: Alignment.topLeft,
               transform: Matrix4.translationValues(lerp(0, 8), lerp(0, 8), 0)..scaleByDouble(scale, scale, 1, 1),
               child: Stack(children: [
-                Positioned.fill(child: CustomPaint(painter: _OvalPainter(share: share, busy: busy, progress: progress, phase: phase))),
+                Positioned.fill(child: CustomPaint(painter: _OvalPainter(share: shareShown, mix: mix, progress: progress, phase: phase))),
                 Center(
-                  child: Column(mainAxisSize: MainAxisSize.min, children: [
+                  child: Opacity(
+                    opacity: textAlpha,
+                    child: Column(mainAxisSize: MainAxisSize.min, children: [
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.baseline,
@@ -556,6 +611,7 @@ class _Header extends StatelessWidget {
                       ),
                     ),
                   ]),
+                  ),
                 ),
               ]),
             ),
@@ -602,9 +658,9 @@ String _fmtSize(int bytes) {
 /// The three-layer ring: dim track, grey "everything else", glowing lavender
 /// arc for the reclaimable share of the library.
 class _OvalPainter extends CustomPainter {
-  _OvalPainter({required this.share, required this.busy, required this.progress, required this.phase});
-  final double share;
-  final bool busy;
+  _OvalPainter({required this.share, required this.mix, required this.progress, required this.phase});
+  final double share; // eased reclaimable share of the library
+  final double mix; // 1 = result, 0 = scanning
   final double progress; // 0..1, eased scan progress
   final double phase; // 0..1 looping, drives the bubbles
 
@@ -633,39 +689,53 @@ class _OvalPainter extends CustomPainter {
         ..addPath(arc(0, e), Offset.zero);
     }
 
-    if (busy) {
-      // Real progress fills from 12 o'clock; bubbles of different sizes run
-      // around the whole ring while the library is processed.
-      final fill = progress.clamp(0.0, 1.0);
-      if (fill > .005) {
-        final b = math.min(fill, .999);
-        canvas.drawPath(seg(0, b), stroke(SweeepColors.brand.withValues(alpha: .35))..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8));
-        canvas.drawPath(seg(0, b), stroke(SweeepColors.brand.withValues(alpha: .85))..strokeCap = StrokeCap.round);
-      }
+    // mix 0 = scanning, 1 = result. Everything below is a morph between the
+    // two so the scan folds into the reclaimable arc instead of switching.
+    final m = mix.clamp(0.0, 1.0);
+    final glowW = math.max(share, .02);
+    final segA = .6, segB = math.min(.6 + glowW * .9, .995);
+    double lerp(double a, double b, double t) => a + (b - a) * t;
+
+    // grey "everything else" arc grows in during the second half of the fold
+    final restAlpha = ((m - .45) / .55).clamp(0.0, 1.0);
+    final rest = (1 - share).clamp(0.0, 1.0) * .56;
+    if (rest > 0 && restAlpha > 0) {
+      canvas.drawPath(seg(0, rest), stroke(SweeepColors.trackUsed.withValues(alpha: restAlpha)));
+    }
+
+    // Lavender arc: the scan-progress ring (0 -> progress) collapses into the
+    // reclaimable segment (segA -> segB); the start leads, the end follows.
+    final fill = progress.clamp(0.0, 1.0);
+    final a = lerp(0, segA, Curves.easeInOutCubic.transform(m));
+    final b = math.min(lerp(fill, segB, m), .999);
+    if (b - a > .004) {
+      canvas.drawPath(seg(a, b), stroke(SweeepColors.brand.withValues(alpha: lerp(.3, .5, m)))..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8));
+      canvas.drawPath(seg(a, b), stroke(SweeepColors.brand.withValues(alpha: lerp(.85, 1, m))));
+    }
+
+    // Bubbles run clockwise around the ring and, while folding, flow into the
+    // segment (shrinking and fading) so nothing just disappears.
+    if (m < 1) {
       const n = 7;
+      final target = (start + (segA + segB) / 2) % 1.0;
+      final flow = Curves.easeInOut.transform(m);
       for (var i = 0; i < n; i++) {
-        final f = (start + phase + i / n) % 1.0;
+        final f0 = (start + phase + i / n) % 1.0;
+        final t = (target + (i - (n - 1) / 2) * .008) % 1.0;
+        final delta = ((t - f0) % 1.0 + 1.0) % 1.0; // clockwise distance to the segment
+        final f = (f0 + delta * flow) % 1.0;
         final pos = metric.getTangentForOffset(len * f)?.position;
         if (pos == null) continue;
         final pulse = .5 + .5 * math.sin(2 * math.pi * (phase * 2 + i * .29));
-        final r = 2.5 + 5.5 * pulse;
-        final a = .25 + .65 * pulse;
-        canvas.drawCircle(pos, r + 4, Paint()..color = SweeepColors.brand.withValues(alpha: a * .45)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6));
-        canvas.drawCircle(pos, r, Paint()..color = Color.lerp(SweeepColors.brand, Colors.white, .35 * pulse)!.withValues(alpha: a));
+        final life = 1 - flow;
+        final r = (2.5 + 5.5 * pulse) * (.3 + .7 * life);
+        final al = (.25 + .65 * pulse) * life;
+        canvas.drawCircle(pos, r + 4, Paint()..color = SweeepColors.brand.withValues(alpha: al * .45)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6));
+        canvas.drawCircle(pos, r, Paint()..color = Color.lerp(SweeepColors.brand, Colors.white, .35 * pulse)!.withValues(alpha: al));
       }
-      return;
-    }
-
-    final rest = (1 - share).clamp(0.0, 1.0) * .56;
-    if (rest > 0) canvas.drawPath(seg(0, rest), stroke(SweeepColors.trackUsed));
-    final glowW = math.max(share, busy ? 0 : .02);
-    if (glowW > 0) {
-      final a = .6, b = math.min(.6 + glowW * .9, .995);
-      canvas.drawPath(seg(a, b), stroke(SweeepColors.brand.withValues(alpha: .5))..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8));
-      canvas.drawPath(seg(a, b), stroke(SweeepColors.brand));
     }
   }
 
   @override
-  bool shouldRepaint(_OvalPainter old) => old.share != share || old.busy != busy || old.progress != progress || old.phase != phase;
+  bool shouldRepaint(_OvalPainter old) => old.share != share || old.mix != mix || old.progress != progress || old.phase != phase;
 }
