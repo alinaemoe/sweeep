@@ -1,0 +1,15 @@
+[package]
+name = "sweeep_core"
+version = "0.1.0"
+edition = "2021"
+description = "Sweeep on-device media analysis core: perceptual hashes, sharpness metrics, similarity grouping. No AI, no network."
+
+[lib]
+crate-type = ["rlib", "cdylib"]
+
+[dependencies]
+sha2 = "0.10"
+
+[profile.release]
+lto = true
+opt-level = 3
