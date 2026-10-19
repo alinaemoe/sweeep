@@ -13,6 +13,9 @@ import '../groups/group_pager.dart';
 import '../groups/group_widgets.dart';
 import '../groups/groups_screen.dart';
 import '../library/library_screen.dart';
+import '../swipe/swipe_screen.dart';
+import '../trash/trash_screen.dart';
+import '../../index/review_service.dart';
 
 /// Home: a pinned top bar, a "reclaimable" oval that collapses into a compact
 /// chip while scrolling, and a feed of category carousels.
@@ -102,7 +105,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             left: 20,
             right: 20,
             bottom: MediaQuery.paddingOf(context).bottom + 12,
-            child: _NavBar(onSoon: _soon),
+            child: _NavBar(onSoon: _soon, onSwipe: () => _push(const SwipeScreen(source: SwipeSource.all)), onTrash: () => _push(const TrashScreen())),
           ),
         ],
       ),
@@ -130,7 +133,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         _GroupCarousel(groups: d.similar, big: false, onOpen: (i) => _push(GroupPager(kind: GroupKind.similar, initialIndex: i))),
       ],
       if (d.screenshots.count > 0) ...[
-        _SectionHeader('Screenshots', '${_n(d.screenshots.count)} · ${formatBytes(d.screenshots.bytes)}', 'Swipe', () => _soon('Swipe')),
+        _SectionHeader('Screenshots', '${_n(d.screenshots.count)} · ${formatBytes(d.screenshots.bytes)}', 'Swipe', () => _push(const SwipeScreen(source: SwipeSource.screenshots))),
         _TileRow(height: 130, items: d.screenshots.items, builder: (it) => _Tile(item: it, width: 74, height: 130, radius: 14)),
       ],
       if (d.videos.count > 0) ...[
@@ -138,7 +141,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         _TileRow(height: 96, items: d.videos.items, builder: (it) => _Tile(item: it, width: 140, height: 96, radius: 18, video: true)),
       ],
       if (d.blurry.count > 0) ...[
-        _SectionHeader('Blurry & dark', '${_n(d.blurry.count)} · ${formatBytes(d.blurry.bytes)}', 'Swipe', () => _soon('Swipe')),
+        _SectionHeader('Blurry & dark', '${_n(d.blurry.count)} · ${formatBytes(d.blurry.bytes)}', 'Swipe', () => _push(const SwipeScreen(source: SwipeSource.blurry))),
         _TileRow(height: 96, items: d.blurry.items, builder: (it) => _Tile(item: it, width: 96, height: 96, radius: 18)),
       ],
     ];
@@ -349,13 +352,15 @@ class _Tile extends StatelessWidget {
 }
 
 class _NavBar extends StatelessWidget {
-  const _NavBar({required this.onSoon});
+  const _NavBar({required this.onSoon, required this.onSwipe, required this.onTrash});
   final void Function(String what) onSoon;
+  final VoidCallback onSwipe;
+  final VoidCallback onTrash;
 
   @override
   Widget build(BuildContext context) {
-    Widget icon(IconData i, String label) => IconButton(
-          onPressed: () => onSoon(label),
+    Widget icon(IconData i, String label, [VoidCallback? tap]) => IconButton(
+          onPressed: tap ?? () => onSoon(label),
           tooltip: label,
           icon: Icon(i, size: 22),
           color: SweeepColors.textMutedSmall,
@@ -382,9 +387,9 @@ class _NavBar extends StatelessWidget {
                 decoration: BoxDecoration(color: SweeepColors.brand.withValues(alpha: .14), borderRadius: BorderRadius.circular(22)),
                 child: const Text('Clean', style: TextStyle(color: SweeepColors.brand, fontSize: 14, fontWeight: FontWeight.w700)),
               ),
-              icon(Icons.crop_portrait_rounded, 'Swipe'),
+              icon(Icons.crop_portrait_rounded, 'Swipe', onSwipe),
               icon(Icons.graphic_eq_rounded, 'Tools'),
-              icon(Icons.delete_outline_rounded, 'Trash'),
+              icon(Icons.delete_outline_rounded, 'Trash', onTrash),
             ],
           ),
         ),
