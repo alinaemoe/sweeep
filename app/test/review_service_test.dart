@@ -90,4 +90,17 @@ void main() {
     expect(await svc.category(CategoryKind.videos), isEmpty);
     expect((await svc.trashed()).length, 2);
   });
+
+  test('trash entries know their days left; swipe hint is remembered', () async {
+    await add('a', t: 1);
+    await svc.trash((await svc.queue(SwipeSource.all)).first);
+    final e = (await svc.trashed()).single;
+    expect(e.daysLeft(), 30);
+    expect(e.daysLeft(DateTime.fromMillisecondsSinceEpoch(e.expiresAtMs - 1)), 1);
+    expect(e.daysLeft(DateTime.fromMillisecondsSinceEpoch(e.expiresAtMs + 5)), 0);
+
+    expect(await svc.swipeHintSeen(), isFalse);
+    await svc.markSwipeHintSeen();
+    expect(await svc.swipeHintSeen(), isTrue);
+  });
 }

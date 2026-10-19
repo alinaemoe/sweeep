@@ -21,8 +21,11 @@ const _months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 
 /// Tinder-style review: drag left = trash, right = keep. The SWIIIIPE word
 /// stretches with the drag, CLEAAAN waves after a trash.
 class SwipeScreen extends ConsumerStatefulWidget {
-  const SwipeScreen({super.key, required this.source});
+  const SwipeScreen({super.key, required this.source, this.embedded = false});
   final SwipeSource source;
+
+  /// Shown as a tab of the app shell (no back button, room for the nav bar).
+  final bool embedded;
 
   @override
   ConsumerState<SwipeScreen> createState() => _SwipeScreenState();
@@ -35,7 +38,10 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> with TickerProviderSt
   double _dy = 0;
   bool _armed = false;
   bool _busy = false;
-  final _history = <({SwipeItem item, bool trashed})>[];
+  bool _hint = false; // first-run gesture hint
+
+  /// action: 0 keep, 1 trash, 2 later
+  final _history = <({SwipeItem item, int action})>[];
 
   late final AnimationController _move = AnimationController(vsync: this, duration: const Duration(milliseconds: 230));
   late final AnimationController _wave = AnimationController(vsync: this, duration: const Duration(milliseconds: 900));
@@ -43,8 +49,15 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> with TickerProviderSt
   @override
   void initState() {
     super.initState();
-    ref.read(reviewServiceProvider).queue(widget.source).then((q) {
-      if (mounted) setState(() => _queue = q);
+    final svc = ref.read(reviewServiceProvider);
+    svc.queue(widget.source).then((q) async {
+      final seen = await svc.swipeHintSeen();
+      if (mounted) {
+        setState(() {
+          _queue = q;
+          _hint = !seen && q.isNotEmpty;
+        });
+      }
     });
   }
 
@@ -97,13 +110,14 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> with TickerProviderSt
       if (!mounted) return;
       // The card behind is already full size, so this swap is seamless.
       setState(() {
-        _history.add((item: item, trashed: trash));
+        _history.add((item: item, action: trash ? 1 : 0));
         _i++;
         _dx = 0;
         _dy = 0;
         _armed = false;
         _busy = false;
       });
+      HapticFeedback.lightImpact();
       if (trash) _wave.forward(from: 0);
       write.then((_) {
         if (mounted) ref.invalidate(trashSummaryProvider);
@@ -111,31 +125,75 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> with TickerProviderSt
     });
   }
 
+  /// Swipe up: skip this photo for now. Nothing is recorded; it goes to the
+  /// end of the queue.
+  void _later() {
+    final item = _current;
+    if (item == null || _busy) return;
+    _busy = true;
+    final height = MediaQuery.sizeOf(context).height;
+    _animateTo(_dx * .3, -height * .8, Curves.easeInQuad, 260, () {
+      if (!mounted) return;
+      setState(() {
+        _queue!
+          ..removeAt(_i)
+          ..add(item);
+        _history.add((item: item, action: 2));
+        _dx = 0;
+        _dy = 0;
+        _armed = false;
+        _busy = false;
+      });
+      HapticFeedback.lightImpact();
+    });
+  }
+
   Future<void> _undo() async {
     if (_history.isEmpty || _busy) return;
     final last = _history.removeLast();
+    if (last.action == 2) {
+      setState(() {
+        _queue!
+          ..remove(last.item)
+          ..insert(_i, last.item);
+      });
+      return;
+    }
     await ref.read(reviewServiceProvider).undo(last.item.id);
     ref.invalidate(trashSummaryProvider);
     if (mounted) setState(() => _i--);
   }
 
+  void _dismissHint() {
+    if (!_hint) return;
+    setState(() => _hint = false);
+    ref.read(reviewServiceProvider).markSwipeHintSeen();
+  }
+
   void _onDrag(DragUpdateDetails d) {
     if (_busy) return;
+    _dismissHint();
     setState(() {
       _dx += d.delta.dx;
-      _dy += d.delta.dy * .35;
+      _dy += d.delta.dy * .5;
     });
-    final armed = _dx.abs() > 90;
+    final armed = _dx.abs() > 90 || _isUp;
     if (armed != _armed) {
       _armed = armed;
       if (armed) HapticFeedback.selectionClick();
     }
   }
 
+  /// A clearly vertical upward drag means decide later.
+  bool get _isUp => _dy < -55 && _dy.abs() > _dx.abs() * 1.3;
+
   void _onEnd(DragEndDetails d) {
     if (_busy) return;
     final v = d.velocity.pixelsPerSecond.dx;
-    if (_dx < -90 || v < -900) {
+    final vy = d.velocity.pixelsPerSecond.dy;
+    if (_isUp || (vy < -1100 && vy.abs() > v.abs() * 1.5)) {
+      _later();
+    } else if (_dx < -90 || v < -900) {
       _decide(true, velocity: v);
     } else if (_dx > 90 || v > 900) {
       _decide(false, velocity: v);
@@ -176,7 +234,10 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> with TickerProviderSt
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
                 child: Row(children: [
-                  IconButton(
+                  if (widget.embedded)
+                    const SizedBox(width: 44, height: 44)
+                  else
+                    IconButton(
                     onPressed: () => Navigator.of(context).pop(),
                     tooltip: 'Back',
                     icon: const Icon(Icons.chevron_left_rounded),
@@ -208,7 +269,8 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> with TickerProviderSt
                             next: _i + 1 < q.length ? q[_i + 1] : null,
                             dx: _dx,
                             dy: _dy,
-                            width: MediaQuery.sizeOf(context).width,
+                            leave: math.max(_dx.abs() / (MediaQuery.sizeOf(context).width * .55), -_dy / 260).clamp(0.0, 1.0),
+                            later: _isUp,
                             onDrag: _onDrag,
                             onEnd: _onEnd,
                           ),
@@ -238,7 +300,7 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> with TickerProviderSt
                   ]),
                 ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                padding: EdgeInsets.fromLTRB(16, 0, 16, widget.embedded ? 90 : 12),
                 child: _TrashBar(
                   count: summary?.count ?? 0,
                   bytes: summary?.bytes ?? 0,
@@ -248,6 +310,7 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> with TickerProviderSt
               ),
             ]),
           ),
+          if (_hint) _Hint(onDismiss: _dismissHint),
         ]),
       ),
     );
@@ -287,12 +350,13 @@ class _Word extends StatelessWidget {
 }
 
 class _Deck extends StatelessWidget {
-  const _Deck({required this.item, required this.next, required this.dx, required this.dy, required this.width, required this.onDrag, required this.onEnd});
+  const _Deck({required this.item, required this.next, required this.dx, required this.dy, required this.leave, required this.later, required this.onDrag, required this.onEnd});
   final SwipeItem item;
   final SwipeItem? next;
   final double dx;
   final double dy;
-  final double width;
+  final double leave; // 0..1 how far the front card has left
+  final bool later;
   final void Function(DragUpdateDetails) onDrag;
   final void Function(DragEndDetails) onEnd;
 
@@ -303,7 +367,7 @@ class _Deck extends StatelessWidget {
     final keepA = (dx / 90).clamp(0.0, 1.0);
     // The card behind grows to full size as the front one leaves, so the
     // hand-over at the end of the fling is seamless.
-    final p = Curves.easeOut.transform((dx.abs() / (width * .55)).clamp(0.0, 1.0));
+    final p = Curves.easeOut.transform(leave);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Stack(clipBehavior: Clip.none, children: [
@@ -333,7 +397,8 @@ class _Deck extends StatelessWidget {
                     decoration: BoxDecoration(borderRadius: BorderRadius.circular(30), boxShadow: const [BoxShadow(color: Color(0x73000000), blurRadius: 40, offset: Offset(0, 20))]),
                     child: _Photo(id: item.id, tint: dx < 0 ? SweeepColors.trash.withValues(alpha: math.min(.35, -dx / 300)) : SweeepColors.keep.withValues(alpha: math.min(.3, dx / 300))),
                   ),
-                  Positioned(right: 22, top: 26, child: Opacity(opacity: trashA, child: Transform.rotate(angle: 10 * math.pi / 180, child: const _Stamp('TO TRASH', SweeepColors.trash)))),
+                  Positioned(left: 0, right: 0, top: 26, child: Center(child: Opacity(opacity: later ? (-dy / 90).clamp(0.0, 1.0) : 0, child: const _Stamp('LATER', SweeepColors.brand)))),
+                    Positioned(right: 22, top: 26, child: Opacity(opacity: trashA, child: Transform.rotate(angle: 10 * math.pi / 180, child: const _Stamp('TO TRASH', SweeepColors.trash)))),
                   Positioned(left: 22, top: 26, child: Opacity(opacity: keepA, child: Transform.rotate(angle: -10 * math.pi / 180, child: const _Stamp('KEEP', SweeepColors.keep)))),
                   Positioned(
                     left: 14,
@@ -388,11 +453,12 @@ class _Stamp extends StatelessWidget {
   final Color color;
 
   @override
-  Widget build(BuildContext context) => Container(
+  Widget build(BuildContext context) => ExcludeSemantics(
+        child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
         decoration: BoxDecoration(color: SweeepColors.background.withValues(alpha: .7), border: Border.all(color: color, width: 3), borderRadius: BorderRadius.circular(12)),
         child: Text(label, style: TextStyle(color: color, fontSize: 22, fontWeight: FontWeight.w800, letterSpacing: 1)),
-      );
+      ));
 }
 
 class _TrashBar extends StatelessWidget {
@@ -414,7 +480,7 @@ class _TrashBar extends StatelessWidget {
             child: Column(mainAxisSize: MainAxisSize.min, children: [
               Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                 Text.rich(TextSpan(children: [
-                  TextSpan(text: 'In trash: $count files ', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800)),
+                  TextSpan(text: 'In trash: ${filesLabel(count)} ', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800)),
                   TextSpan(text: '(${formatBytes(bytes)})', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: SweeepColors.textMuted)),
                 ])),
                 const Icon(Icons.keyboard_arrow_up_rounded, color: SweeepColors.textMuted),
@@ -452,4 +518,87 @@ class _Done extends StatelessWidget {
           ]),
         ),
       );
+}
+
+/// First-run overlay: a little hand shows the three gestures.
+class _Hint extends StatefulWidget {
+  const _Hint({required this.onDismiss});
+  final VoidCallback onDismiss;
+
+  @override
+  State<_Hint> createState() => _HintState();
+}
+
+class _HintState extends State<_Hint> with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController(vsync: this, duration: const Duration(milliseconds: 3600))..repeat();
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => Positioned.fill(
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: widget.onDismiss,
+          child: ColoredBox(
+            color: SweeepColors.background.withValues(alpha: .82),
+            child: AnimatedBuilder(
+              animation: _c,
+              builder: (context, _) {
+                // hand path: centre, left, centre, right, centre, up
+                final t = _c.value * 6;
+                final seg = t.floor() % 6;
+                final f = Curves.easeInOutCubic.transform(t - t.floor());
+                const pts = [Offset(0, 0), Offset(-1, 0), Offset(0, 0), Offset(1, 0), Offset(0, 0), Offset(0, -1)];
+                final a = pts[seg], b = pts[(seg + 1) % 6];
+                final pos = Offset.lerp(a, b, f)!;
+                final color = pos.dx < -.2 ? SweeepColors.trash : (pos.dx > .2 ? SweeepColors.keep : (pos.dy < -.2 ? SweeepColors.brand : SweeepColors.text));
+                return Center(
+                  child: Column(mainAxisSize: MainAxisSize.min, children: [
+                    const Text('Swipe to sort', style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800, letterSpacing: -.5)),
+                    const SizedBox(height: 28),
+                    SizedBox(
+                      width: 260,
+                      height: 220,
+                      child: Stack(alignment: Alignment.center, children: [
+                        const Positioned(left: 0, child: _Tip(Icons.arrow_back_rounded, 'Trash', SweeepColors.trash)),
+                        const Positioned(right: 0, child: _Tip(Icons.arrow_forward_rounded, 'Keep', SweeepColors.keep)),
+                        const Positioned(top: 0, child: _Tip(Icons.arrow_upward_rounded, 'Later', SweeepColors.brand)),
+                        Transform.translate(
+                          offset: Offset(pos.dx * 60, 24 + pos.dy * 50),
+                          child: Container(
+                            width: 76,
+                            height: 76,
+                            decoration: BoxDecoration(shape: BoxShape.circle, color: color.withValues(alpha: .18), border: Border.all(color: color, width: 2)),
+                            child: Icon(Icons.touch_app_rounded, size: 36, color: color),
+                          ),
+                        ),
+                      ]),
+                    ),
+                    const SizedBox(height: 20),
+                    const Text('Tap anywhere to start', style: TextStyle(fontSize: 14, color: SweeepColors.textMuted, fontWeight: FontWeight.w600)),
+                  ]),
+                );
+              },
+            ),
+          ),
+        ),
+      );
+}
+
+class _Tip extends StatelessWidget {
+  const _Tip(this.icon, this.label, this.color);
+  final IconData icon;
+  final String label;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) => Column(mainAxisSize: MainAxisSize.min, children: [
+        Icon(icon, color: color, size: 22),
+        const SizedBox(height: 4),
+        Text(label, style: TextStyle(color: color, fontSize: 13, fontWeight: FontWeight.w800, letterSpacing: 1)),
+      ]);
 }

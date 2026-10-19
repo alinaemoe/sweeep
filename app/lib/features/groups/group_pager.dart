@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/theme.dart';
@@ -50,7 +51,10 @@ class _GroupPagerState extends ConsumerState<GroupPager> {
 
   Future<void> _trash(GroupView g) async {
     final list = _toTrash(g);
-    if (list.isNotEmpty) await ref.read(groupServiceProvider).trash(list);
+    if (list.isNotEmpty) {
+      HapticFeedback.lightImpact();
+      await ref.read(groupServiceProvider).trash(list);
+    }
     ref.invalidate(groupsProvider(widget.kind));
     ref.invalidate(trashSummaryProvider);
     ref.invalidate(homeProvider);

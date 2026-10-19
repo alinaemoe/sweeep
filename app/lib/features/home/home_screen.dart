@@ -16,7 +16,6 @@ import '../groups/groups_screen.dart';
 import '../library/library_screen.dart';
 import '../category/category_screen.dart';
 import '../swipe/swipe_screen.dart';
-import '../trash/trash_screen.dart';
 import '../../index/review_service.dart';
 
 /// Home: a pinned top bar, a "reclaimable" oval that collapses into a compact
@@ -98,12 +97,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderStat
 
   void _push(Widget w) => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => w));
 
-  void _soon(String what) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text('$what is coming soon')));
-  }
-
   @override
   Widget build(BuildContext context) {
     final home = ref.watch(homeProvider);
@@ -137,11 +130,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderStat
           Positioned.fill(
             child: ListView(
               controller: _scroll,
-              padding: EdgeInsets.fromLTRB(0, top + 64 + 260 + 12, 0, 120),
+              padding: EdgeInsets.fromLTRB(0, top + 64 + 260 - 6, 0, 120),
               children: [
                 if (data == null && home.hasError)
                   Padding(padding: const EdgeInsets.all(20), child: Text('${home.error}', style: const TextStyle(color: SweeepColors.trash)))
-                else if (data != null) ..._feed(data),
+                else if (data != null) ..._feed(data)
+                else
+                  const _FeedSkeleton(),
               ],
             ),
           ),
@@ -176,12 +171,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderStat
                     : () => _push(GroupsScreen(kind: data.duplicates.isNotEmpty ? GroupKind.duplicate : GroupKind.similar)),
               );
             },
-          ),
-          Positioned(
-            left: 20,
-            right: 20,
-            bottom: MediaQuery.paddingOf(context).bottom + 12,
-            child: _NavBar(onSoon: _soon, onSwipe: () => _push(const SwipeScreen(source: SwipeSource.all)), onTrash: () => _push(const TrashScreen())),
           ),
         ],
       ),
@@ -304,6 +293,7 @@ class _GroupCarousel extends StatelessWidget {
         separatorBuilder: (_, __) => SizedBox(width: big ? 22 : 18),
         itemBuilder: (context, i) => Pressable(
           onTap: () => onOpen(i),
+          label: '${groups[i].kind == GroupKind.duplicate ? 'Duplicate' : 'Similar'} group, ${groups[i].members.length} photos, saves ${formatBytes(groups[i].savingsBytes)}',
           child: SizedBox(
             width: w,
             height: h,
@@ -402,7 +392,9 @@ class _Tile extends StatelessWidget {
           bottom: 8,
           child: GlassPill(height: 20, padding: const EdgeInsets.symmetric(horizontal: 8), child: Text(text, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700))),
         );
-    return SizedBox(
+    return Semantics(
+      label: video ? 'Video${item.durationMs != null ? ', ${_len(item.durationMs!)}' : ''}, ${formatBytes(item.sizeBytes)}' : '${item.tag ?? 'Photo'}, ${formatBytes(item.sizeBytes)}',
+      child: SizedBox(
       width: width,
       height: height,
       child: DecoratedBox(
@@ -427,54 +419,7 @@ class _Tile extends StatelessWidget {
           ]),
         ),
       ),
-    );
-  }
-}
-
-class _NavBar extends StatelessWidget {
-  const _NavBar({required this.onSoon, required this.onSwipe, required this.onTrash});
-  final void Function(String what) onSoon;
-  final VoidCallback onSwipe;
-  final VoidCallback onTrash;
-
-  @override
-  Widget build(BuildContext context) {
-    Widget icon(IconData i, String label, [VoidCallback? tap]) => IconButton(
-          onPressed: tap ?? () => onSoon(label),
-          tooltip: label,
-          icon: Icon(i, size: 22),
-          color: SweeepColors.textMutedSmall,
-          constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
-        );
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(31),
-      child: BackdropFilter(
-        filter: ui.ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-        child: Container(
-          height: 62,
-          decoration: BoxDecoration(
-            color: SweeepColors.card.withValues(alpha: .88),
-            borderRadius: BorderRadius.circular(31),
-            border: Border.all(color: Colors.white.withValues(alpha: .08)),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              Container(
-                height: 44,
-                padding: const EdgeInsets.symmetric(horizontal: 18),
-                alignment: Alignment.center,
-                decoration: BoxDecoration(color: SweeepColors.brand.withValues(alpha: .14), borderRadius: BorderRadius.circular(22)),
-                child: const Text('Clean', style: TextStyle(color: SweeepColors.brand, fontSize: 14, fontWeight: FontWeight.w700)),
-              ),
-              icon(Icons.crop_portrait_rounded, 'Swipe', onSwipe),
-              icon(Icons.graphic_eq_rounded, 'Tools'),
-              icon(Icons.delete_outline_rounded, 'Trash', onTrash),
-            ],
-          ),
-        ),
-      ),
-    );
+    ));
   }
 }
 
@@ -738,4 +683,56 @@ class _OvalPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_OvalPainter old) => old.share != share || old.mix != mix || old.progress != progress || old.phase != phase;
+}
+
+/// Placeholder shown while the library data loads: the same shapes as the
+/// real carousels, softly pulsing.
+class _FeedSkeleton extends StatefulWidget {
+  const _FeedSkeleton();
+
+  @override
+  State<_FeedSkeleton> createState() => _FeedSkeletonState();
+}
+
+class _FeedSkeletonState extends State<_FeedSkeleton> with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController(vsync: this, duration: const Duration(milliseconds: 1400))..repeat(reverse: true);
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => AnimatedBuilder(
+        animation: _c,
+        builder: (context, _) {
+          final color = Color.lerp(SweeepColors.trackDim, const Color(0xFF2A2D3A), Curves.easeInOut.transform(_c.value))!;
+          Widget block(double w, double h, double r) => Container(width: w, height: h, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(r)));
+          Widget title() => Padding(padding: const EdgeInsets.fromLTRB(20, 26, 20, 0), child: Align(alignment: Alignment.centerLeft, child: block(150, 18, 9)));
+          Widget row(double w, double h, double r, int n, double gap, double top) => SizedBox(
+                height: h + top,
+                child: ListView.separated(
+                  physics: const NeverScrollableScrollPhysics(),
+                  scrollDirection: Axis.horizontal,
+                  padding: EdgeInsets.fromLTRB(20, top, 20, 0),
+                  itemCount: n,
+                  separatorBuilder: (_, __) => SizedBox(width: gap),
+                  itemBuilder: (_, __) => block(w, h, r),
+                ),
+              );
+          return ExcludeSemantics(
+            child: Column(children: [
+              title(),
+              row(150, 176, 22, 3, 22, 16),
+              title(),
+              row(104, 104, 18, 4, 18, 16),
+              title(),
+              row(74, 130, 14, 5, 10, 12),
+              title(),
+              row(140, 96, 18, 3, 10, 12),
+            ]),
+          );
+        },
+      );
 }

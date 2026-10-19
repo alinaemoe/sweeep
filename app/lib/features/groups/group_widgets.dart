@@ -7,6 +7,9 @@ import '../../core/theme.dart';
 import '../../index/group_service.dart';
 import '../../providers.dart';
 
+/// "1 file" / "3 files".
+String filesLabel(int n) => n == 1 ? '1 file' : '$n files';
+
 String formatBytes(int b) {
   const u = ['B', 'KB', 'MB', 'GB', 'TB'];
   var v = b.toDouble();
@@ -160,8 +163,11 @@ String kindTitle(GroupKind k) => k == GroupKind.duplicate ? 'Duplicates' : 'Simi
 
 /// Wraps a tappable card with a small press-down scale, so taps feel physical.
 class Pressable extends StatefulWidget {
-  const Pressable({super.key, required this.onTap, required this.child});
+  const Pressable({super.key, required this.onTap, required this.child, this.label});
   final VoidCallback onTap;
+
+  /// Spoken description for screen readers (nothing changes visually).
+  final String? label;
   final Widget child;
 
   @override
@@ -172,12 +178,15 @@ class _PressableState extends State<Pressable> {
   bool _down = false;
 
   @override
-  Widget build(BuildContext context) => GestureDetector(
+  Widget build(BuildContext context) => Semantics(
+        button: true,
+        label: widget.label,
+        child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTapDown: (_) => setState(() => _down = true),
         onTapCancel: () => setState(() => _down = false),
         onTapUp: (_) => setState(() => _down = false),
         onTap: widget.onTap,
         child: AnimatedScale(scale: _down ? .95 : 1, duration: const Duration(milliseconds: 120), curve: Curves.easeOut, child: widget.child),
-      );
+      ));
 }

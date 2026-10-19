@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
@@ -58,11 +59,16 @@ final bigThumbProvider = FutureProvider.autoDispose.family<Uint8List?, String>(
 
 final trashSummaryProvider = FutureProvider<TrashSummary>((ref) => ref.watch(groupServiceProvider).trashSummary());
 
-/// Color JPEG thumbnail, cached for the life of the app.
+/// Color JPEG thumbnail, cached while in use.
 typedef ThumbKey = ({String id, int side});
-final thumbProvider = FutureProvider.family<Uint8List?, ThumbKey>(
-  (ref, k) => ref.watch(mediaSourceProvider).thumbnail(k.id, maxSide: k.side),
-);
+final thumbProvider = FutureProvider.autoDispose.family<Uint8List?, ThumbKey>((ref, k) {
+  // Keep a thumbnail 30 s after it leaves the screen (scrolling back is instant),
+  // then free it so browsing thousands of photos does not grow memory forever.
+  final link = ref.keepAlive();
+  final timer = Timer(const Duration(seconds: 30), link.close);
+  ref.onDispose(timer.cancel);
+  return ref.watch(mediaSourceProvider).thumbnail(k.id, maxSide: k.side);
+});
 
 /// Photo/video access state. `null` until first checked.
 class PermissionController extends Notifier<PermissionState?> {

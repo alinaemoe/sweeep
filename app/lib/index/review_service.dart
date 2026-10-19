@@ -27,11 +27,18 @@ class CategoryItem {
 }
 
 class TrashEntry {
-  const TrashEntry({required this.id, required this.sizeBytes, required this.isVideo, this.durationMs});
+  const TrashEntry({required this.id, required this.sizeBytes, required this.isVideo, required this.expiresAtMs, this.durationMs});
   final String id;
   final int sizeBytes;
   final bool isVideo;
+  final int expiresAtMs;
   final int? durationMs;
+
+  /// Whole days left before the 30-day soft trash expires (never below 0).
+  int daysLeft([DateTime? now]) {
+    final ms = expiresAtMs - (now ?? DateTime.now()).millisecondsSinceEpoch;
+    return ms <= 0 ? 0 : (ms / Duration.millisecondsPerDay).ceil();
+  }
 }
 
 class DeleteOutcome {
@@ -117,6 +124,12 @@ class ReviewService {
     });
   }
 
+  static const _hintKey = 'swipe_hint_seen';
+
+  Future<bool> swipeHintSeen() async => (await (db.select(db.scanState)..where((s) => s.key.equals(_hintKey))).getSingleOrNull()) != null;
+
+  Future<void> markSwipeHintSeen() => db.into(db.scanState).insertOnConflictUpdate(ScanStateCompanion.insert(key: _hintKey, value: '1'));
+
   Future<void> keep(SwipeItem item) => db.into(db.decisions).insertOnConflictUpdate(
         DecisionsCompanion.insert(assetId: item.id, decision: 0, decidedAtMs: DateTime.now().millisecondsSinceEpoch),
       );
@@ -171,13 +184,13 @@ class ReviewService {
 
   Future<List<TrashEntry>> trashed() async {
     final rows = await db.customSelect('''
-      SELECT t.asset_id AS id, t.size_bytes AS size, a.media_type AS mt, a.duration_ms AS dur
+      SELECT t.asset_id AS id, t.size_bytes AS size, t.expires_at_ms AS exp, a.media_type AS mt, a.duration_ms AS dur
       FROM trash_items t JOIN assets a ON a.id = t.asset_id
       ORDER BY t.trashed_at_ms DESC
     ''').get();
     return [
       for (final r in rows)
-        TrashEntry(id: r.read<String>('id'), sizeBytes: r.read<int>('size'), isVideo: r.read<int>('mt') == 1, durationMs: r.read<int?>('dur')),
+        TrashEntry(id: r.read<String>('id'), sizeBytes: r.read<int>('size'), isVideo: r.read<int>('mt') == 1, expiresAtMs: r.read<int>('exp'), durationMs: r.read<int?>('dur')),
     ];
   }
 }

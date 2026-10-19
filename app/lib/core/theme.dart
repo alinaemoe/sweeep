@@ -39,6 +39,10 @@ abstract final class SweeepTheme {
       ),
     );
     return base.copyWith(
+      pageTransitionsTheme: const PageTransitionsTheme(builders: {
+        TargetPlatform.android: SweeepPageTransitions(),
+        TargetPlatform.iOS: SweeepPageTransitions(),
+      }),
       textTheme: GoogleFonts.plusJakartaSansTextTheme(base.textTheme)
           .apply(bodyColor: SweeepColors.text, displayColor: SweeepColors.text),
     );
@@ -50,3 +54,22 @@ abstract final class SweeepTheme {
 int swipeWordIs(double dx) => 1 + (dx.abs() / 14).floor().clamp(0, 9).toInt();
 
 String swipeWord(double dx) => 'SW${'I' * swipeWordIs(dx)}PE';
+
+/// Every push looks the same: the new page fades in while rising a few pixels,
+/// the page underneath dims slightly. Calm, no big movements.
+class SweeepPageTransitions extends PageTransitionsBuilder {
+  const SweeepPageTransitions();
+
+  @override
+  Widget buildTransitions<T>(PageRoute<T> route, BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation, Widget child) {
+    final enter = CurvedAnimation(parent: animation, curve: Curves.easeOutCubic, reverseCurve: Curves.easeInCubic);
+    final under = CurvedAnimation(parent: secondaryAnimation, curve: Curves.easeOutCubic, reverseCurve: Curves.easeInCubic);
+    return FadeTransition(
+      opacity: Tween<double>(begin: 1, end: .6).animate(under),
+      child: FadeTransition(
+        opacity: enter,
+        child: SlideTransition(position: Tween<Offset>(begin: const Offset(0, .03), end: Offset.zero).animate(enter), child: child),
+      ),
+    );
+  }
+}

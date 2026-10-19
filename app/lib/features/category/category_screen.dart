@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/theme.dart';
@@ -58,6 +59,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
     final items = _items!.where((i) => _selected.contains(i.id)).toList();
     if (items.isEmpty) return;
     final svc = ref.read(reviewServiceProvider);
+    HapticFeedback.lightImpact();
     await svc.trashMany(items);
     _selected.clear();
     _refreshOutside();
@@ -122,10 +124,10 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Text(items == null ? '' : '${items.length} files · ${formatBytes(total)}', style: const TextStyle(fontSize: 14, color: SweeepColors.textMutedSmall, fontWeight: FontWeight.w600)),
+                child: Text(items == null ? '' : '${filesLabel(items.length)} · ${formatBytes(total)}', style: const TextStyle(fontSize: 14, color: SweeepColors.textMutedSmall, fontWeight: FontWeight.w600)),
               ),
               SizedBox(
-                height: 56,
+                height: 60,
                 child: ListView(
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.fromLTRB(20, 10, 20, 6),
@@ -218,7 +220,7 @@ class _Chip extends StatelessWidget {
         onTap: onTap,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 160),
-          height: 40,
+          height: 44,
           padding: const EdgeInsets.symmetric(horizontal: 16),
           alignment: Alignment.center,
           decoration: BoxDecoration(
