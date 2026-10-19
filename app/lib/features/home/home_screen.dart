@@ -115,17 +115,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderStat
     return Scaffold(
       body: Stack(
         children: [
-          const Positioned(
-            left: -140,
-            top: -60,
-            child: IgnorePointer(
-              child: SizedBox(
-                width: 460,
-                height: 420,
-                child: DecoratedBox(decoration: BoxDecoration(gradient: RadialGradient(colors: [Color(0x1FB8A6FF), Color(0x00B8A6FF)]))),
-              ),
-            ),
-          ),
+          const GlowOrb(left: -60, top: 40, width: 300, height: 240, color: Color(0x17B8A6FF), blur: 60),
           // Scrolling feed, under the pinned header.
           Positioned.fill(
             child: ListView(
@@ -481,6 +471,8 @@ class _Header extends StatelessWidget {
 
     return Stack(children: [
       Positioned(left: 0, right: 0, top: 0, height: heroTop + heroH + 8, child: const ColoredBox(color: SweeepColors.background)),
+      // while scanning, a lavender glow sits behind the oval (prototype D4)
+      GlowOrb(left: 50, top: heroTop - 14, width: 290, height: 260, color: SweeepColors.brand.withValues(alpha: .12 * (1 - mix) * (1 - t)), blur: 70),
       // soft fade instead of a hard cut where the feed slides under the header
       Positioned(
         left: 0,

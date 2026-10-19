@@ -113,7 +113,7 @@ class SweeepNavBar extends StatelessWidget {
   static const _items = [
     (Icons.auto_awesome_rounded, 'Clean'),
     (Icons.crop_portrait_rounded, 'Swipe'),
-    (Icons.graphic_eq_rounded, 'Tools'),
+    (Icons.volume_up_outlined, 'Tools'),
     (Icons.delete_outline_rounded, 'Trash'),
   ];
 

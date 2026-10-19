@@ -226,11 +226,7 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> with TickerProviderSt
       onPopInvokedWithResult: (_, __) => _refreshOutside(),
       child: Scaffold(
         body: Stack(children: [
-          Positioned(left: -80, top: 120, child: IgnorePointer(child: Container(
-            width: 260,
-            height: 260,
-            decoration: BoxDecoration(shape: BoxShape.circle, color: glow.withValues(alpha: glowAlpha)),
-          ))),
+          GlowOrb(left: -80, top: 120, width: 260, height: 260, color: glow.withValues(alpha: glowAlpha), blur: 70),
           SafeArea(
             child: Column(children: [
               Padding(
@@ -293,11 +289,14 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> with TickerProviderSt
                       ),
                     ),
                     const SizedBox(width: 18),
-                    IconButton(
-                      onPressed: () => _decide(false),
-                      tooltip: 'Keep',
-                      icon: const Icon(Icons.check_rounded, size: 28),
-                      style: IconButton.styleFrom(foregroundColor: SweeepColors.onAccent, backgroundColor: SweeepColors.keep, fixedSize: const Size(60, 60)),
+                    DecoratedBox(
+                      decoration: BoxDecoration(shape: BoxShape.circle, boxShadow: neonGlow(SweeepColors.keep, strength: .8)),
+                      child: IconButton(
+                        onPressed: () => _decide(false),
+                        tooltip: 'Keep',
+                        icon: const Icon(Icons.check_rounded, size: 28),
+                        style: IconButton.styleFrom(foregroundColor: SweeepColors.onAccent, backgroundColor: SweeepColors.keep, fixedSize: const Size(60, 60)),
+                      ),
                     ),
                   ]),
                 ),

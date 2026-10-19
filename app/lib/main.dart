@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/intro.dart';
@@ -12,6 +13,8 @@ import 'providers.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   startPerfLog();
+  // a phone-first cleaner: portrait only, like the design
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   runApp(const ProviderScope(child: SweeepApp()));
 }
 

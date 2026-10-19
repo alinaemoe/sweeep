@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 /// Sweeep design tokens ("Obsidian + Lavender").
 ///
@@ -25,6 +24,7 @@ abstract final class SweeepColors {
 abstract final class SweeepTheme {
   static ThemeData dark() {
     final base = ThemeData(
+      fontFamily: 'PlusJakartaSans',
       brightness: Brightness.dark,
       useMaterial3: true,
       scaffoldBackgroundColor: SweeepColors.background,
@@ -43,8 +43,8 @@ abstract final class SweeepTheme {
         TargetPlatform.android: SweeepPageTransitions(),
         TargetPlatform.iOS: SweeepPageTransitions(),
       }),
-      textTheme: GoogleFonts.plusJakartaSansTextTheme(base.textTheme)
-          .apply(bodyColor: SweeepColors.text, displayColor: SweeepColors.text),
+      textTheme: base.textTheme
+          .apply(fontFamily: 'PlusJakartaSans', bodyColor: SweeepColors.text, displayColor: SweeepColors.text),
     );
   }
 }

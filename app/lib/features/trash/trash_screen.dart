@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/jelly.dart';
 import '../../core/theme.dart';
+import '../../core/widgets.dart';
 import '../../index/review_service.dart';
 import '../../providers.dart';
 import '../groups/group_widgets.dart';
@@ -104,6 +105,8 @@ class _TrashScreenState extends ConsumerState<TrashScreen> with SingleTickerProv
     return Scaffold(
       body: SafeArea(
         child: Stack(children: [
+          // coral glow on the right edge (prototype D3)
+          const GlowOrb(right: -90, top: 90, width: 280, height: 280, color: Color(0x1AFF5A5A), blur: 70),
           Column(children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
