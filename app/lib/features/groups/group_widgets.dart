@@ -75,10 +75,10 @@ class LimePill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        height: 24,
+        height: 22,
         padding: const EdgeInsets.symmetric(horizontal: 10),
         alignment: Alignment.center,
-        decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(12)),
+        decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(11)),
         child: Text(label, style: const TextStyle(color: SweeepColors.onAccent, fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 1)),
       );
 }
