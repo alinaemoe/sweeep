@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Activity
 import android.content.ContentUris
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -26,18 +27,20 @@ import kotlin.coroutines.suspendCoroutine
 
 /**
  * MediaStore-backed implementation of [MediaHostApi]: permissions,
- * enumeration, grayscale thumbnails. Read-only; deletion arrives in a later phase.
+ * enumeration, grayscale thumbnails. Deletes go through the system confirmation dialog (MediaStore.createDeleteRequest).
  */
 class MediaPlugin :
     FlutterPlugin,
     ActivityAware,
     PluginRegistry.RequestPermissionsResultListener,
+    PluginRegistry.ActivityResultListener,
     MediaHostApi {
 
     private var appContext: Context? = null
     private var activity: Activity? = null
     private var activityBinding: ActivityPluginBinding? = null
     private var pendingPermission: ((PermissionState) -> Unit)? = null
+    private var pendingDelete: ((Boolean) -> Unit)? = null
 
     // region plugin lifecycle
 
@@ -55,6 +58,7 @@ class MediaPlugin :
         activity = binding.activity
         activityBinding = binding
         binding.addRequestPermissionsResultListener(this)
+        binding.addActivityResultListener(this)
     }
 
     override fun onDetachedFromActivityForConfigChanges() = detachActivity()
@@ -63,6 +67,7 @@ class MediaPlugin :
 
     private fun detachActivity() {
         activityBinding?.removeRequestPermissionsResultListener(this)
+        activityBinding?.removeActivityResultListener(this)
         activityBinding = null
         activity = null
     }
@@ -369,12 +374,43 @@ class MediaPlugin :
 
     // endregion
 
-    override suspend fun deleteAssets(assetIds: List<String>): DeleteResult {
-        // Phase 3: MediaStore.createDeleteRequest. Intentionally not implemented yet.
-        throw UnsupportedOperationException("deleteAssets arrives in Phase 3")
+    override suspend fun deleteAssets(assetIds: List<String>): DeleteResult = withContext(Dispatchers.Main) {
+        val ctx = appContext ?: return@withContext DeleteResult(emptyList(), true)
+        val act = activity ?: return@withContext DeleteResult(emptyList(), true)
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R || pendingDelete != null) {
+            // The system confirmation dialog needs Android 11+.
+            return@withContext DeleteResult(emptyList(), true)
+        }
+        val uris = withContext(Dispatchers.IO) { assetIds.mapNotNull { id -> uriFor(id)?.let { id to it } } }
+        val gone = assetIds.filter { id -> uris.none { it.first == id } }.toMutableList() // already deleted elsewhere
+        if (uris.isEmpty()) return@withContext DeleteResult(gone, false)
+
+        val request = MediaStore.createDeleteRequest(ctx.contentResolver, uris.map { it.second })
+        val ok = suspendCoroutine<Boolean> { cont ->
+            pendingDelete = { cont.resume(it) }
+            try {
+                act.startIntentSenderForResult(request.intentSender, DELETE_REQUEST_CODE, null, 0, 0, 0)
+            } catch (e: Exception) {
+                pendingDelete = null
+                cont.resume(false)
+            }
+        }
+        if (!ok) return@withContext DeleteResult(gone, true)
+        // Confirm what is really gone instead of trusting the dialog result.
+        val deleted = withContext(Dispatchers.IO) { uris.filter { uriFor(it.first) == null }.map { it.first } }
+        DeleteResult(gone + deleted, false)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
+        if (requestCode != DELETE_REQUEST_CODE) return false
+        val cb = pendingDelete
+        pendingDelete = null
+        cb?.invoke(resultCode == Activity.RESULT_OK)
+        return true
     }
 
     companion object {
         private const val REQUEST_CODE = 4711
+        private const val DELETE_REQUEST_CODE = 4712
     }
 }

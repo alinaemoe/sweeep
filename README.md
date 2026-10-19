@@ -89,3 +89,7 @@ big similar groups. Nothing is deleted from the device yet; "Trash" only records
 ## Home feed (done, verified on device)
 
 `features/home/home_screen.dart`: pinned wordmark, oval with the reclaimable size (duplicates + similar savings of the library) that collapses into a compact chip with an inline "Free up" button on scroll, and carousels: Duplicates, Similar (fanned stacks), Screenshots, Videos (largest first), Blurry & dark (Laplacian < 250 or median brightness < 40). Data comes from `HomeService` (`homeProvider`, invalidated after group rebuild/trash). "Free up" opens the Duplicates/Similar list; Swipe / Videos / Tools / Trash entries show a "coming soon" snackbar until those screens exist. The old index screen is reachable from the gear button. Tests: `home_service_test.dart`.
+
+## Swipe, Trash and system delete (done, verified on device)
+
+`SwipeScreen` (drag left = soft trash, right = keep, Undo, stretchy SWIIIIPE) and `TrashScreen` (restore, select all, CLEAAAN overlay after a real delete). `ReviewService.deleteForever` calls `MediaStore.createDeleteRequest` (Android 11+, one system dialog per chunk of 200) and only forgets assets the system really deleted. Verified with a throwaway test file pushed via adb; the owner's photos were not touched. Android < 11 and iOS: not implemented.

@@ -20,12 +20,10 @@ MediaStore enumerate (keyset paging) -> delta index in Drift `assets` -> 128px g
 Similar grouping: pHash Hamming <= 6, 5 s time window, single-link components split by complete-linkage, max 8 per group (core/src/group.rs). Pager: similar groups default KEEP all; exact dups default trash extras.
 
 ## Done
-Phase 0 skeleton; Phase 1 permissions/enumeration/delta index/gray thumbs; 1b Rust core + FFI + hashing with resume; Phase 2 duplicates + similar review UI; similar-grouping tightening (verified on phone: 601 groups, max x8). Tests: 24+9 Rust, 15 Flutter, all green.
+Phase 0 skeleton; Phase 1 permissions/enumeration/delta index/gray thumbs; 1b Rust core + FFI + hashing with resume; Phase 2 duplicates + similar review UI; similar-grouping tightening (verified on phone: 601 groups, max x8). Tests: 24+9 Rust, 20 Flutter, all green. Home/Swipe/Trash/system delete done and verified on phone (test delete only with a throwaway file pushed via adb, MSYS_NO_PATHCONV=1).
 
 ## Planned next (in rough order)
-1. Real Home feed (collapsing oval + carousels) from the canvas.
-2. Swipe screen (stretchy SWIIIIPE) and Trash screen.
-3. Phase 3: system delete via `MediaStore.createDeleteRequest` (deleteAssets currently throws UnsupportedOperationException); CLEAAAN animation.
+1. (done) Home feed, Swipe, Trash, system delete via createDeleteRequest + CLEAAAN overlay.
 4. Categories: screenshots, videos, chat media, blur/dark; Dust & Water + Sound tools.
 5. Foreground service (hashing stops if app is killed); arm64-only .so -> add other ABIs; iOS (Swift) untested; "limited access" permission path untested; groups rebuilt from scratch each run; thumbnail cache is unbounded (non-autoDispose family).
 6. Postponed: Email/App Cleaner; monetization/paywall decision.

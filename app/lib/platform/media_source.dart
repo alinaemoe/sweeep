@@ -17,6 +17,9 @@ abstract class MediaSource {
 
   /// SHA-256 digest of the file contents (32 bytes), computed natively.
   Future<Uint8List?> sha256(String assetId);
+
+  /// Deletes from the device through one system confirmation dialog.
+  Future<DeleteResult> deleteAssets(List<String> assetIds);
 }
 
 class PlatformMediaSource implements MediaSource {
@@ -45,4 +48,7 @@ class PlatformMediaSource implements MediaSource {
 
   @override
   Future<Uint8List?> sha256(String assetId) => _api.sha256(assetId);
+
+  @override
+  Future<DeleteResult> deleteAssets(List<String> assetIds) => _api.deleteAssets(assetIds);
 }

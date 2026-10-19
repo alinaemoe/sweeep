@@ -20,6 +20,8 @@ AssetInfo asset(String id, {int mod = 1000, bool shot = false, bool video = fals
     );
 
 class FakeMedia implements MediaSource {
+  @override
+  Future<DeleteResult> deleteAssets(List<String> assetIds) async => DeleteResult(deletedIds: assetIds, cancelled: false);
   final List<AssetInfo> library = [];
   final List<int?> sinceCalls = [];
 

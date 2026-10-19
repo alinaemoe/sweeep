@@ -19,6 +19,8 @@ class TrashScreen extends ConsumerStatefulWidget {
 
 class _TrashScreenState extends ConsumerState<TrashScreen> with SingleTickerProviderStateMixin {
   final _selected = <String>{};
+  bool _deleting = false;
+  DeleteOutcome? _freed;
   late final AnimationController _wave = AnimationController(vsync: this, duration: const Duration(seconds: 3))..repeat();
 
   @override
@@ -38,10 +40,30 @@ class _TrashScreenState extends ConsumerState<TrashScreen> with SingleTickerProv
     if (mounted) setState(() {});
   }
 
-  void _deleteForever() {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(const SnackBar(content: Text('Permanent delete is coming soon. Your files are untouched.')));
+  Future<void> _deleteForever() async {
+    if (_deleting || _selected.isEmpty) return;
+    setState(() => _deleting = true);
+    final ids = _selected.toList();
+    try {
+      final r = await ref.read(reviewServiceProvider).deleteForever(ref.read(mediaSourceProvider), ids);
+      if (r.deleted > 0) _selected.clear();
+      ref.invalidate(trashListProvider);
+      ref.invalidate(trashSummaryProvider);
+      ref.invalidate(homeProvider);
+      ref.invalidate(groupsProvider);
+      if (!mounted) return;
+      if (r.deleted > 0) {
+        setState(() => _freed = r);
+        await Future<void>.delayed(const Duration(milliseconds: 2200));
+        if (mounted) setState(() => _freed = null);
+      } else if (r.cancelled) {
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(const SnackBar(content: Text('Nothing was deleted.')));
+      }
+    } finally {
+      if (mounted) setState(() => _deleting = false);
+    }
   }
 
   @override
@@ -120,19 +142,53 @@ class _TrashScreenState extends ConsumerState<TrashScreen> with SingleTickerProv
                     const SizedBox(width: 10),
                     Expanded(
                       child: FilledButton(
-                        onPressed: _deleteForever,
+                        onPressed: _deleting ? null : _deleteForever,
                         style: FilledButton.styleFrom(backgroundColor: SweeepColors.trash, foregroundColor: SweeepColors.onAccent, minimumSize: const Size(0, 52), shape: const StadiumBorder()),
-                        child: const Text('Delete forever', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+                        child: const FittedBox(fit: BoxFit.scaleDown, child: Text('Delete forever', maxLines: 1, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800))),
                       ),
                     ),
                   ]),
                 ]),
               ),
             ),
+          if (_freed != null) _FreedOverlay(outcome: _freed!),
         ]),
       ),
     );
   }
+}
+
+/// Full-screen celebration after a real delete: CLEAAAN waves in coral.
+class _FreedOverlay extends StatefulWidget {
+  const _FreedOverlay({required this.outcome});
+  final DeleteOutcome outcome;
+
+  @override
+  State<_FreedOverlay> createState() => _FreedOverlayState();
+}
+
+class _FreedOverlayState extends State<_FreedOverlay> with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController(vsync: this, duration: const Duration(milliseconds: 1100))..repeat();
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => Positioned.fill(
+        child: ColoredBox(
+          color: SweeepColors.background.withValues(alpha: .96),
+          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+            _CleanWord(controller: _c, color: SweeepColors.trash, size: 64),
+            const SizedBox(height: 16),
+            Text('${formatBytes(widget.outcome.bytes)} freed', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
+            const SizedBox(height: 4),
+            Text('${widget.outcome.deleted} files deleted', style: const TextStyle(fontSize: 14, color: SweeepColors.textMuted, fontWeight: FontWeight.w600)),
+          ]),
+        ),
+      );
 }
 
 class _Cell extends StatelessWidget {
@@ -183,8 +239,10 @@ class _Cell extends StatelessWidget {
 
 /// CLEAAAN with a permanent wave; the A's are lavender.
 class _CleanWord extends StatelessWidget {
-  const _CleanWord({required this.controller});
+  const _CleanWord({required this.controller, this.color, this.size = 58});
   final AnimationController controller;
+  final Color? color;
+  final double size;
 
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
@@ -200,7 +258,7 @@ class _CleanWord extends StatelessWidget {
                   // each letter bounces in the first 40% of the cycle, staggered
                   offset: Offset(0, _bounce((controller.value - i * .027) % 1.0)),
                   child: Text(word[i],
-                      style: TextStyle(fontSize: 58, height: 1, fontWeight: FontWeight.w800, letterSpacing: -1, color: (i >= 3 && i <= 5) ? SweeepColors.brand : SweeepColors.text)),
+                      style: TextStyle(fontSize: size, height: 1, fontWeight: FontWeight.w800, letterSpacing: -1, color: color ?? ((i >= 3 && i <= 5) ? SweeepColors.brand : SweeepColors.text))),
                 ),
             ],
           );

@@ -1,4 +1,5 @@
 import '../data/database.dart';
+import '../platform/media_source.dart';
 import 'group_service.dart';
 import 'home_service.dart';
 
@@ -17,6 +18,13 @@ class TrashEntry {
   final int sizeBytes;
   final bool isVideo;
   final int? durationMs;
+}
+
+class DeleteOutcome {
+  const DeleteOutcome({required this.deleted, required this.bytes, required this.cancelled});
+  final int deleted;
+  final int bytes;
+  final bool cancelled;
 }
 
 /// Swipe queue + app-trash operations. Nothing is deleted from the device
@@ -76,6 +84,27 @@ class ReviewService {
       b.deleteWhere(db.trashItems, (t) => t.assetId.isIn(ids));
       b.deleteWhere(db.decisions, (d) => d.assetId.isIn(ids));
     });
+  }
+
+  /// Deletes [ids] from the device (system confirmation dialog, in chunks)
+  /// and forgets every deleted asset locally. Returns what was really deleted.
+  Future<DeleteOutcome> deleteForever(MediaSource media, List<String> ids, {int chunk = 200}) async {
+    final deleted = <String>[];
+    var cancelled = false;
+    for (var i = 0; i < ids.length && !cancelled; i += chunk) {
+      final part = ids.sublist(i, i + chunk > ids.length ? ids.length : i + chunk);
+      final r = await media.deleteAssets(part);
+      deleted.addAll(r.deletedIds);
+      cancelled = r.cancelled;
+    }
+    var bytes = 0;
+    if (deleted.isNotEmpty) {
+      final rows = await (db.select(db.trashItems)..where((t) => t.assetId.isIn(deleted))).get();
+      bytes = rows.fold(0, (s, r) => s + r.sizeBytes);
+      // assets cascade to hashes, groups members, trash items and decisions
+      await (db.delete(db.assets)..where((a) => a.id.isIn(deleted))).go();
+    }
+    return DeleteOutcome(deleted: deleted.length, bytes: bytes, cancelled: cancelled);
   }
 
   Future<List<TrashEntry>> trashed() async {

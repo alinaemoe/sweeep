@@ -10,6 +10,8 @@ import 'package:sweeep/platform/media_source.dart';
 import 'package:sweeep/platform/messages.g.dart';
 
 class FakeMedia implements MediaSource {
+  @override
+  Future<DeleteResult> deleteAssets(List<String> assetIds) async => DeleteResult(deletedIds: assetIds, cancelled: false);
   FakeMedia(this.digests);
   final Map<String, int> digests; // asset id -> digest seed (equal seed = identical file)
   final List<String> hashed = [];

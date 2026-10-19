@@ -21,6 +21,8 @@ AssetInfo asset(String id, {int created = 0, int size = 1000}) => AssetInfo(
     );
 
 class FakeMedia implements MediaSource {
+  @override
+  Future<DeleteResult> deleteAssets(List<String> assetIds) async => DeleteResult(deletedIds: assetIds, cancelled: false);
   FakeMedia(this.assets, {this.unreadable = const {}});
   final List<AssetInfo> assets;
   final Set<String> unreadable;
