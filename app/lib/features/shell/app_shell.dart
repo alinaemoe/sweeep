@@ -7,6 +7,7 @@ import '../../index/review_service.dart';
 import '../../providers.dart';
 import '../home/home_screen.dart';
 import '../swipe/swipe_screen.dart';
+import '../tools/tools_screen.dart';
 import '../trash/trash_screen.dart';
 
 /// The four tabs: Clean (Home), Swipe, Tools, Trash. Home stays alive in the
@@ -66,7 +67,7 @@ class _AppShellState extends ConsumerState<AppShell> {
               child: switch (_tab) {
                 0 => const SizedBox.shrink(),
                 1 => const SwipeScreen(source: SwipeSource.all, embedded: true),
-                2 => const _ToolsSoon(),
+                2 => const ToolsScreen(),
                 _ => const TrashScreen(embedded: true),
               },
             ),
@@ -81,26 +82,6 @@ class _AppShellState extends ConsumerState<AppShell> {
       ]),
     );
   }
-}
-
-class _ToolsSoon extends StatelessWidget {
-  const _ToolsSoon();
-
-  @override
-  Widget build(BuildContext context) => const SafeArea(
-        child: Center(
-          child: Padding(
-            padding: EdgeInsets.all(32),
-            child: Column(mainAxisSize: MainAxisSize.min, children: [
-              Icon(Icons.graphic_eq_rounded, size: 44, color: SweeepColors.brand),
-              SizedBox(height: 16),
-              Text('Tools', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800, letterSpacing: -1)),
-              SizedBox(height: 8),
-              Text('Dust & Water and Sound tools are coming soon.', textAlign: TextAlign.center, style: TextStyle(color: SweeepColors.textMutedSmall, fontSize: 15, height: 1.4)),
-            ]),
-          ),
-        ),
-      );
 }
 
 /// Floating pill bar. The selected item grows into a lavender pill with its
