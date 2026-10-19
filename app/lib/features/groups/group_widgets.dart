@@ -31,7 +31,14 @@ class ThumbImage extends ConsumerWidget {
     return async.when(
       data: (bytes) => bytes == null
           ? const ColoredBox(color: SweeepColors.trackUsed)
-          : Image.memory(bytes, fit: fit, gaplessPlayback: true, width: double.infinity, height: double.infinity),
+          : Image.memory(
+              bytes,
+              fit: fit,
+              gaplessPlayback: true,
+              width: double.infinity,
+              height: double.infinity,
+              frameBuilder: (context, child, frame, sync) => sync ? child : AnimatedOpacity(opacity: frame == null ? 0 : 1, duration: const Duration(milliseconds: 220), curve: Curves.easeOut, child: child),
+            ),
       loading: () => const ColoredBox(color: SweeepColors.trackDim),
       error: (_, __) => const ColoredBox(color: SweeepColors.trackUsed),
     );
@@ -150,3 +157,27 @@ class GroupStack extends StatelessWidget {
 }
 
 String kindTitle(GroupKind k) => k == GroupKind.duplicate ? 'Duplicates' : 'Similar photos';
+
+/// Wraps a tappable card with a small press-down scale, so taps feel physical.
+class Pressable extends StatefulWidget {
+  const Pressable({super.key, required this.onTap, required this.child});
+  final VoidCallback onTap;
+  final Widget child;
+
+  @override
+  State<Pressable> createState() => _PressableState();
+}
+
+class _PressableState extends State<Pressable> {
+  bool _down = false;
+
+  @override
+  Widget build(BuildContext context) => GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTapDown: (_) => setState(() => _down = true),
+        onTapCancel: () => setState(() => _down = false),
+        onTapUp: (_) => setState(() => _down = false),
+        onTap: widget.onTap,
+        child: AnimatedScale(scale: _down ? .95 : 1, duration: const Duration(milliseconds: 120), curve: Curves.easeOut, child: widget.child),
+      );
+}

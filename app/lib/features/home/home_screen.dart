@@ -26,9 +26,28 @@ class HomeScreen extends ConsumerStatefulWidget {
   ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends ConsumerState<HomeScreen> {
+class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProviderStateMixin {
   static const _collapseAt = 160.0;
   final _scroll = ScrollController();
+
+  /// Drives the bubbles running around the oval while the library is processed.
+  late final AnimationController _loop = AnimationController(vsync: this, duration: const Duration(milliseconds: 2800));
+  double _shown = 0; // eased progress shown on the ring, 0..1
+
+  /// Overall scan progress 0..1 (read library 0-8%, hash 8-80%, compare 80-100%).
+  static double _progressOf(LibraryState s) {
+    double frac(int done, int total) => total <= 0 ? 1 : (done / total).clamp(0.0, 1.0);
+    if (s.syncing) return .04;
+    if (s.analyzing) return .08 + .72 * frac(s.alreadyHashed + s.analysisDone, s.alreadyHashed + s.analysisTotal);
+    if (s.verifying) return .8 + .2 * (s.verifyTotal == 0 ? 0 : frac(s.verifyDone, s.verifyTotal));
+    return 1;
+  }
+
+  static String _labelOf(LibraryState s) {
+    if (s.syncing) return 'READING LIBRARY';
+    if (s.analyzing) return 'ANALYZING ${_n(s.alreadyHashed + s.analysisDone)} OF ${_n(s.alreadyHashed + s.analysisTotal)}';
+    return 'COMPARING FILES';
+  }
 
   @override
   void initState() {
@@ -39,6 +58,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   void dispose() {
     _scroll.dispose();
+    _loop.dispose();
     super.dispose();
   }
 
@@ -57,6 +77,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final top = MediaQuery.paddingOf(context).top;
     final busy = lib.syncing || lib.analyzing || lib.verifying;
     final data = home.value;
+    if (busy && !_loop.isAnimating) {
+      _loop.repeat();
+    } else if (!busy && _loop.isAnimating) {
+      _loop.stop();
+      _shown = 0;
+    }
+    final target = busy ? _progressOf(lib) : 0.0;
+    final scanLabel = busy ? _labelOf(lib) : '';
 
     return Scaffold(
       body: Stack(
@@ -85,15 +113,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
           // Header: opaque backdrop + wordmark + collapsing oval.
           AnimatedBuilder(
-            animation: _scroll,
+            animation: Listenable.merge([_scroll, _loop]),
             builder: (context, _) {
               final off = _scroll.hasClients ? _scroll.offset : 0.0;
               final t = (off / _collapseAt).clamp(0.0, 1.0);
+              _shown += (target - _shown) * .06; // ease toward the real progress
               return _Header(
                 top: top,
                 t: t,
                 data: data,
                 busy: busy,
+                progress: _shown,
+                phase: _loop.value,
+                scanLabel: scanLabel,
                 onSettings: () => _push(const LibraryScreen()),
                 onFree: data == null || data.reclaimableBytes == 0
                     ? null
@@ -222,7 +254,7 @@ class _GroupCarousel extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(20, 14, 20, 12),
         itemCount: shown,
         separatorBuilder: (_, __) => SizedBox(width: big ? 22 : 18),
-        itemBuilder: (context, i) => GestureDetector(
+        itemBuilder: (context, i) => Pressable(
           onTap: () => onOpen(i),
           child: SizedBox(
             width: w,
@@ -400,11 +432,24 @@ class _NavBar extends StatelessWidget {
 
 /// Pinned header. [t] = 0 expanded oval, 1 collapsed chip with inline CTA.
 class _Header extends StatelessWidget {
-  const _Header({required this.top, required this.t, required this.data, required this.busy, required this.onSettings, required this.onFree});
+  const _Header({
+    required this.top,
+    required this.t,
+    required this.data,
+    required this.busy,
+    required this.progress,
+    required this.phase,
+    required this.scanLabel,
+    required this.onSettings,
+    required this.onFree,
+  });
   final double top;
   final double t;
   final HomeData? data;
   final bool busy;
+  final double progress;
+  final double phase;
+  final String scanLabel;
   final VoidCallback onSettings;
   final VoidCallback? onFree;
 
@@ -417,7 +462,8 @@ class _Header extends StatelessWidget {
     final reclaim = data?.reclaimableBytes ?? 0;
     final lib = data?.libraryBytes ?? 0;
     final share = lib == 0 ? 0.0 : (reclaim / lib).clamp(0.0, 1.0);
-    final big = _splitBytes(reclaim);
+    final reclaimBig = _splitBytes(reclaim);
+    final big = busy ? (value: '${(progress * 100).round()}', unit: '%') : reclaimBig;
     final scale = lerp(1, .4);
     final ctaW = lerp(width, 182);
     final ctaH = lerp(48, 44);
@@ -426,6 +472,14 @@ class _Header extends StatelessWidget {
 
     return Stack(children: [
       Positioned(left: 0, right: 0, top: 0, height: heroTop + heroH + 8, child: const ColoredBox(color: SweeepColors.background)),
+      // soft fade instead of a hard cut where the feed slides under the header
+      Positioned(
+        left: 0,
+        right: 0,
+        top: heroTop + heroH + 8,
+        height: 18,
+        child: const DecoratedBox(decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [SweeepColors.background, Color(0x000F1015)]))),
+      ),
       Positioned(
         left: 20,
         right: 20,
@@ -473,7 +527,7 @@ class _Header extends StatelessWidget {
               alignment: Alignment.topLeft,
               transform: Matrix4.translationValues(lerp(0, 8), lerp(0, 8), 0)..scaleByDouble(scale, scale, 1, 1),
               child: Stack(children: [
-                Positioned.fill(child: CustomPaint(painter: _OvalPainter(share: share, busy: busy))),
+                Positioned.fill(child: CustomPaint(painter: _OvalPainter(share: share, busy: busy, progress: progress, phase: phase))),
                 Center(
                   child: Column(mainAxisSize: MainAxisSize.min, children: [
                     Row(
@@ -481,7 +535,7 @@ class _Header extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.baseline,
                       textBaseline: TextBaseline.alphabetic,
                       children: [
-                        Text(data == null ? '–' : big.value, style: const TextStyle(fontSize: 92, fontWeight: FontWeight.w800, letterSpacing: -4, height: 1)),
+                        Text(data == null && !busy ? '–' : big.value, style: const TextStyle(fontSize: 92, fontWeight: FontWeight.w800, letterSpacing: -4, height: 1)),
                         const SizedBox(width: 6),
                         Text(big.unit, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w700, color: SweeepColors.brand)),
                       ],
@@ -491,7 +545,7 @@ class _Header extends StatelessWidget {
                       child: Padding(
                         padding: const EdgeInsets.only(top: 6),
                         child: Text(
-                          busy ? 'SCANNING…' : (data == null ? '' : 'RECLAIMABLE OF ${_fmtSize(lib)}'),
+                          busy ? scanLabel : (data == null ? '' : 'RECLAIMABLE OF ${_fmtSize(lib)}'),
                           style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 2, color: SweeepColors.textMutedSmall),
                         ),
                       ),
@@ -506,7 +560,7 @@ class _Header extends StatelessWidget {
             top: 20,
             child: Opacity(
               opacity: math.max(0, t * 3 - 2),
-              child: const Text('RECLAIMABLE', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, letterSpacing: 1.5, color: SweeepColors.textMutedSmall)),
+              child: Text(busy ? 'SCANNING' : 'RECLAIMABLE', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, letterSpacing: 1.5, color: SweeepColors.textMutedSmall)),
             ),
           ),
           Positioned(
@@ -525,14 +579,12 @@ class _Header extends StatelessWidget {
               ),
               child: FittedBox(
                 fit: BoxFit.scaleDown,
-                child: Text(reclaim == 0 ? (busy ? 'Scanning…' : 'All clean') : 'Free up ${big.value} ${big.unit}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+                child: Text(reclaim == 0 ? (busy ? 'Scanning…' : 'All clean') : 'Free up ${reclaimBig.value} ${reclaimBig.unit}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
               ),
             ),
           ),
         ]),
       ),
-      if (busy)
-        Positioned(left: 20, right: 20, top: top + 56, child: const LinearProgressIndicator(minHeight: 2, color: SweeepColors.brand, backgroundColor: SweeepColors.trackDim)),
     ]);
   }
 }
@@ -545,9 +597,11 @@ String _fmtSize(int bytes) {
 /// The three-layer ring: dim track, grey "everything else", glowing lavender
 /// arc for the reclaimable share of the library.
 class _OvalPainter extends CustomPainter {
-  _OvalPainter({required this.share, required this.busy});
+  _OvalPainter({required this.share, required this.busy, required this.progress, required this.phase});
   final double share;
   final bool busy;
+  final double progress; // 0..1, eased scan progress
+  final double phase; // 0..1 looping, drives the bubbles
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -574,6 +628,29 @@ class _OvalPainter extends CustomPainter {
         ..addPath(arc(0, e), Offset.zero);
     }
 
+    if (busy) {
+      // Real progress fills from 12 o'clock; bubbles of different sizes run
+      // around the whole ring while the library is processed.
+      final fill = progress.clamp(0.0, 1.0);
+      if (fill > .005) {
+        final b = math.min(fill, .999);
+        canvas.drawPath(seg(0, b), stroke(SweeepColors.brand.withValues(alpha: .35))..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8));
+        canvas.drawPath(seg(0, b), stroke(SweeepColors.brand.withValues(alpha: .85))..strokeCap = StrokeCap.round);
+      }
+      const n = 7;
+      for (var i = 0; i < n; i++) {
+        final f = (start + phase + i / n) % 1.0;
+        final pos = metric.getTangentForOffset(len * f)?.position;
+        if (pos == null) continue;
+        final pulse = .5 + .5 * math.sin(2 * math.pi * (phase * 2 + i * .29));
+        final r = 2.5 + 5.5 * pulse;
+        final a = .25 + .65 * pulse;
+        canvas.drawCircle(pos, r + 4, Paint()..color = SweeepColors.brand.withValues(alpha: a * .45)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6));
+        canvas.drawCircle(pos, r, Paint()..color = Color.lerp(SweeepColors.brand, Colors.white, .35 * pulse)!.withValues(alpha: a));
+      }
+      return;
+    }
+
     final rest = (1 - share).clamp(0.0, 1.0) * .56;
     if (rest > 0) canvas.drawPath(seg(0, rest), stroke(SweeepColors.trackUsed));
     final glowW = math.max(share, busy ? 0 : .02);
@@ -585,5 +662,5 @@ class _OvalPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_OvalPainter old) => old.share != share || old.busy != busy;
+  bool shouldRepaint(_OvalPainter old) => old.share != share || old.busy != busy || old.progress != progress || old.phase != phase;
 }

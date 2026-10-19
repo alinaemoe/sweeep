@@ -57,7 +57,7 @@ class GroupsScreen extends ConsumerWidget {
                           padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
                           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, mainAxisSpacing: 20, crossAxisSpacing: 22, childAspectRatio: .85),
                           itemCount: groups.length,
-                          itemBuilder: (context, i) => GestureDetector(
+                          itemBuilder: (context, i) => Pressable(
                             onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => GroupPager(kind: kind, initialIndex: i))),
                             child: GroupStack(group: groups[i]),
                           ),

@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/theme.dart';
@@ -31,6 +32,8 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> with TickerProviderSt
   List<SwipeItem>? _queue;
   int _i = 0;
   double _dx = 0;
+  double _dy = 0;
+  bool _armed = false;
   bool _busy = false;
   final _history = <({SwipeItem item, bool trashed})>[];
 
@@ -60,10 +63,19 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> with TickerProviderSt
     ref.invalidate(groupsProvider);
   }
 
-  void _animateTo(double target, VoidCallback done) {
-    final from = _dx;
-    _move.reset();
-    void tick() => setState(() => _dx = from + (target - from) * Curves.easeOut.transform(_move.value));
+  void _animateTo(double toX, double toY, Curve curve, int ms, VoidCallback done) {
+    final fx = _dx, fy = _dy;
+    _move
+      ..reset()
+      ..duration = Duration(milliseconds: ms);
+    void tick() {
+      final t = curve.transform(_move.value);
+      setState(() {
+        _dx = fx + (toX - fx) * t;
+        _dy = fy + (toY - fy) * t;
+      });
+    }
+
     _move.addListener(tick);
     _move.forward().whenComplete(() {
       _move.removeListener(tick);
@@ -71,24 +83,31 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> with TickerProviderSt
     });
   }
 
-  Future<void> _decide(bool trash) async {
+  void _decide(bool trash, {double velocity = 0}) {
     final item = _current;
     if (item == null || _busy) return;
     _busy = true;
     final width = MediaQuery.sizeOf(context).width;
     final svc = ref.read(reviewServiceProvider);
+    // The DB write runs in the background so the next card never waits for it.
     final write = trash ? svc.trash(item) : svc.keep(item);
-    _animateTo((trash ? -1 : 1) * width * 1.3, () async {
-      await write;
+    final dir = trash ? -1.0 : 1.0;
+    final ms = velocity.abs() > 1500 ? 200 : 280;
+    _animateTo(dir * width * 1.25, _dy + 40, Curves.easeInQuad, ms, () {
       if (!mounted) return;
-      ref.invalidate(trashSummaryProvider);
+      // The card behind is already full size, so this swap is seamless.
       setState(() {
         _history.add((item: item, trashed: trash));
         _i++;
         _dx = 0;
+        _dy = 0;
+        _armed = false;
         _busy = false;
       });
       if (trash) _wave.forward(from: 0);
+      write.then((_) {
+        if (mounted) ref.invalidate(trashSummaryProvider);
+      });
     });
   }
 
@@ -100,16 +119,30 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> with TickerProviderSt
     if (mounted) setState(() => _i--);
   }
 
+  void _onDrag(DragUpdateDetails d) {
+    if (_busy) return;
+    setState(() {
+      _dx += d.delta.dx;
+      _dy += d.delta.dy * .35;
+    });
+    final armed = _dx.abs() > 90;
+    if (armed != _armed) {
+      _armed = armed;
+      if (armed) HapticFeedback.selectionClick();
+    }
+  }
+
   void _onEnd(DragEndDetails d) {
     if (_busy) return;
-    final v = d.primaryVelocity ?? 0;
+    final v = d.velocity.pixelsPerSecond.dx;
     if (_dx < -90 || v < -900) {
-      _decide(true);
+      _decide(true, velocity: v);
     } else if (_dx > 90 || v > 900) {
-      _decide(false);
+      _decide(false, velocity: v);
     } else {
       _busy = true;
-      _animateTo(0, () => _busy = false);
+      _armed = false;
+      _animateTo(0, 0, Curves.easeOutBack, 380, () => _busy = false);
     }
   }
 
@@ -118,6 +151,12 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> with TickerProviderSt
     final q = _queue;
     final item = _current;
     final summary = ref.watch(trashSummaryProvider).value;
+    // Keep the next photos decoded so cards never pop in.
+    if (q != null) {
+      for (var k = _i; k < math.min(_i + 3, q.length); k++) {
+        ref.watch(bigThumbProvider(q[k].id));
+      }
+    }
     final dragging = _dx.abs() > 12;
     final accent = _dx < -12 ? SweeepColors.trash : (_dx > 12 ? SweeepColors.keep : SweeepColors.text);
     final glow = _dx < -12 ? SweeepColors.trash : (_dx > 12 ? SweeepColors.keep : Colors.white);
@@ -168,7 +207,9 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> with TickerProviderSt
                             item: item,
                             next: _i + 1 < q.length ? q[_i + 1] : null,
                             dx: _dx,
-                            onDrag: (d) => _busy ? null : setState(() => _dx += d),
+                            dy: _dy,
+                            width: MediaQuery.sizeOf(context).width,
+                            onDrag: _onDrag,
                             onEnd: _onEnd,
                           ),
               ),
@@ -246,11 +287,13 @@ class _Word extends StatelessWidget {
 }
 
 class _Deck extends StatelessWidget {
-  const _Deck({required this.item, required this.next, required this.dx, required this.onDrag, required this.onEnd});
+  const _Deck({required this.item, required this.next, required this.dx, required this.dy, required this.width, required this.onDrag, required this.onEnd});
   final SwipeItem item;
   final SwipeItem? next;
   final double dx;
-  final void Function(double) onDrag;
+  final double dy;
+  final double width;
+  final void Function(DragUpdateDetails) onDrag;
   final void Function(DragEndDetails) onEnd;
 
   @override
@@ -258,14 +301,18 @@ class _Deck extends StatelessWidget {
     final d = DateTime.fromMillisecondsSinceEpoch(item.createdAtMs);
     final trashA = (-dx / 90).clamp(0.0, 1.0);
     final keepA = (dx / 90).clamp(0.0, 1.0);
+    // The card behind grows to full size as the front one leaves, so the
+    // hand-over at the end of the fling is seamless.
+    final p = Curves.easeOut.transform((dx.abs() / (width * .55)).clamp(0.0, 1.0));
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Stack(clipBehavior: Clip.none, children: [
         Positioned.fill(
+          key: ValueKey('back-${next?.id}'),
           child: Transform.rotate(
-            angle: -2 * math.pi / 180,
+            angle: -2 * (1 - p) * math.pi / 180,
             child: Transform.scale(
-              scale: .94,
+              scale: .94 + .06 * p,
               child: next == null
                   ? Container(decoration: BoxDecoration(color: const Color(0xFF1B1D27), borderRadius: BorderRadius.circular(30), border: Border.all(color: SweeepColors.cardBorder)))
                   : _Photo(id: next!.id),
@@ -273,11 +320,12 @@ class _Deck extends StatelessWidget {
           ),
         ),
         Positioned.fill(
+          key: ValueKey('front-${item.id}'),
           child: GestureDetector(
-            onHorizontalDragUpdate: (u) => onDrag(u.delta.dx),
-            onHorizontalDragEnd: onEnd,
+            onPanUpdate: onDrag,
+            onPanEnd: onEnd,
             child: Transform.translate(
-              offset: Offset(dx, 0),
+              offset: Offset(dx, dy),
               child: Transform.rotate(
                 angle: dx / 18 * math.pi / 180,
                 child: Stack(fit: StackFit.expand, children: [
