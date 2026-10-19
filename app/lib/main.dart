@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/intro.dart';
+import 'core/perf_log.dart';
 import 'core/theme.dart';
 import 'features/shell/app_shell.dart';
 import 'features/onboarding/onboarding_screen.dart';
@@ -9,6 +10,8 @@ import 'platform/messages.g.dart' show PermissionState;
 import 'providers.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  startPerfLog();
   runApp(const ProviderScope(child: SweeepApp()));
 }
 
@@ -21,6 +24,7 @@ class SweeepApp extends StatefulWidget {
 
 class _SweeepAppState extends State<SweeepApp> {
   bool _intro = true;
+  bool _reveal = false; // until then the app is built but not painted (keeps the intro smooth)
 
   @override
   Widget build(BuildContext context) {
@@ -33,8 +37,8 @@ class _SweeepAppState extends State<SweeepApp> {
       builder: (context, child) => Stack(
         fit: StackFit.expand,
         children: [
-          child ?? const SizedBox.shrink(),
-          if (_intro) SweeepIntro(onDone: () => setState(() => _intro = false)),
+          Offstage(offstage: _intro && !_reveal, child: child ?? const SizedBox.shrink()),
+          if (_intro) SweeepIntro(onReveal: () => setState(() => _reveal = true), onDone: () => setState(() => _intro = false)),
         ],
       ),
     );

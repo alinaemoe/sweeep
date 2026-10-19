@@ -1,5 +1,3 @@
-import 'dart:ui' as ui;
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -48,7 +46,8 @@ class ThumbImage extends ConsumerWidget {
   }
 }
 
-/// Frosted pill used over photos.
+/// Dark translucent pill used over photos. No live blur on purpose: a
+/// BackdropFilter per card is what made scrolling drop frames.
 class GlassPill extends StatelessWidget {
   const GlassPill({super.key, required this.child, this.height = 32, this.padding = const EdgeInsets.symmetric(horizontal: 12)});
   final Widget child;
@@ -56,22 +55,16 @@ class GlassPill extends StatelessWidget {
   final EdgeInsets padding;
 
   @override
-  Widget build(BuildContext context) => ClipRRect(
-        borderRadius: BorderRadius.circular(height / 2),
-        child: BackdropFilter(
-          filter: ui.ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-          child: Container(
-            height: height,
-            padding: padding,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: SweeepColors.background.withValues(alpha: .55),
-              borderRadius: BorderRadius.circular(height / 2),
-              border: Border.all(color: Colors.white.withValues(alpha: .12)),
-            ),
-            child: child,
-          ),
+  Widget build(BuildContext context) => Container(
+        height: height,
+        padding: padding,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: SweeepColors.background.withValues(alpha: .66),
+          borderRadius: BorderRadius.circular(height / 2),
+          border: Border.all(color: Colors.white.withValues(alpha: .12)),
         ),
+        child: child,
       );
 }
 
@@ -106,14 +99,18 @@ class GroupStack extends StatelessWidget {
           offset: shift,
           child: Transform.rotate(
             angle: angle,
-            child: Opacity(
-              opacity: opacity,
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(radius),
-                  border: Border.all(color: Colors.white.withValues(alpha: .16)),
-                ),
-                child: ClipRRect(borderRadius: BorderRadius.circular(radius), child: ThumbImage(id: id, side: thumbSide)),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(radius),
+                border: Border.all(color: Colors.white.withValues(alpha: .16)),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(radius),
+                child: Stack(fit: StackFit.expand, children: [
+                  ThumbImage(id: id, side: thumbSide),
+                  // cards sit on a solid background, so darkening == fading
+                  ColoredBox(color: SweeepColors.background.withValues(alpha: 1 - opacity)),
+                ]),
               ),
             ),
           ),

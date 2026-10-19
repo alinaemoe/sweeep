@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:math' as math;
-import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -116,13 +115,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderStat
     return Scaffold(
       body: Stack(
         children: [
-          Positioned(
-            left: -60,
-            top: 40,
+          const Positioned(
+            left: -140,
+            top: -60,
             child: IgnorePointer(
-              child: ImageFiltered(
-                imageFilter: ui.ImageFilter.blur(sigmaX: 60, sigmaY: 60),
-                child: const SizedBox(width: 300, height: 240, child: DecoratedBox(decoration: BoxDecoration(color: Color(0x17B8A6FF), shape: BoxShape.circle))),
+              child: SizedBox(
+                width: 460,
+                height: 420,
+                child: DecoratedBox(decoration: BoxDecoration(gradient: RadialGradient(colors: [Color(0x1FB8A6FF), Color(0x00B8A6FF)]))),
               ),
             ),
           ),
@@ -130,6 +130,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderStat
           Positioned.fill(
             child: ListView(
               controller: _scroll,
+              cacheExtent: 1400, // build and decode the lower carousels before they scroll in
               padding: EdgeInsets.fromLTRB(0, top + 64 + 260 - 6, 0, 120),
               children: [
                 if (data == null && home.hasError)
@@ -318,11 +319,14 @@ class _CompactStack extends StatelessWidget {
           offset: shift,
           child: Transform.rotate(
             angle: deg * math.pi / 180,
-            child: Opacity(
-              opacity: op,
-              child: DecoratedBox(
-                decoration: BoxDecoration(borderRadius: BorderRadius.circular(radius), border: Border.all(color: Colors.white.withValues(alpha: .16))),
-                child: ClipRRect(borderRadius: BorderRadius.circular(radius), child: ThumbImage(id: id, side: 200)),
+            child: DecoratedBox(
+              decoration: BoxDecoration(borderRadius: BorderRadius.circular(radius), border: Border.all(color: Colors.white.withValues(alpha: .16))),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(radius),
+                child: Stack(fit: StackFit.expand, children: [
+                  ThumbImage(id: id, side: 200),
+                  ColoredBox(color: SweeepColors.background.withValues(alpha: 1 - op)),
+                ]),
               ),
             ),
           ),
@@ -530,7 +534,7 @@ class _Header extends StatelessWidget {
               alignment: Alignment.topLeft,
               transform: Matrix4.translationValues(lerp(0, 8), lerp(0, 8), 0)..scaleByDouble(scale, scale, 1, 1),
               child: Stack(children: [
-                Positioned.fill(child: CustomPaint(painter: _OvalPainter(share: shareShown, mix: mix, progress: progress, phase: phase))),
+                Positioned.fill(child: RepaintBoundary(child: CustomPaint(painter: _OvalPainter(share: shareShown, mix: mix, progress: progress, phase: phase)))),
                 Center(
                   child: Opacity(
                     opacity: textAlpha,

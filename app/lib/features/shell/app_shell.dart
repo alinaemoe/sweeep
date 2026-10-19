@@ -1,5 +1,3 @@
-import 'dart:ui' as ui;
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -102,24 +100,21 @@ class SweeepNavBar extends StatelessWidget {
   ];
 
   @override
-  Widget build(BuildContext context) => ClipRRect(
-        borderRadius: BorderRadius.circular(31),
-        child: BackdropFilter(
-          filter: ui.ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-          child: Container(
-            height: 62,
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            decoration: BoxDecoration(
-              color: SweeepColors.card.withValues(alpha: .88),
-              borderRadius: BorderRadius.circular(31),
-              border: Border.all(color: Colors.white.withValues(alpha: .08)),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                for (var i = 0; i < _items.length; i++) _NavItem(icon: _items[i].$1, label: _items[i].$2, selected: i == index, onTap: () => onChanged(i)),
-              ],
-            ),
+  Widget build(BuildContext context) => RepaintBoundary(
+        child: Container(
+          height: 62,
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          decoration: BoxDecoration(
+            color: const Color(0xF2181920),
+            borderRadius: BorderRadius.circular(31),
+            border: Border.all(color: Colors.white.withValues(alpha: .08)),
+            boxShadow: const [BoxShadow(color: Color(0x66000000), blurRadius: 18, offset: Offset(0, 6))],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              for (var i = 0; i < _items.length; i++) _NavItem(icon: _items[i].$1, label: _items[i].$2, selected: i == index, onTap: () => onChanged(i)),
+            ],
           ),
         ),
       );
