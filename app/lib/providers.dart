@@ -118,10 +118,6 @@ class LibraryState {
     this.verifyTotal = 0,
     this.verifying = false,
     this.groupsBuilt,
-    this.fullScan = false,
-    this.paused = false,
-    this.dismissed = false,
-    this.grouping = false,
   });
 
   final bool syncing;
@@ -148,44 +144,6 @@ class LibraryState {
   final int verifyTotal;
   final BuildResult? groupsBuilt;
 
-  /// A long scan (first run or lots of new photos): shown on the Scan screen
-  /// instead of just inside the Home oval.
-  final bool fullScan;
-  final bool paused;
-
-  /// The user chose "Later" on the paused Scan screen.
-  final bool dismissed;
-  final bool grouping;
-
-  bool get busy => syncing || analyzing || verifying;
-
-  /// 0 reading library, 1 fingerprinting, 2 comparing, 3 grouping, 4 finished.
-  int get phase {
-    if (syncing) return 0;
-    if (analyzing) return 1;
-    if (grouping) return 3;
-    if (verifying) return 2;
-    if (paused) return analysisDone < analysisTotal ? 1 : 2;
-    return 4;
-  }
-
-  /// Overall scan progress 0..1 (read library 0-8%, hash 8-80%, compare 80-97%, group 98%).
-  double get progress {
-    double frac(int done, int total) => total <= 0 ? 1 : (done / total).clamp(0.0, 1.0);
-    switch (phase) {
-      case 0:
-        return .04;
-      case 1:
-        return .08 + .72 * frac(alreadyHashed + analysisDone, alreadyHashed + analysisTotal);
-      case 2:
-        return .8 + .17 * (verifyTotal == 0 ? 0 : frac(verifyDone, verifyTotal));
-      case 3:
-        return .98;
-      default:
-        return 1;
-    }
-  }
-
   LibraryState copyWith({
     bool? syncing,
     int? processed,
@@ -206,10 +164,6 @@ class LibraryState {
     int? verifyDone,
     int? verifyTotal,
     BuildResult? groupsBuilt,
-    bool? fullScan,
-    bool? paused,
-    bool? dismissed,
-    bool? grouping,
   }) =>
       LibraryState(
         syncing: syncing ?? this.syncing,
@@ -231,10 +185,6 @@ class LibraryState {
         verifyDone: verifyDone ?? this.verifyDone,
         verifyTotal: verifyTotal ?? this.verifyTotal,
         groupsBuilt: groupsBuilt ?? this.groupsBuilt,
-        fullScan: fullScan ?? this.fullScan,
-        paused: paused ?? this.paused,
-        dismissed: dismissed ?? this.dismissed,
-        grouping: grouping ?? this.grouping,
       );
 }
 
@@ -247,55 +197,17 @@ class LibraryController extends Notifier<LibraryState> {
   /// Whole scan (index -> hash -> duplicates -> groups), kept alive in the
   /// background by a foreground service for as long as it runs.
   Future<void> sync() async {
-    if (state.busy) return;
-    _cancel = false;
-    state = state.copyWith(syncing: true, processed: 0, paused: false, dismissed: false);
+    if (state.syncing || state.analyzing || state.verifying) return;
     await _foreground.start();
     try {
-      state = state.copyWith(fullScan: await _isBigScan());
       await _sync();
     } finally {
       await _foreground.stop();
     }
   }
 
-  bool _cancel = false;
-
-  /// Stops after the current batch; everything done so far is saved, and
-  /// [sync] picks up from there.
-  void pause() {
-    _cancel = true;
-    state = state.copyWith(paused: true);
-  }
-
-  /// "Later" on the paused Scan screen: back to Home with what is there.
-  void dismissScan() => state = state.copyWith(dismissed: true);
-
-  static const _bigScanFiles = 300;
-
-  /// First run (empty index) or plenty of unhashed photos.
-  Future<bool> _isBigScan() async {
-    final stats = await ref.read(indexServiceProvider).stats();
-    if (stats.total == 0) return true;
-    return await ref.read(analysisServiceProvider).pendingCount() >= _bigScanFiles;
-  }
-
-  bool _estimating = false;
-  DateTime _lastEstimate = DateTime.fromMillisecondsSinceEpoch(0);
-
-  /// Live "groups found / could free" while hashing, at most every 6 s.
-  void _maybeEstimate() {
-    if (_estimating || DateTime.now().difference(_lastEstimate) < const Duration(seconds: 6)) return;
-    _estimating = true;
-    ref.read(analysisServiceProvider).similarSummary().then((sim) {
-      state = state.copyWith(similar: sim);
-    }).catchError((_) {}).whenComplete(() {
-      _estimating = false;
-      _lastEstimate = DateTime.now();
-    });
-  }
-
   Future<void> _sync() async {
+    state = state.copyWith(syncing: true, processed: 0);
     final index = ref.read(indexServiceProvider);
     final media = ref.read(mediaSourceProvider);
     try {
@@ -317,9 +229,6 @@ class LibraryController extends Notifier<LibraryState> {
       }
       final avg = ids.isEmpty ? null : tsw.elapsedMilliseconds / ids.length;
       state = state.copyWith(syncing: false, thumbs: thumbs, thumbMsAvg: avg);
-      if (!state.fullScan && await ref.read(analysisServiceProvider).pendingCount() >= _bigScanFiles) {
-        state = state.copyWith(fullScan: true);
-      }
     } catch (e) {
       state = state.copyWith(syncing: false, error: e.toString());
       return;
@@ -330,23 +239,20 @@ class LibraryController extends Notifier<LibraryState> {
   /// Stage 2: hash everything not yet hashed; resumes after a restart.
   Future<void> analyze() async {
     if (state.analyzing) return;
-    if (_cancel) return;
     final svc = ref.read(analysisServiceProvider);
     try {
       final pending = await svc.pendingCount();
       final total = state.stats?.total ?? pending;
       state = state.copyWith(analyzing: true, analysisDone: 0, analysisTotal: pending, alreadyHashed: total - pending);
       final sw = Stopwatch()..start();
-      await svc.run(shouldCancel: () => _cancel, onProgress: (done, tot) {
+      await svc.run(onProgress: (done, tot) {
         state = state.copyWith(analysisDone: done, analysisTotal: tot);
         _foreground.update(done, tot, l10n.notifHashing(fmtNum(done), fmtNum(tot)));
-        _maybeEstimate();
       });
       final ms = sw.elapsedMilliseconds;
       final hs = await svc.stats();
       final sim = await svc.similarSummary();
       state = state.copyWith(analyzing: false, analysisMs: ms, hashStats: hs, similar: sim);
-      if (_cancel) return;
     } catch (e) {
       state = state.copyWith(analyzing: false, error: e.toString());
       return;
@@ -360,31 +266,19 @@ class LibraryController extends Notifier<LibraryState> {
     final groups = ref.read(groupServiceProvider);
     try {
       state = state.copyWith(verifying: true, verifyDone: 0, verifyTotal: 0);
-      await groups.hashExactCandidates(shouldCancel: () => _cancel, onProgress: (d, t) {
+      await groups.hashExactCandidates(onProgress: (d, t) {
         state = state.copyWith(verifyDone: d, verifyTotal: t);
         _foreground.update(d, t, l10n.notifChecking(fmtNum(d), fmtNum(t)));
       });
-      if (_cancel) {
-        state = state.copyWith(verifying: false);
-        return;
-      }
-      state = state.copyWith(grouping: true);
       final built = await groups.rebuild();
       ref.invalidate(groupsProvider);
       ref.invalidate(trashSummaryProvider);
       ref.invalidate(homeProvider);
-      state = state.copyWith(verifying: false, grouping: false, groupsBuilt: built);
+      state = state.copyWith(verifying: false, groupsBuilt: built);
     } catch (e) {
-      state = state.copyWith(verifying: false, grouping: false, error: e.toString());
+      state = state.copyWith(verifying: false, error: e.toString());
     }
   }
 }
 
 final libraryProvider = NotifierProvider<LibraryController, LibraryState>(LibraryController.new);
-
-/// Whether the full-screen Scan screen is up (long scans, or paused ones until
-/// the user taps "Later").
-final scanScreenProvider = Provider<bool>((ref) {
-  final s = ref.watch(libraryProvider);
-  return s.fullScan && !s.dismissed && (s.busy || s.grouping || s.paused);
-});

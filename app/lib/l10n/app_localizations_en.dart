@@ -541,53 +541,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String scanOfFiles(String done, String total) {
-    return '$done OF $total FILES';
-  }
-
-  @override
-  String get scanStepRead => 'Reading library';
-
-  @override
-  String get scanStepFinger => 'Fingerprinting photos';
-
-  @override
-  String get scanStepCompare => 'Comparing similar shots';
-
-  @override
-  String get scanStepGroup => 'Grouping & ranking';
-
-  @override
-  String get scanStatusDone => 'done';
-
-  @override
-  String get scanStatusNext => 'next';
-
-  @override
-  String get scanCountGroups => 'groups';
-
-  @override
-  String get scanCountShots => 'screenshots';
-
-  @override
-  String get scanCountFound => 'found so far';
-
-  @override
-  String get scanPrivacy => 'Analyzed on this device. Nothing is uploaded.';
-
-  @override
-  String get scanPausedNote => 'Paused. Progress is saved.';
-
-  @override
-  String get scanPause => 'Pause scan';
-
-  @override
-  String get scanResume => 'Resume scan';
-
-  @override
-  String get scanLater => 'Later';
-
-  @override
   String get toolsWater => 'Water';
 
   @override

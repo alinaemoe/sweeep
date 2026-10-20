@@ -11,12 +11,12 @@ Source: the design canvas linked in `CLAUDE.md` (boards Main, D2 Swipe, D3 Trash
 - **Groups (D10)**: sort chips (Biggest saving / Newest / Copies; no Videos chip, groups are photos only), multi-select, Clean N groups.
 - **Pager (D9)**: neighbour cards peek in, All groups button; BEST pill is 22 px.
 - **Timeline (D1)**: the Swipe tab is a month-by-month feed with progress, preview strips, Continue; a month opens the deck for just that month.
-- **Scan (D4)**: full-screen SCAAANNING, oval with %, four stages, live counters, Pause / Resume / Later. Shown for first runs and scans of 300+ new photos; quick rescans stay inside the Home oval.
 - Tools tab icon is the speaker from the prototype; app is portrait-only like the design.
 
 ## Still different
 | Where | Prototype | App |
 |---|---|---|
+| Scan (D4) | full screen: SCANNING jelly word, oval %, 4-step checklist, counters, Pause | dropped on purpose (tried, owner preferred it): progress stays inside the Home oval |
 | Swipe (D2) | file name in the info pill | date + size |
 | Paywall (D7) | designed | not built (decision postponed) |
 | Glass pills / nav | live `backdrop-filter: blur(12px)` | flat dark translucent (live blurs cost ~20 % dropped frames) |

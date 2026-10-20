@@ -22,9 +22,6 @@ Similar grouping: pHash Hamming <= 6, 5 s time window, single-link components sp
 ## Done
 Phase 0 skeleton; Phase 1 permissions/enumeration/delta index/gray thumbs; 1b Rust core + FFI + hashing with resume; Phase 2 duplicates + similar review UI; similar-grouping tightening (verified on phone: 601 groups, max x8). Tests: 24+9 Rust, 20 Flutter, all green. Home/Swipe/Trash/system delete/category lists/intro/nav shell done and verified on phone (test delete only with a throwaway file pushed via adb, MSYS_NO_PATHCONV=1).
 
-## Scan screen
-features/scan/scan_screen.dart, state in LibraryState (phase, progress, paused, fullScan) + scanScreenProvider; AppShell overlays it and hides the nav bar. Big scan = empty index or 300+ unhashed photos. Pause stops after the current batch, Resume = sync() again (checkpoints). Test on an emulator with ~1500 synthetic jpgs pushed to /sdcard/Pictures and scanned via MEDIA_SCANNER_SCAN_FILE broadcasts.
-
 ## Planned next (in rough order)
 1. (done) Home feed, Swipe, Trash, system delete via createDeleteRequest + CLEAAAN overlay.
 4. (done) Categories; Tools tab = Water/Dust/Sound test tone generator (TonePlugin.kt AudioTrack).
