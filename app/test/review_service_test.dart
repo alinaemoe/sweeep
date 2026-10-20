@@ -113,6 +113,32 @@ void main() {
     expect((await svc.trashed()).length, 2);
   });
 
+  test('every category has a swipe deck, and a tapped tile starts it', () async {
+    await add('shot1', shot: true, t: 1);
+    await add('shot2', shot: true, t: 2);
+    await add('shot3', shot: true, t: 3);
+    await add('vid', type: 1, t: 4);
+    await add('rec', type: 1, rec: true, t: 5);
+    await add('chat1', t: 6, chat: 'telegram');
+    await add('chat2', t: 7, chat: 'whatsapp');
+
+    expect((await svc.queue(SwipeSource.screenshots)).map((e) => e.id), ['shot3', 'shot2', 'shot1']);
+    expect((await svc.queue(SwipeSource.videos)).map((e) => e.id), ['vid']);
+    expect((await svc.queue(SwipeSource.screenRecordings)).map((e) => e.id), ['rec']);
+    expect((await svc.queue(SwipeSource.chat)).map((e) => e.id), ['chat2', 'chat1']);
+    expect((await svc.queue(SwipeSource.chat, chatSource: 'telegram')).map((e) => e.id), ['chat1']);
+
+    // starting on the second newest screenshot puts it first, the rest keep their order
+    expect((await svc.queue(SwipeSource.screenshots, startId: 'shot2')).map((e) => e.id), ['shot2', 'shot3', 'shot1']);
+    expect((await svc.queue(SwipeSource.screenshots, startId: 'nope')).map((e) => e.id), ['shot3', 'shot2', 'shot1']);
+
+    final v = (await svc.queue(SwipeSource.videos)).single;
+    expect(v.isVideo, isTrue);
+    expect(categoryOfSwipe(SwipeSource.videos), CategoryKind.videos);
+    expect(swipeSourceOf(CategoryKind.chat), SwipeSource.chat);
+    expect(categoryOfSwipe(SwipeSource.blurry) == null, isTrue);
+  });
+
   test('screen recordings are their own category, not part of videos', () async {
     await add('v1', type: 1, t: 1, size: 500);
     await add('r1', type: 1, rec: true, t: 2, size: 900);

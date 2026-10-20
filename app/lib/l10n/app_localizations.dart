@@ -1046,6 +1046,30 @@ abstract class AppLocalizations {
   /// **'Later'**
   String get scanLater;
 
+  /// No description provided for @modeGrid.
+  ///
+  /// In en, this message translates to:
+  /// **'Grid'**
+  String get modeGrid;
+
+  /// No description provided for @modeSwipe.
+  ///
+  /// In en, this message translates to:
+  /// **'Swipe'**
+  String get modeSwipe;
+
+  /// No description provided for @modeMonths.
+  ///
+  /// In en, this message translates to:
+  /// **'Months'**
+  String get modeMonths;
+
+  /// No description provided for @groupsMonthLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{groups} · save {size}'**
+  String groupsMonthLine(String groups, String size);
+
   /// No description provided for @toolsWater.
   ///
   /// In en, this message translates to:

@@ -607,6 +607,20 @@ class AppLocalizationsRu extends AppLocalizations {
   String get scanLater => 'Позже';
 
   @override
+  String get modeGrid => 'Сетка';
+
+  @override
+  String get modeSwipe => 'Свайп';
+
+  @override
+  String get modeMonths => 'Месяцы';
+
+  @override
+  String groupsMonthLine(String groups, String size) {
+    return '$groups · минус $size';
+  }
+
+  @override
   String get toolsWater => 'Вода';
 
   @override

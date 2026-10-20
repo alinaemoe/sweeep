@@ -11,6 +11,7 @@ Source: the design canvas linked in `CLAUDE.md` (boards Main, D2 Swipe, D3 Trash
 - **Groups (D10)**: sort chips (Biggest saving / Newest / Copies; no Videos chip, groups are photos only), multi-select, Clean N groups.
 - **Pager (D9)**: neighbour cards peek in, All groups button; BEST pill is 22 px.
 - **Timeline (D1)**: the Swipe tab is a month-by-month feed with progress, preview strips, Continue; a month opens the deck for just that month.
+- **View modes (own design):** every category list has a Grid | Swipe switch at the top; Duplicates/Similar have Grid | Months | Swipe. Tapping a tile on Home opens that category's Swipe deck on that photo; See all keeps the grid.
 - Tools tab icon is the speaker from the prototype; app is portrait-only like the design.
 
 ## Still different

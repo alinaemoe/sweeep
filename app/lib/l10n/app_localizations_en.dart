@@ -600,6 +600,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get scanLater => 'Later';
 
   @override
+  String get modeGrid => 'Grid';
+
+  @override
+  String get modeSwipe => 'Swipe';
+
+  @override
+  String get modeMonths => 'Months';
+
+  @override
+  String groupsMonthLine(String groups, String size) {
+    return '$groups · save $size';
+  }
+
+  @override
   String get toolsWater => 'Water';
 
   @override

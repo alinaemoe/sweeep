@@ -97,6 +97,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderStat
 
   void _push(Widget w) => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => w));
 
+  /// A tapped tile opens the Swipe deck of its category, starting on that item.
+  void _swipe(SwipeSource source, String id) => _push(SwipeScreen(source: source, startId: id));
+
   @override
   Widget build(BuildContext context) {
     final home = ref.watch(homeProvider);
@@ -191,23 +194,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderStat
       ],
       if (d.screenshots.count > 0) ...[
         _SectionHeader(l10n.secScreenshots, '${_n(d.screenshots.count)} · ${formatBytes(d.screenshots.bytes)}', l10n.seeAll, () => _push(const CategoryScreen(kind: CategoryKind.screenshots))),
-        _TileRow(height: 130, items: d.screenshots.items, builder: (it) => _Tile(item: it, width: 74, height: 130, radius: 14)),
+        _TileRow(height: 130, items: d.screenshots.items, builder: (it) => _Tile(item: it, width: 74, height: 130, radius: 14, onTap: () => _swipe(SwipeSource.screenshots, it.id))),
       ],
       if (d.screenRecordings.count > 0) ...[
         _SectionHeader(l10n.secScreenRecordings, '${_n(d.screenRecordings.count)} · ${formatBytes(d.screenRecordings.bytes)}', l10n.seeAll, () => _push(const CategoryScreen(kind: CategoryKind.screenRecordings))),
-        _TileRow(height: 130, items: d.screenRecordings.items, builder: (it) => _Tile(item: it, width: 74, height: 130, radius: 14, video: true)),
+        _TileRow(height: 130, items: d.screenRecordings.items, builder: (it) => _Tile(item: it, width: 74, height: 130, radius: 14, video: true, onTap: () => _swipe(SwipeSource.screenRecordings, it.id))),
       ],
       if (d.videos.count > 0) ...[
         _SectionHeader(l10n.secVideos, '${_n(d.videos.count)} · ${formatBytes(d.videos.bytes)}', l10n.seeAll, () => _push(const CategoryScreen(kind: CategoryKind.videos))),
-        _TileRow(height: 96, items: d.videos.items, builder: (it) => _Tile(item: it, width: 140, height: 96, radius: 18, video: true)),
+        _TileRow(height: 96, items: d.videos.items, builder: (it) => _Tile(item: it, width: 140, height: 96, radius: 18, video: true, onTap: () => _swipe(SwipeSource.videos, it.id))),
       ],
       if (d.chat.count > 0) ...[
         _SectionHeader(l10n.secChat, '${_n(d.chat.count)} · ${formatBytes(d.chat.bytes)}', l10n.seeAll, () => _push(const CategoryScreen(kind: CategoryKind.chat))),
-        _TileRow(height: 96, items: d.chat.items, builder: (it) => _Tile(item: it, width: 96, height: 96, radius: 18, video: it.durationMs != null)),
+        _TileRow(height: 96, items: d.chat.items, builder: (it) => _Tile(item: it, width: 96, height: 96, radius: 18, video: it.durationMs != null, onTap: () => _swipe(SwipeSource.chat, it.id))),
       ],
       if (d.blurry.count > 0) ...[
         _SectionHeader(l10n.secBlurry, '${_n(d.blurry.count)} · ${formatBytes(d.blurry.bytes)}', l10n.actionSwipe, () => _push(const SwipeScreen(source: SwipeSource.blurry))),
-        _TileRow(height: 96, items: d.blurry.items, builder: (it) => _Tile(item: it, width: 96, height: 96, radius: 18)),
+        _TileRow(height: 96, items: d.blurry.items, builder: (it) => _Tile(item: it, width: 96, height: 96, radius: 18, onTap: () => _swipe(SwipeSource.blurry, it.id))),
       ],
     ];
   }
@@ -367,8 +370,9 @@ class _TileRow extends StatelessWidget {
 }
 
 class _Tile extends StatelessWidget {
-  const _Tile({required this.item, required this.width, required this.height, required this.radius, this.video = false});
+  const _Tile({required this.item, required this.width, required this.height, required this.radius, required this.onTap, this.video = false});
   final HomeItem item;
+  final VoidCallback onTap;
   final double width;
   final double height;
   final double radius;
@@ -387,7 +391,8 @@ class _Tile extends StatelessWidget {
           bottom: 8,
           child: GlassPill(height: 20, padding: const EdgeInsets.symmetric(horizontal: 8), child: Text(text, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700))),
         );
-    return Semantics(
+    return Pressable(
+      onTap: onTap,
       label: video
           ? (item.durationMs != null ? l10n.semVideoLen(_len(item.durationMs!), formatBytes(item.sizeBytes)) : l10n.semVideo(formatBytes(item.sizeBytes)))
           : (item.tag != null ? l10n.semTagged(_tagText(item.tag!), formatBytes(item.sizeBytes)) : l10n.semPhoto(formatBytes(item.sizeBytes))),

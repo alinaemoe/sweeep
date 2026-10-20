@@ -6,7 +6,7 @@ import '../platform/media_source.dart';
 import 'group_service.dart';
 import 'home_service.dart';
 
-enum SwipeSource { all, screenshots, blurry }
+enum SwipeSource { all, screenshots, screenRecordings, videos, chat, blurry }
 
 /// '2026-10' -> 'October 2026' / 'Октябрь 2026'.
 String monthTitle(String key) => fmtMonth(int.parse(key.substring(0, 4)), int.parse(key.substring(5)));
@@ -26,11 +26,29 @@ class MonthSummary {
 
 enum CategoryKind { videos, screenRecordings, screenshots, chat }
 
+/// The Swipe deck that goes with a grid category (and back).
+SwipeSource swipeSourceOf(CategoryKind k) => switch (k) {
+      CategoryKind.videos => SwipeSource.videos,
+      CategoryKind.screenRecordings => SwipeSource.screenRecordings,
+      CategoryKind.screenshots => SwipeSource.screenshots,
+      CategoryKind.chat => SwipeSource.chat,
+    };
+
+CategoryKind? categoryOfSwipe(SwipeSource s) => switch (s) {
+      SwipeSource.videos => CategoryKind.videos,
+      SwipeSource.screenRecordings => CategoryKind.screenRecordings,
+      SwipeSource.screenshots => CategoryKind.screenshots,
+      SwipeSource.chat => CategoryKind.chat,
+      _ => null,
+    };
+
 class SwipeItem {
-  const SwipeItem({required this.id, required this.sizeBytes, required this.createdAtMs});
+  const SwipeItem({required this.id, required this.sizeBytes, required this.createdAtMs, this.isVideo = false, this.durationMs});
   final String id;
   final int sizeBytes;
   final int createdAtMs;
+  final bool isVideo;
+  final int? durationMs;
 }
 
 class CategoryItem {
@@ -104,24 +122,38 @@ class ReviewService {
 
   /// Undecided photos for [source], newest first. [month] ('YYYY-MM') narrows
   /// the queue to one month of the Timeline.
-  Future<List<SwipeItem>> queue(SwipeSource source, {String? month}) async {
+  ///
+  /// [chatSource] narrows the chat deck to one app; [startId] moves that item
+  /// to the front, so tapping a tile starts the deck on it.
+  Future<List<SwipeItem>> queue(SwipeSource source, {String? month, String? chatSource, String? startId}) async {
     final where = switch (source) {
       SwipeSource.all => 'a.media_type = 0',
       SwipeSource.screenshots => 'a.media_type = 0 AND a.is_screenshot = 1',
+      SwipeSource.screenRecordings => 'a.media_type = 1 AND a.is_screen_recording = 1',
+      SwipeSource.videos => 'a.media_type = 1 AND a.is_screen_recording = 0',
+      SwipeSource.chat => chatSource == null ? 'a.chat_source IS NOT NULL' : 'a.chat_source = ?',
       SwipeSource.blurry => '''a.media_type = 0 AND a.is_screenshot = 0 AND a.id IN (
           SELECT asset_id FROM hashes
           WHERE (laplacian_var IS NOT NULL AND laplacian_var < ${HomeService.blurBelow})
              OR (median_brightness IS NOT NULL AND median_brightness < ${HomeService.darkBelow}))''',
     };
     final rows = await db.customSelect('''
-      SELECT a.id AS id, a.size_bytes AS size, a.created_at_ms AS t FROM assets a
+      SELECT a.id AS id, a.size_bytes AS size, a.created_at_ms AS t, a.media_type AS mt, a.duration_ms AS dur FROM assets a
       WHERE $where
         AND a.id NOT IN (SELECT asset_id FROM trash_items)
         AND a.id NOT IN (SELECT asset_id FROM decisions)
         ${month == null ? '' : "AND $_monthExpr = '$month'"}
       ORDER BY a.created_at_ms DESC LIMIT $queueLimit
-    ''').get();
-    return [for (final r in rows) SwipeItem(id: r.read<String>('id'), sizeBytes: r.read<int>('size'), createdAtMs: r.read<int>('t'))];
+    ''', variables: [if (source == SwipeSource.chat && chatSource != null) Variable.withString(chatSource)]).get();
+    final items = [
+      for (final r in rows)
+        SwipeItem(id: r.read<String>('id'), sizeBytes: r.read<int>('size'), createdAtMs: r.read<int>('t'), isVideo: r.read<int>('mt') == 1, durationMs: r.read<int?>('dur')),
+    ];
+    if (startId != null) {
+      final at = items.indexWhere((e) => e.id == startId);
+      if (at > 0) items.insert(0, items.removeAt(at));
+    }
+    return items;
   }
 
   /// All items of a category (not yet in the app trash). [chatSource] filters

@@ -5,28 +5,39 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/jelly.dart';
+import '../../core/mode_switch.dart';
 import '../../core/theme.dart';
 import '../../l10n/l10n.dart';
 import '../../core/widgets.dart';
 import '../../index/review_service.dart';
 import '../../providers.dart';
+import '../category/category_screen.dart';
 import '../groups/group_widgets.dart';
 import '../trash/trash_screen.dart';
 
 String sourceTitle(SwipeSource s) => switch (s) {
       SwipeSource.all => l10n.srcAll,
       SwipeSource.screenshots => l10n.secScreenshots,
+      SwipeSource.screenRecordings => l10n.secScreenRecordings,
+      SwipeSource.videos => l10n.secVideos,
+      SwipeSource.chat => l10n.secChat,
       SwipeSource.blurry => l10n.secBlurry,
     };
 
 /// Tinder-style review: drag left = trash, right = keep. The SWIIIIPE word
 /// stretches with the drag, CLEAAAN waves after a trash.
 class SwipeScreen extends ConsumerStatefulWidget {
-  const SwipeScreen({super.key, required this.source, this.embedded = false, this.month});
+  const SwipeScreen({super.key, required this.source, this.embedded = false, this.month, this.chatSource, this.startId});
   final SwipeSource source;
 
   /// 'YYYY-MM': swipe just that month (from the Timeline).
   final String? month;
+
+  /// Chat deck only: just this app.
+  final String? chatSource;
+
+  /// Start on this item (a tapped tile).
+  final String? startId;
 
   /// Shown as a tab of the app shell (no back button, room for the nav bar).
   final bool embedded;
@@ -54,7 +65,7 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> with TickerProviderSt
   void initState() {
     super.initState();
     final svc = ref.read(reviewServiceProvider);
-    svc.queue(widget.source, month: widget.month).then((q) async {
+    svc.queue(widget.source, month: widget.month, chatSource: widget.chatSource, startId: widget.startId).then((q) async {
       final seen = await svc.swipeHintSeen();
       if (mounted) {
         setState(() {
@@ -257,7 +268,21 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> with TickerProviderSt
                   ),
                 ]),
               ),
-              SizedBox(height: 64, child: Align(alignment: Alignment.bottomCenter, child: _Word(dx: _dx, wave: _wave, color: accent))),
+              if (categoryOfSwipe(widget.source) != null && !widget.embedded)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+                  child: ModeSwitch<int>(
+                    value: 1,
+                    options: [
+                      ModeOption(value: 0, label: l10n.modeGrid, icon: gridModeIcon),
+                      ModeOption(value: 1, label: l10n.modeSwipe, icon: swipeModeIcon),
+                    ],
+                    onChanged: (_) => Navigator.of(context).pushReplacement(MaterialPageRoute<void>(
+                      builder: (_) => CategoryScreen(kind: categoryOfSwipe(widget.source)!, initialSource: widget.chatSource),
+                    )),
+                  ),
+                ),
+              SizedBox(height: categoryOfSwipe(widget.source) != null ? 52 : 64, child: Align(alignment: Alignment.bottomCenter, child: _Word(dx: _dx, wave: _wave, color: accent))),
               const SizedBox(height: 12),
               Expanded(
                 child: q == null
@@ -402,6 +427,10 @@ class _Deck extends StatelessWidget {
                     decoration: BoxDecoration(borderRadius: BorderRadius.circular(30), boxShadow: const [BoxShadow(color: Color(0x73000000), blurRadius: 40, offset: Offset(0, 20))]),
                     child: _Photo(id: item.id, tint: dx < 0 ? SweeepColors.trash.withValues(alpha: math.min(.35, -dx / 300)) : SweeepColors.keep.withValues(alpha: math.min(.3, dx / 300))),
                   ),
+                  if (item.isVideo)
+                    const IgnorePointer(
+                      child: Center(child: DecoratedBox(decoration: BoxDecoration(color: Color(0x8C0F1015), shape: BoxShape.circle), child: Padding(padding: EdgeInsets.all(16), child: Icon(Icons.play_arrow_rounded, size: 44, color: SweeepColors.text)))),
+                    ),
                   Positioned(left: 0, right: 0, top: 26, child: Center(child: Opacity(opacity: later ? (-dy / 90).clamp(0.0, 1.0) : 0, child: _Stamp(l10n.stampLater, SweeepColors.brand)))),
                     Positioned(right: 22, top: 26, child: Opacity(opacity: trashA, child: Transform.rotate(angle: 10 * math.pi / 180, child: _Stamp(l10n.stampTrash, SweeepColors.trash)))),
                   Positioned(left: 22, top: 26, child: Opacity(opacity: keepA, child: Transform.rotate(angle: -10 * math.pi / 180, child: _Stamp(l10n.stampKeep, SweeepColors.keep)))),
@@ -413,7 +442,7 @@ class _Deck extends StatelessWidget {
                       height: 48,
                       padding: const EdgeInsets.symmetric(horizontal: 18),
                       child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                        Text(fmtDate(d), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700)),
+                        Text(item.isVideo && item.durationMs != null ? '${fmtDate(d)} · ${_videoLen(item.durationMs!)}' : fmtDate(d), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700)),
                         Text(formatBytes(item.sizeBytes), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: SweeepColors.textMuted)),
                       ]),
                     ),
@@ -426,6 +455,11 @@ class _Deck extends StatelessWidget {
       ]),
     );
   }
+}
+
+String _videoLen(int ms) {
+  final s = (ms / 1000).round();
+  return '${s ~/ 60}:${(s % 60).toString().padLeft(2, '0')}';
 }
 
 class _Photo extends ConsumerWidget {

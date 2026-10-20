@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/mode_switch.dart';
 import '../../core/theme.dart';
 import '../../l10n/l10n.dart';
 import '../../core/widgets.dart';
 import '../../index/group_service.dart';
+import '../../index/review_service.dart' show monthTitle;
 import '../../providers.dart';
 import 'group_pager.dart';
 import 'group_widgets.dart';
@@ -24,6 +26,7 @@ class GroupsScreen extends ConsumerStatefulWidget {
 
 class _GroupsScreenState extends ConsumerState<GroupsScreen> {
   _Sort _sort = _Sort.saving;
+  int _view = 0; // 0 grid, 1 months
   final Set<int> _picked = {};
 
   List<GroupView> _sorted(List<GroupView> groups) {
@@ -60,6 +63,92 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
     ScaffoldMessenger.of(context)
       ..clearSnackBars()
       ..showSnackBar(SnackBar(content: Text(l10n.movedToTrash(filesLabel(list.length)))));
+  }
+
+  /// One group stack with its select circle.
+  Widget _card(GroupView g) {
+    final kind = widget.kind;
+    final on = _picked.contains(g.id);
+    return Pressable(
+      label: l10n.groupSemantics(kindTitle(kind), g.members.length, on ? l10n.stateSelected : l10n.stateNotSelected),
+      onTap: () {
+        if (_picked.isNotEmpty) {
+          _toggle(g.id);
+        } else {
+          Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => GroupPager(kind: kind, initialGroupId: g.id)));
+        }
+      },
+      child: Stack(fit: StackFit.expand, clipBehavior: Clip.none, children: [
+        GroupStack(group: g),
+        if (on)
+          IgnorePointer(
+            child: DecoratedBox(decoration: BoxDecoration(borderRadius: BorderRadius.circular(22), border: Border.all(color: SweeepColors.brand, width: 2))),
+          ),
+        Positioned(
+          right: 4,
+          top: 4,
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => _toggle(g.id),
+            child: Padding(
+              padding: const EdgeInsets.all(6),
+              child: _Check(on: on),
+            ),
+          ),
+        ),
+      ]),
+    );
+  }
+
+  /// Groups under month headers (newest month first, biggest saving first
+  /// inside a month): the same rhythm as the Timeline.
+  Widget _monthsList(List<GroupView> groups, bool noSelection) {
+    final byMonth = <String, List<GroupView>>{};
+    for (final g in groups) {
+      final newest = g.members.fold<int>(0, (m, x) => x.createdAtMs > m ? x.createdAtMs : m);
+      final t = DateTime.fromMillisecondsSinceEpoch(newest);
+      (byMonth['${t.year}-${t.month.toString().padLeft(2, '0')}'] ??= []).add(g);
+    }
+    final keys = byMonth.keys.toList()..sort((a, b) => b.compareTo(a));
+    final rows = <Object>[]; // a month key, or up to two groups for one row
+    for (final k in keys) {
+      rows.add(k);
+      final l = byMonth[k]!..sort((a, b) => b.savingsBytes.compareTo(a.savingsBytes));
+      for (var i = 0; i < l.length; i += 2) {
+        rows.add(l.sublist(i, i + 2 > l.length ? l.length : i + 2));
+      }
+    }
+    final cardH = (MediaQuery.sizeOf(context).width - 48 - 22) / 2 / .85;
+    return ListView.builder(
+      padding: EdgeInsets.fromLTRB(24, 4, 24, noSelection ? 24 : 140),
+      itemCount: rows.length,
+      itemBuilder: (context, i) {
+        final r = rows[i];
+        if (r is String) {
+          final list = byMonth[r]!;
+          final save = list.fold<int>(0, (s, g) => s + g.savingsBytes);
+          return Padding(
+            padding: const EdgeInsets.only(top: 18, bottom: 12),
+            child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
+              Expanded(child: Text(monthTitle(r), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, letterSpacing: -.3))),
+              Text(l10n.groupsMonthLine(l10n.groupsCount(list.length), formatBytes(save)), style: const TextStyle(fontSize: 13, color: SweeepColors.textMutedSmall, fontWeight: FontWeight.w600)),
+            ]),
+          );
+        }
+        final pair = r as List<GroupView>;
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 20),
+          child: SizedBox(
+            height: cardH,
+            child: Row(children: [
+              Expanded(child: _card(pair[0])),
+              const SizedBox(width: 22),
+              Expanded(child: pair.length > 1 ? _card(pair[1]) : const SizedBox.shrink()),
+            ]),
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -118,54 +207,44 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
                   ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
-                    child: Wrap(spacing: 8, children: [
-                      _SortChip(l10n.sortSaving, _sort == _Sort.saving, () => setState(() => _sort = _Sort.saving)),
-                      _SortChip(l10n.sortNewest, _sort == _Sort.newest, () => setState(() => _sort = _Sort.newest)),
-                      _SortChip(l10n.sortCopies, _sort == _Sort.copies, () => setState(() => _sort = _Sort.copies)),
-                    ]),
+                    child: ModeSwitch<int>(
+                      value: _view,
+                      options: [
+                        ModeOption(value: 0, label: l10n.modeGrid, icon: gridModeIcon),
+                        ModeOption(value: 1, label: l10n.modeMonths, icon: monthsModeIcon),
+                        ModeOption(value: 2, label: l10n.modeSwipe, icon: swipeModeIcon),
+                      ],
+                      onChanged: (v) {
+                        if (v == 2) {
+                          Navigator.of(context).pushReplacement(MaterialPageRoute<void>(builder: (_) => GroupPager(kind: kind)));
+                        } else {
+                          HapticFeedback.selectionClick();
+                          setState(() => _view = v);
+                        }
+                      },
+                    ),
                   ),
+                  if (_view == 0)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+                      child: Wrap(spacing: 8, children: [
+                        _SortChip(l10n.sortSaving, _sort == _Sort.saving, () => setState(() => _sort = _Sort.saving)),
+                        _SortChip(l10n.sortNewest, _sort == _Sort.newest, () => setState(() => _sort = _Sort.newest)),
+                        _SortChip(l10n.sortCopies, _sort == _Sort.copies, () => setState(() => _sort = _Sort.copies)),
+                      ]),
+                    ),
                   const SizedBox(height: 4),
                   Expanded(
                     child: groups.isEmpty
                         ? Center(child: Text(l10n.nothingLeft, style: const TextStyle(color: SweeepColors.textMutedSmall, fontSize: 16)))
-                        : GridView.builder(
-                            padding: EdgeInsets.fromLTRB(24, 14, 24, picked.isEmpty ? 24 : 140),
-                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, mainAxisSpacing: 20, crossAxisSpacing: 22, childAspectRatio: .85),
-                            itemCount: groups.length,
-                            itemBuilder: (context, i) {
-                              final g = groups[i];
-                              final on = _picked.contains(g.id);
-                              return Pressable(
-                                label: l10n.groupSemantics(kindTitle(kind), g.members.length, on ? l10n.stateSelected : l10n.stateNotSelected),
-                                onTap: () {
-                                  if (_picked.isNotEmpty) {
-                                    _toggle(g.id);
-                                  } else {
-                                    Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => GroupPager(kind: kind, initialGroupId: g.id)));
-                                  }
-                                },
-                                child: Stack(fit: StackFit.expand, clipBehavior: Clip.none, children: [
-                                  GroupStack(group: g),
-                                  if (on)
-                                    IgnorePointer(
-                                      child: DecoratedBox(decoration: BoxDecoration(borderRadius: BorderRadius.circular(22), border: Border.all(color: SweeepColors.brand, width: 2))),
-                                    ),
-                                  Positioned(
-                                    right: 4,
-                                    top: 4,
-                                    child: GestureDetector(
-                                      behavior: HitTestBehavior.opaque,
-                                      onTap: () => _toggle(g.id),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(6),
-                                        child: _Check(on: on),
-                                      ),
-                                    ),
-                                  ),
-                                ]),
-                              );
-                            },
-                          ),
+                        : _view == 0
+                            ? GridView.builder(
+                                padding: EdgeInsets.fromLTRB(24, 14, 24, picked.isEmpty ? 24 : 140),
+                                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, mainAxisSpacing: 20, crossAxisSpacing: 22, childAspectRatio: .85),
+                                itemCount: groups.length,
+                                itemBuilder: (context, i) => _card(groups[i]),
+                              )
+                            : _monthsList(groups, picked.isEmpty),
                   ),
                 ],
               ),

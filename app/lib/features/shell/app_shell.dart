@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/mode_switch.dart';
 import '../../core/theme.dart';
 import '../../l10n/l10n.dart';
 import '../../providers.dart';
@@ -94,7 +95,7 @@ class SweeepNavBar extends StatelessWidget {
 
   static List<(Widget Function(Color), String)> get _items => [
         ((c) => Icon(Icons.auto_awesome_rounded, size: 22, color: c), l10n.navClean),
-        ((c) => _SwipeStackIcon(color: c), l10n.navSwipe),
+        ((c) => SwipeStackIcon(color: c), l10n.navSwipe),
         ((c) => Icon(Icons.volume_up_outlined, size: 22, color: c), l10n.navTools),
         ((c) => Icon(Icons.delete_outline_rounded, size: 22, color: c), l10n.navTrash),
       ];
@@ -169,38 +170,4 @@ class _NavItem extends StatelessWidget {
           ),
         ),
       );
-}
-
-/// Two cards, one peeking out from behind the other: the Swipe tab.
-class _SwipeStackIcon extends StatelessWidget {
-  const _SwipeStackIcon({required this.color});
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) => SizedBox(width: 22, height: 22, child: CustomPaint(painter: _StackPainter(color)));
-}
-
-class _StackPainter extends CustomPainter {
-  const _StackPainter(this.color);
-  final Color color;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final stroke = Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.8
-      ..strokeJoin = StrokeJoin.round;
-    final front = RRect.fromRectAndRadius(const Rect.fromLTWH(2.5, 6.5, 11.5, 14), const Radius.circular(3));
-    final back = RRect.fromRectAndRadius(const Rect.fromLTWH(8, 2, 11.5, 14), const Radius.circular(3));
-    // the front card hides the part of the back card that is behind it
-    canvas.save();
-    canvas.clipPath(Path.combine(PathOperation.difference, Path()..addRect(Offset.zero & size), Path()..addRRect(front.inflate(.9))));
-    canvas.drawRRect(back, stroke..color = color.withValues(alpha: .7));
-    canvas.restore();
-    canvas.drawRRect(front, stroke..color = color);
-  }
-
-  @override
-  bool shouldRepaint(_StackPainter old) => old.color != color;
 }

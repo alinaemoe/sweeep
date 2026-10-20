@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/mode_switch.dart';
 import '../../core/theme.dart';
 import '../../l10n/l10n.dart';
 import '../../index/review_service.dart';
@@ -21,8 +22,11 @@ String _sourceName(String s) => s.isEmpty ? s : s[0].toUpperCase() + s.substring
 /// Grid of one category (videos, screenshots, chat media). Tap to select,
 /// then move the selection to the app trash. Nothing leaves the device here.
 class CategoryScreen extends ConsumerStatefulWidget {
-  const CategoryScreen({super.key, required this.kind});
+  const CategoryScreen({super.key, required this.kind, this.initialSource});
   final CategoryKind kind;
+
+  /// Chat only: start with this app selected.
+  final String? initialSource;
 
   @override
   ConsumerState<CategoryScreen> createState() => _CategoryScreenState();
@@ -31,7 +35,7 @@ class CategoryScreen extends ConsumerStatefulWidget {
 class _CategoryScreenState extends ConsumerState<CategoryScreen> {
   List<CategoryItem>? _items;
   List<String> _sources = const [];
-  String? _source; // chat filter, null = all
+  late String? _source = widget.initialSource; // chat filter, null = all
   late bool _bySize = widget.kind == CategoryKind.videos || widget.kind == CategoryKind.screenRecordings;
   final _selected = <String>{};
 
@@ -107,12 +111,6 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                     style: IconButton.styleFrom(backgroundColor: SweeepColors.card, foregroundColor: SweeepColors.text, fixedSize: const Size(44, 44), side: const BorderSide(color: SweeepColors.cardBorder)),
                   ),
                   const Spacer(),
-                  if (widget.kind == CategoryKind.screenshots)
-                    TextButton(
-                      onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const SwipeScreen(source: SwipeSource.screenshots))).then((_) => _load()),
-                      style: TextButton.styleFrom(foregroundColor: SweeepColors.brand, minimumSize: const Size(48, 44)),
-                      child: Text(l10n.actionSwipe, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
-                    ),
                   TextButton(
                     onPressed: items == null || items.isEmpty ? null : () => setState(() => allSelected ? _selected.clear() : _selected.addAll(items.map((e) => e.id))),
                     style: TextButton.styleFrom(foregroundColor: SweeepColors.brand, minimumSize: const Size(48, 44)),
@@ -127,6 +125,19 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Text(items == null ? '' : '${filesLabel(items.length)} · ${formatBytes(total)}', style: const TextStyle(fontSize: 14, color: SweeepColors.textMutedSmall, fontWeight: FontWeight.w600)),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+                child: ModeSwitch<int>(
+                  value: 0,
+                  options: [
+                    ModeOption(value: 0, label: l10n.modeGrid, icon: gridModeIcon),
+                    ModeOption(value: 1, label: l10n.modeSwipe, icon: swipeModeIcon),
+                  ],
+                  onChanged: (_) => Navigator.of(context).pushReplacement(MaterialPageRoute<void>(
+                    builder: (_) => SwipeScreen(source: swipeSourceOf(widget.kind), chatSource: _source),
+                  )),
+                ),
               ),
               SizedBox(
                 height: 60,

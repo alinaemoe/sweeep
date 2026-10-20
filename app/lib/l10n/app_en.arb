@@ -563,6 +563,20 @@
   "scanPause": "Pause scan",
   "scanResume": "Resume scan",
   "scanLater": "Later",
+  "modeGrid": "Grid",
+  "modeSwipe": "Swipe",
+  "modeMonths": "Months",
+  "groupsMonthLine": "{groups} · save {size}",
+  "@groupsMonthLine": {
+    "placeholders": {
+      "groups": {
+        "type": "String"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
   "toolsWater": "Water",
   "toolsDust": "Dust",
   "toolsSound": "Sound test",
