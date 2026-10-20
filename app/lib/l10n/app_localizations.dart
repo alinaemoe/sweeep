@@ -1070,6 +1070,24 @@ abstract class AppLocalizations {
   /// **'{groups} · save {size}'**
   String groupsMonthLine(String groups, String size);
 
+  /// No description provided for @videoPlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Play video'**
+  String get videoPlay;
+
+  /// No description provided for @videoPause.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause video'**
+  String get videoPause;
+
+  /// No description provided for @videoFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t play this video'**
+  String get videoFailed;
+
   /// No description provided for @toolsWater.
   ///
   /// In en, this message translates to:

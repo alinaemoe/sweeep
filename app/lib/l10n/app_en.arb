@@ -577,6 +577,9 @@
       }
     }
   },
+  "videoPlay": "Play video",
+  "videoPause": "Pause video",
+  "videoFailed": "Can't play this video",
   "toolsWater": "Water",
   "toolsDust": "Dust",
   "toolsSound": "Sound test",

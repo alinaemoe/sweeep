@@ -614,6 +614,15 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get videoPlay => 'Play video';
+
+  @override
+  String get videoPause => 'Pause video';
+
+  @override
+  String get videoFailed => 'Can\'t play this video';
+
+  @override
   String get toolsWater => 'Water';
 
   @override

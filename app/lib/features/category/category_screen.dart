@@ -110,51 +110,60 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                     icon: const Icon(Icons.chevron_left_rounded),
                     style: IconButton.styleFrom(backgroundColor: SweeepColors.card, foregroundColor: SweeepColors.text, fixedSize: const Size(44, 44), side: const BorderSide(color: SweeepColors.cardBorder)),
                   ),
-                  const Spacer(),
-                  TextButton(
-                    onPressed: items == null || items.isEmpty ? null : () => setState(() => allSelected ? _selected.clear() : _selected.addAll(items.map((e) => e.id))),
-                    style: TextButton.styleFrom(foregroundColor: SweeepColors.brand, minimumSize: const Size(48, 44)),
-                    child: Text(allSelected ? l10n.clear : l10n.selectAll, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+                ]),
+              ),
+              // title and count on the left, the Grid | Swipe switch on the right
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 4, 14, 0),
+                child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
+                  Expanded(
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Text(categoryTitle(widget.kind), style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w800, letterSpacing: -1)),
+                      const SizedBox(height: 4),
+                      Text(items == null ? '' : '${filesLabel(items.length)} · ${formatBytes(total)}', style: const TextStyle(fontSize: 14, color: SweeepColors.textMutedSmall, fontWeight: FontWeight.w600)),
+                    ]),
+                  ),
+                  ModeSwitch<int>(
+                    value: 0,
+                    options: [
+                      ModeOption(value: 0, label: l10n.modeGrid, icon: gridModeIcon),
+                      ModeOption(value: 1, label: l10n.modeSwipe, icon: swipeModeIcon),
+                    ],
+                    onChanged: (_) => Navigator.of(context).pushReplacement(MaterialPageRoute<void>(
+                      builder: (_) => SwipeScreen(source: swipeSourceOf(widget.kind), chatSource: _source),
+                    )),
                   ),
                 ]),
               ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 8, 20, 4),
-                child: Text(categoryTitle(widget.kind), style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w800, letterSpacing: -1)),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Text(items == null ? '' : '${filesLabel(items.length)} · ${formatBytes(total)}', style: const TextStyle(fontSize: 14, color: SweeepColors.textMutedSmall, fontWeight: FontWeight.w600)),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
-                child: ModeSwitch<int>(
-                  value: 0,
-                  options: [
-                    ModeOption(value: 0, label: l10n.modeGrid, icon: gridModeIcon),
-                    ModeOption(value: 1, label: l10n.modeSwipe, icon: swipeModeIcon),
-                  ],
-                  onChanged: (_) => Navigator.of(context).pushReplacement(MaterialPageRoute<void>(
-                    builder: (_) => SwipeScreen(source: swipeSourceOf(widget.kind), chatSource: _source),
-                  )),
-                ),
-              ),
+              // sort chips, with Select all at the far end
               SizedBox(
                 height: 60,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.fromLTRB(20, 10, 20, 6),
-                  children: [
-                    _Chip(l10n.sortNewest, !_bySize, () => _sort(false)),
-                    const SizedBox(width: 8),
-                    _Chip(l10n.sortLargest, _bySize, () => _sort(true)),
-                    if (widget.kind == CategoryKind.chat && _sources.length > 1) ...[
-                      const SizedBox(width: 16),
-                      _Chip(l10n.allApps, _source == null, () => _filter(null)),
-                      for (final s in _sources) ...[const SizedBox(width: 8), _Chip(_sourceName(s), _source == s, () => _filter(s))],
-                    ],
-                  ],
-                ),
+                child: Row(children: [
+                  Expanded(
+                    child: ListView(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.fromLTRB(20, 10, 8, 6),
+                      children: [
+                        _Chip(l10n.sortNewest, !_bySize, () => _sort(false)),
+                        const SizedBox(width: 8),
+                        _Chip(l10n.sortLargest, _bySize, () => _sort(true)),
+                        if (widget.kind == CategoryKind.chat && _sources.length > 1) ...[
+                          const SizedBox(width: 16),
+                          _Chip(l10n.allApps, _source == null, () => _filter(null)),
+                          for (final s in _sources) ...[const SizedBox(width: 8), _Chip(_sourceName(s), _source == s, () => _filter(s))],
+                        ],
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8, top: 4),
+                    child: TextButton(
+                      onPressed: items == null || items.isEmpty ? null : () => setState(() => allSelected ? _selected.clear() : _selected.addAll(items.map((e) => e.id))),
+                      style: TextButton.styleFrom(foregroundColor: SweeepColors.brand, minimumSize: const Size(48, 44)),
+                      child: Text(allSelected ? l10n.clear : l10n.selectAll, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+                    ),
+                  ),
+                ]),
               ),
               Expanded(
                 child: items == null

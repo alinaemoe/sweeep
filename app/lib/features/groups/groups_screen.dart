@@ -194,35 +194,36 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
                     ]),
                   ),
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 10, 20, 2),
-                    child: Text(kindTitle(kind), style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w800, letterSpacing: -1)),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Text(
-                      l10n.groupsSummary(l10n.groupsCount(groups.length), formatBytes(total)) +
-                          (trash != null && trash.count > 0 ? l10n.groupsInTrash(trash.count, formatBytes(trash.bytes)) : ''),
-                      style: const TextStyle(fontSize: 14, color: SweeepColors.textMutedSmall, fontWeight: FontWeight.w600),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
-                    child: ModeSwitch<int>(
-                      value: _view,
-                      options: [
-                        ModeOption(value: 0, label: l10n.modeGrid, icon: gridModeIcon),
-                        ModeOption(value: 1, label: l10n.modeMonths, icon: monthsModeIcon),
-                        ModeOption(value: 2, label: l10n.modeSwipe, icon: swipeModeIcon),
-                      ],
-                      onChanged: (v) {
-                        if (v == 2) {
-                          Navigator.of(context).pushReplacement(MaterialPageRoute<void>(builder: (_) => GroupPager(kind: kind)));
-                        } else {
-                          HapticFeedback.selectionClick();
-                          setState(() => _view = v);
-                        }
-                      },
-                    ),
+                    padding: const EdgeInsets.fromLTRB(20, 6, 14, 0),
+                    child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
+                      Expanded(
+                        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                          Text(kindTitle(kind), style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w800, letterSpacing: -1)),
+                          const SizedBox(height: 2),
+                          Text(
+                            l10n.groupsSummary(l10n.groupsCount(groups.length), formatBytes(total)) +
+                                (trash != null && trash.count > 0 ? l10n.groupsInTrash(trash.count, formatBytes(trash.bytes)) : ''),
+                            style: const TextStyle(fontSize: 14, color: SweeepColors.textMutedSmall, fontWeight: FontWeight.w600),
+                          ),
+                        ]),
+                      ),
+                      ModeSwitch<int>(
+                        value: _view,
+                        options: [
+                          ModeOption(value: 0, label: l10n.modeGrid, icon: gridModeIcon),
+                          ModeOption(value: 1, label: l10n.modeMonths, icon: monthsModeIcon),
+                          ModeOption(value: 2, label: l10n.modeSwipe, icon: swipeModeIcon),
+                        ],
+                        onChanged: (v) {
+                          if (v == 2) {
+                            Navigator.of(context).pushReplacement(MaterialPageRoute<void>(builder: (_) => GroupPager(kind: kind)));
+                          } else {
+                            HapticFeedback.selectionClick();
+                            setState(() => _view = v);
+                          }
+                        },
+                      ),
+                    ]),
                   ),
                   if (_view == 0)
                     Padding(

@@ -12,73 +12,72 @@ class ModeOption<T> {
   final Widget Function(Color color) icon;
 }
 
-/// The little pill at the top of list screens to flip between ways of looking
-/// at the same thing: Grid / Swipe, Grid / Months / Swipe. The lavender
-/// highlight slides to the chosen segment.
+/// A small pill of icons (no labels) to flip between ways of looking at the
+/// same thing: grid / cards, grid / months / cards. The lavender chip slides
+/// to the chosen icon. It is drawn 36 px high but every icon has a 44 px tall
+/// touch area.
 class ModeSwitch<T> extends StatelessWidget {
   const ModeSwitch({super.key, required this.options, required this.value, required this.onChanged});
   final List<ModeOption<T>> options;
   final T value;
   final ValueChanged<T> onChanged;
 
+  static const _segW = 36.0;
+
   @override
   Widget build(BuildContext context) {
     final index = options.indexWhere((o) => o.value == value);
-    return Container(
-      height: 46,
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(color: SweeepColors.card, borderRadius: BorderRadius.circular(23), border: Border.all(color: SweeepColors.cardBorder)),
-      child: LayoutBuilder(builder: (context, c) {
-        final w = c.maxWidth / options.length;
-        return Stack(children: [
-          AnimatedPositioned(
-            duration: const Duration(milliseconds: 260),
-            curve: Curves.easeOutCubic,
-            left: w * (index < 0 ? 0 : index),
-            width: w,
-            top: 0,
-            bottom: 0,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: SweeepColors.brand,
-                borderRadius: BorderRadius.circular(19),
-                boxShadow: neonShadow,
-              ),
-            ),
+    return SizedBox(
+      width: _segW * options.length,
+      height: 44,
+      child: Stack(alignment: Alignment.center, children: [
+        // the pill
+        Container(
+          height: 36,
+          decoration: BoxDecoration(color: SweeepColors.card, borderRadius: BorderRadius.circular(18), border: Border.all(color: SweeepColors.cardBorder)),
+        ),
+        // the chip under the active icon
+        AnimatedPositioned(
+          duration: const Duration(milliseconds: 260),
+          curve: Curves.easeOutCubic,
+          left: _segW * (index < 0 ? 0 : index) + 3,
+          width: _segW - 6,
+          top: 7,
+          height: 30,
+          child: DecoratedBox(
+            decoration: BoxDecoration(color: SweeepColors.brand, borderRadius: BorderRadius.circular(15), boxShadow: neonShadow),
           ),
-          Row(children: [
-            for (final o in options)
-              Expanded(
-                child: Semantics(
-                  button: true,
-                  selected: o.value == value,
-                  label: o.label,
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () {
-                      if (o.value != value) onChanged(o.value);
-                    },
-                    child: Center(
-                      child: TweenAnimationBuilder<Color?>(
-                        tween: ColorTween(end: o.value == value ? SweeepColors.onAccent : SweeepColors.textMutedSmall),
-                        duration: const Duration(milliseconds: 220),
-                        builder: (_, color, __) => Row(mainAxisSize: MainAxisSize.min, children: [
-                          o.icon(color ?? SweeepColors.textMutedSmall),
-                          const SizedBox(width: 7),
-                          Flexible(child: Text(o.label, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 14, fontWeight: o.value == value ? FontWeight.w800 : FontWeight.w700, color: color))),
-                        ]),
-                      ),
+        ),
+        Row(children: [
+          for (final o in options)
+            SizedBox(
+              width: _segW,
+              height: 44,
+              child: Semantics(
+                button: true,
+                selected: o.value == value,
+                label: o.label,
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () {
+                    if (o.value != value) onChanged(o.value);
+                  },
+                  child: Center(
+                    child: TweenAnimationBuilder<Color?>(
+                      tween: ColorTween(end: o.value == value ? SweeepColors.onAccent : SweeepColors.textMutedSmall),
+                      duration: const Duration(milliseconds: 220),
+                      builder: (_, color, __) => o.icon(color ?? SweeepColors.textMutedSmall),
                     ),
                   ),
                 ),
               ),
-          ]),
-        ]);
-      }),
+            ),
+        ]),
+      ]),
     );
   }
 
-  static final neonShadow = [BoxShadow(color: SweeepColors.brand.withValues(alpha: .32), blurRadius: 14)];
+  static final neonShadow = [BoxShadow(color: SweeepColors.brand.withValues(alpha: .32), blurRadius: 12)];
 }
 
 /// Grid icon for [ModeSwitch] segments.

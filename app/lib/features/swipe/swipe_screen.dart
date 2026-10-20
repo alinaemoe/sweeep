@@ -13,6 +13,7 @@ import '../../index/review_service.dart';
 import '../../providers.dart';
 import '../category/category_screen.dart';
 import '../groups/group_widgets.dart';
+import 'video_layer.dart';
 import '../trash/trash_screen.dart';
 
 String sourceTitle(SwipeSource s) => switch (s) {
@@ -260,6 +261,19 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> with TickerProviderSt
                       Text(q == null ? '' : l10n.swipeOf(math.min(_i + 1, q.length), q.length), style: const TextStyle(fontSize: 12, color: SweeepColors.textMuted, fontWeight: FontWeight.w600)),
                     ]),
                   ),
+                  if (categoryOfSwipe(widget.source) != null && !widget.embedded) ...[
+                    ModeSwitch<int>(
+                      value: 1,
+                      options: [
+                        ModeOption(value: 0, label: l10n.modeGrid, icon: gridModeIcon),
+                        ModeOption(value: 1, label: l10n.modeSwipe, icon: swipeModeIcon),
+                      ],
+                      onChanged: (_) => Navigator.of(context).pushReplacement(MaterialPageRoute<void>(
+                        builder: (_) => CategoryScreen(kind: categoryOfSwipe(widget.source)!, initialSource: widget.chatSource),
+                      )),
+                    ),
+                    const SizedBox(width: 8),
+                  ],
                   IconButton(
                     onPressed: _history.isEmpty ? null : _undo,
                     tooltip: l10n.undo,
@@ -268,21 +282,7 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> with TickerProviderSt
                   ),
                 ]),
               ),
-              if (categoryOfSwipe(widget.source) != null && !widget.embedded)
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
-                  child: ModeSwitch<int>(
-                    value: 1,
-                    options: [
-                      ModeOption(value: 0, label: l10n.modeGrid, icon: gridModeIcon),
-                      ModeOption(value: 1, label: l10n.modeSwipe, icon: swipeModeIcon),
-                    ],
-                    onChanged: (_) => Navigator.of(context).pushReplacement(MaterialPageRoute<void>(
-                      builder: (_) => CategoryScreen(kind: categoryOfSwipe(widget.source)!, initialSource: widget.chatSource),
-                    )),
-                  ),
-                ),
-              SizedBox(height: categoryOfSwipe(widget.source) != null ? 52 : 64, child: Align(alignment: Alignment.bottomCenter, child: _Word(dx: _dx, wave: _wave, color: accent))),
+              SizedBox(height: 64, child: Align(alignment: Alignment.bottomCenter, child: _Word(dx: _dx, wave: _wave, color: accent))),
               const SizedBox(height: 12),
               Expanded(
                 child: q == null
@@ -427,10 +427,7 @@ class _Deck extends StatelessWidget {
                     decoration: BoxDecoration(borderRadius: BorderRadius.circular(30), boxShadow: const [BoxShadow(color: Color(0x73000000), blurRadius: 40, offset: Offset(0, 20))]),
                     child: _Photo(id: item.id, tint: dx < 0 ? SweeepColors.trash.withValues(alpha: math.min(.35, -dx / 300)) : SweeepColors.keep.withValues(alpha: math.min(.3, dx / 300))),
                   ),
-                  if (item.isVideo)
-                    const IgnorePointer(
-                      child: Center(child: DecoratedBox(decoration: BoxDecoration(color: Color(0x8C0F1015), shape: BoxShape.circle), child: Padding(padding: EdgeInsets.all(16), child: Icon(Icons.play_arrow_rounded, size: 44, color: SweeepColors.text)))),
-                    ),
+                  if (item.isVideo) Positioned.fill(child: VideoLayer(key: ValueKey('video-${item.id}'), id: item.id)),
                   Positioned(left: 0, right: 0, top: 26, child: Center(child: Opacity(opacity: later ? (-dy / 90).clamp(0.0, 1.0) : 0, child: _Stamp(l10n.stampLater, SweeepColors.brand)))),
                     Positioned(right: 22, top: 26, child: Opacity(opacity: trashA, child: Transform.rotate(angle: 10 * math.pi / 180, child: _Stamp(l10n.stampTrash, SweeepColors.trash)))),
                   Positioned(left: 22, top: 26, child: Opacity(opacity: keepA, child: Transform.rotate(angle: -10 * math.pi / 180, child: _Stamp(l10n.stampKeep, SweeepColors.keep)))),
