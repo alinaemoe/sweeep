@@ -7,6 +7,9 @@ Source: the design canvas linked in `CLAUDE.md` (boards Main, D2 Swipe, D3 Trash
 - **Soft background orbs** (`GlowOrb`): Home (lavender, top-left), Swipe (red/lime/white follows the drag, was a hard-edged circle), Trash (coral sphere on the right edge, was missing), Home while scanning (lavender behind the oval, from the Scan board).
 - **Jelly letters** (translateY + scaleY, 70–80 ms stagger) on every CLEAAAN and the intro hop.
 - **Neon glow** under lavender buttons and the lime Keep button.
+- **Tools (D6)** built: Water / Dust / Sound test, local tone generator.
+- **Groups (D10)**: sort chips (Biggest saving / Newest / Copies; no Videos chip, groups are photos only), multi-select, Clean N groups.
+- **Pager (D9)**: neighbour cards peek in, All groups button; BEST pill is 22 px.
 - Tools tab icon is the speaker from the prototype; app is portrait-only like the design.
 
 ## Still different
@@ -14,9 +17,6 @@ Source: the design canvas linked in `CLAUDE.md` (boards Main, D2 Swipe, D3 Trash
 |---|---|---|
 | Scan (D4) | full screen: SCANNING jelly word, oval %, 4-step checklist, counters, "Nothing is uploaded", Pause button | progress lives inside the Home oval only |
 | Swipe (D2) | header "March 2025 · 34 of 212" (swipe by month), file name in the info pill | "All photos · 1 of 500", date + size |
-| Pager (D9) | neighbour cards peek in from both sides, "All groups" button, 2-tone segmented progress | full-width pages, no peek, no button |
-| Groups grid (D10) | filter chips (Biggest saving / Newest / Videos), multi-select, "Clean N groups" button | plain grid, tap opens pager |
-| Tools (D6), Paywall (D7) | designed | not built |
+| Paywall (D7) | designed | not built (decision postponed) |
 | Glass pills / nav | live `backdrop-filter: blur(12px)` | flat dark translucent (live blurs cost ~20 % dropped frames) |
 | Nav | active "Clean" pill = text only | active pill = icon + text, animated |
-| BEST pill | 22 px | 24 px |

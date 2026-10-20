@@ -7,14 +7,18 @@ import '../../core/widgets.dart';
 import '../../index/group_service.dart';
 import '../../providers.dart';
 import 'group_widgets.dart';
+import 'groups_screen.dart';
 
 /// Group review: swipe sideways through groups of one category, keep the
 /// best photo, tap copies to flip TRASH / KEEP, then trash the rest.
 /// Trashing is soft (app trash); nothing leaves the device yet.
 class GroupPager extends ConsumerStatefulWidget {
-  const GroupPager({super.key, required this.kind, this.initialIndex = 0});
+  const GroupPager({super.key, required this.kind, this.initialIndex = 0, this.initialGroupId});
   final GroupKind kind;
   final int initialIndex;
+
+  /// Opens on this group (wins over [initialIndex]); used by the sorted grid.
+  final int? initialGroupId;
 
   @override
   ConsumerState<GroupPager> createState() => _GroupPagerState();
@@ -22,7 +26,8 @@ class GroupPager extends ConsumerStatefulWidget {
 
 class _GroupPagerState extends ConsumerState<GroupPager> {
   List<GroupView>? _groups; // snapshot, so trashing doesn't reshuffle the pages
-  late final PageController _controller = PageController(initialPage: widget.initialIndex);
+  // neighbouring cards peek in from both sides
+  late PageController _controller = PageController(initialPage: widget.initialIndex, viewportFraction: .9);
   final Map<int, Set<String>> _flipped = {}; // group id -> copies the user flipped from their default
   int _page = 0;
 
@@ -31,7 +36,14 @@ class _GroupPagerState extends ConsumerState<GroupPager> {
     super.initState();
     _page = widget.initialIndex;
     ref.read(groupServiceProvider).groups(widget.kind).then((g) {
-      if (mounted) setState(() => _groups = g);
+      if (!mounted) return;
+      final at = widget.initialGroupId == null ? -1 : g.indexWhere((x) => x.id == widget.initialGroupId);
+      if (at > 0) {
+        _controller.dispose();
+        _controller = PageController(initialPage: at, viewportFraction: .9);
+        _page = at;
+      }
+      setState(() => _groups = g);
     });
   }
 
@@ -99,7 +111,12 @@ class _GroupPagerState extends ConsumerState<GroupPager> {
                     Text(kindTitle(widget.kind), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
                     Text('Group ${_page + 1} of ${groups.length}', style: const TextStyle(fontSize: 12, color: SweeepColors.textMutedSmall, fontWeight: FontWeight.w600)),
                   ]),
-                  const SizedBox(width: 44),
+                  IconButton.filledTonal(
+                    onPressed: () => Navigator.of(context).pushReplacement(MaterialPageRoute<void>(builder: (_) => GroupsScreen(kind: widget.kind))),
+                    icon: const Icon(Icons.grid_view_rounded, size: 20),
+                    tooltip: 'All groups',
+                    style: IconButton.styleFrom(backgroundColor: SweeepColors.card, foregroundColor: SweeepColors.text, minimumSize: const Size(44, 44)),
+                  ),
                 ],
               ),
             ),
@@ -119,14 +136,17 @@ class _GroupPagerState extends ConsumerState<GroupPager> {
                 controller: _controller,
                 itemCount: groups.length,
                 onPageChanged: (i) => setState(() => _page = i),
-                itemBuilder: (context, i) => _GroupPage(
+                itemBuilder: (context, i) => _Peek(
+                  controller: _controller,
+                  index: i,
+                  child: _GroupPage(
                   group: groups[i],
                   isKept: (id) => _isKept(groups[i], id),
                   onToggle: (id) => setState(() {
                     final k = _flipped.putIfAbsent(groups[i].id, () => <String>{});
                     k.contains(id) ? k.remove(id) : k.add(id);
                   }),
-                ),
+                )),
               ),
             ),
             Container(
@@ -184,6 +204,28 @@ class _KeepWord extends StatelessWidget {
       );
 }
 
+/// Scales and dims pages that are not centred, so the neighbours read as
+/// smaller cards peeking in from the sides.
+class _Peek extends StatelessWidget {
+  const _Peek({required this.controller, required this.index, required this.child});
+  final PageController controller;
+  final int index;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => AnimatedBuilder(
+        animation: controller,
+        child: child,
+        builder: (context, child) {
+          var d = 0.0;
+          if (controller.hasClients && controller.position.haveDimensions) {
+            d = ((controller.page ?? index.toDouble()) - index).abs().clamp(0.0, 1.0);
+          }
+          return Transform.scale(scale: 1 - .08 * d, child: child);
+        },
+      );
+}
+
 class _GroupPage extends StatelessWidget {
   const _GroupPage({required this.group, required this.isKept, required this.onToggle});
   final GroupView group;
@@ -196,7 +238,7 @@ class _GroupPage extends StatelessWidget {
     final others = group.others;
     final why = group.kind == GroupKind.duplicate ? 'Oldest copy' : 'Sharpest';
     return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 12, 24, 8),
+      padding: const EdgeInsets.fromLTRB(6, 12, 6, 8),
       child: Column(
         children: [
           Expanded(
@@ -278,7 +320,7 @@ class _GroupPage extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 6),
-          const Text('Tap a copy to flip it · swipe sideways for the next group',
+          const Text('Tap a copy to flip it · swipe for the next group',
               style: TextStyle(fontSize: 12, color: SweeepColors.textMutedSmall, fontWeight: FontWeight.w600)),
         ],
       ),
