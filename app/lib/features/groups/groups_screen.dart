@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/list_chrome.dart';
 import '../../core/mode_switch.dart';
 import '../../core/theme.dart';
 import '../../l10n/l10n.dart';
@@ -173,67 +174,43 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 12, 12, 0),
-                    child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                      IconButton.filledTonal(
-                        onPressed: () => Navigator.of(context).pop(),
-                        icon: const Icon(Icons.arrow_back_rounded),
-                        tooltip: l10n.back,
-                        style: IconButton.styleFrom(backgroundColor: SweeepColors.card, foregroundColor: SweeepColors.text, minimumSize: const Size(44, 44)),
-                      ),
-                      if (groups.isNotEmpty)
-                        TextButton(
-                          onPressed: () => setState(() {
-                            HapticFeedback.selectionClick();
-                            allPicked ? _picked.clear() : _picked.addAll(ids);
-                          }),
-                          style: TextButton.styleFrom(foregroundColor: SweeepColors.brand, minimumSize: const Size(44, 44), padding: const EdgeInsets.symmetric(horizontal: 12)),
-                          child: Text(allPicked ? l10n.clear : l10n.selectAll, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
-                        ),
-                    ]),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 6, 14, 0),
-                    child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-                      Expanded(
-                        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                          Text(kindTitle(kind), style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w800, letterSpacing: -1)),
-                          const SizedBox(height: 2),
-                          Text(
-                            l10n.groupsSummary(l10n.groupsCount(groups.length), formatBytes(total)) +
-                                (trash != null && trash.count > 0 ? l10n.groupsInTrash(trash.count, formatBytes(trash.bytes)) : ''),
-                            style: const TextStyle(fontSize: 14, color: SweeepColors.textMutedSmall, fontWeight: FontWeight.w600),
-                          ),
-                        ]),
-                      ),
-                      ModeSwitch<int>(
-                        value: _view,
-                        options: [
-                          ModeOption(value: 0, label: l10n.modeGrid, icon: gridModeIcon),
-                          ModeOption(value: 1, label: l10n.modeMonths, icon: monthsModeIcon),
-                          ModeOption(value: 2, label: l10n.modeSwipe, icon: swipeModeIcon),
-                        ],
-                        onChanged: (v) {
-                          if (v == 2) {
-                            Navigator.of(context).pushReplacement(MaterialPageRoute<void>(builder: (_) => GroupPager(kind: kind)));
-                          } else {
-                            HapticFeedback.selectionClick();
-                            setState(() => _view = v);
-                          }
-                        },
-                      ),
-                    ]),
-                  ),
-                  if (_view == 0)
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
-                      child: Wrap(spacing: 8, children: [
-                        _SortChip(l10n.sortSaving, _sort == _Sort.saving, () => setState(() => _sort = _Sort.saving)),
-                        _SortChip(l10n.sortNewest, _sort == _Sort.newest, () => setState(() => _sort = _Sort.newest)),
-                        _SortChip(l10n.sortCopies, _sort == _Sort.copies, () => setState(() => _sort = _Sort.copies)),
-                      ]),
+                  ListBar(
+                    trailing: ModeSwitch<int>(
+                      value: _view,
+                      options: [
+                        ModeOption(value: 0, label: l10n.modeGrid, icon: gridModeIcon),
+                        ModeOption(value: 1, label: l10n.modeMonths, icon: monthsModeIcon),
+                        ModeOption(value: 2, label: l10n.modeSwipe, icon: swipeModeIcon),
+                      ],
+                      onChanged: (v) {
+                        if (v == 2) {
+                          Navigator.of(context).pushReplacement(MaterialPageRoute<void>(builder: (_) => GroupPager(kind: kind)));
+                        } else {
+                          HapticFeedback.selectionClick();
+                          setState(() => _view = v);
+                        }
+                      },
                     ),
+                  ),
+                  ListTitle(
+                    title: kindTitle(kind),
+                    subtitle: l10n.groupsSummary(l10n.groupsCount(groups.length), formatBytes(total)) +
+                        (trash != null && trash.count > 0 ? l10n.groupsInTrash(trash.count, formatBytes(trash.bytes)) : ''),
+                  ),
+                  ListToolbar(
+                    chips: [
+                      if (_view == 0) ...[
+                        SweeepChip(l10n.sortSaving, _sort == _Sort.saving, () => setState(() => _sort = _Sort.saving), semantics: l10n.semSort(l10n.sortSaving)),
+                        SweeepChip(l10n.sortNewest, _sort == _Sort.newest, () => setState(() => _sort = _Sort.newest), semantics: l10n.semSort(l10n.sortNewest)),
+                        SweeepChip(l10n.sortCopies, _sort == _Sort.copies, () => setState(() => _sort = _Sort.copies), semantics: l10n.semSort(l10n.sortCopies)),
+                      ],
+                    ],
+                    actionLabel: groups.isEmpty ? null : (allPicked ? l10n.clear : l10n.selectAll),
+                    onAction: () => setState(() {
+                      HapticFeedback.selectionClick();
+                      allPicked ? _picked.clear() : _picked.addAll(ids);
+                    }),
+                  ),
                   const SizedBox(height: 4),
                   Expanded(
                     child: groups.isEmpty
@@ -287,35 +264,6 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
       ),
     );
   }
-}
-
-class _SortChip extends StatelessWidget {
-  const _SortChip(this.label, this.on, this.onTap);
-  final String label;
-  final bool on;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) => Semantics(
-        button: true,
-        selected: on,
-        label: l10n.semSort(label),
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: onTap,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            height: 44,
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            decoration: BoxDecoration(
-              color: on ? SweeepColors.brand : Colors.transparent,
-              borderRadius: BorderRadius.circular(22),
-              border: Border.all(color: on ? SweeepColors.brand : Colors.white.withValues(alpha: .12)),
-            ),
-            child: Center(widthFactor: 1, child: Text(label, style: TextStyle(fontSize: 13, fontWeight: on ? FontWeight.w800 : FontWeight.w700, color: on ? SweeepColors.onAccent : SweeepColors.text))),
-          ),
-        ),
-      );
 }
 
 class _Check extends StatelessWidget {

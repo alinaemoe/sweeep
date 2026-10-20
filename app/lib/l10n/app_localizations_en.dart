@@ -436,7 +436,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get sortSaving => 'Biggest saving';
+  String get sortSaving => 'Biggest';
 
   @override
   String get sortCopies => 'Copies';

@@ -767,7 +767,7 @@ abstract class AppLocalizations {
   /// No description provided for @sortSaving.
   ///
   /// In en, this message translates to:
-  /// **'Biggest saving'**
+  /// **'Biggest'**
   String get sortSaving;
 
   /// No description provided for @sortCopies.

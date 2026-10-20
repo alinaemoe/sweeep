@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/list_chrome.dart';
 import '../../core/mode_switch.dart';
 import '../../core/theme.dart';
 import '../../l10n/l10n.dart';
@@ -101,69 +102,30 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
         body: SafeArea(
           child: Stack(children: [
             Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 12, 12, 0),
-                child: Row(children: [
-                  IconButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    tooltip: l10n.back,
-                    icon: const Icon(Icons.chevron_left_rounded),
-                    style: IconButton.styleFrom(backgroundColor: SweeepColors.card, foregroundColor: SweeepColors.text, fixedSize: const Size(44, 44), side: const BorderSide(color: SweeepColors.cardBorder)),
-                  ),
-                ]),
+              ListBar(
+                trailing: ModeSwitch<int>(
+                  value: 0,
+                  options: [
+                    ModeOption(value: 0, label: l10n.modeGrid, icon: gridModeIcon),
+                    ModeOption(value: 1, label: l10n.modeSwipe, icon: swipeModeIcon),
+                  ],
+                  onChanged: (_) => Navigator.of(context).pushReplacement(MaterialPageRoute<void>(
+                    builder: (_) => SwipeScreen(source: swipeSourceOf(widget.kind), chatSource: _source),
+                  )),
+                ),
               ),
-              // title and count on the left, the Grid | Swipe switch on the right
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 4, 14, 0),
-                child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-                  Expanded(
-                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Text(categoryTitle(widget.kind), style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w800, letterSpacing: -1)),
-                      const SizedBox(height: 4),
-                      Text(items == null ? '' : '${filesLabel(items.length)} · ${formatBytes(total)}', style: const TextStyle(fontSize: 14, color: SweeepColors.textMutedSmall, fontWeight: FontWeight.w600)),
-                    ]),
-                  ),
-                  ModeSwitch<int>(
-                    value: 0,
-                    options: [
-                      ModeOption(value: 0, label: l10n.modeGrid, icon: gridModeIcon),
-                      ModeOption(value: 1, label: l10n.modeSwipe, icon: swipeModeIcon),
-                    ],
-                    onChanged: (_) => Navigator.of(context).pushReplacement(MaterialPageRoute<void>(
-                      builder: (_) => SwipeScreen(source: swipeSourceOf(widget.kind), chatSource: _source),
-                    )),
-                  ),
-                ]),
-              ),
-              // sort chips, with Select all at the far end
-              SizedBox(
-                height: 60,
-                child: Row(children: [
-                  Expanded(
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.fromLTRB(20, 10, 8, 6),
-                      children: [
-                        _Chip(l10n.sortNewest, !_bySize, () => _sort(false)),
-                        const SizedBox(width: 8),
-                        _Chip(l10n.sortLargest, _bySize, () => _sort(true)),
-                        if (widget.kind == CategoryKind.chat && _sources.length > 1) ...[
-                          const SizedBox(width: 16),
-                          _Chip(l10n.allApps, _source == null, () => _filter(null)),
-                          for (final s in _sources) ...[const SizedBox(width: 8), _Chip(_sourceName(s), _source == s, () => _filter(s))],
-                        ],
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(right: 8, top: 4),
-                    child: TextButton(
-                      onPressed: items == null || items.isEmpty ? null : () => setState(() => allSelected ? _selected.clear() : _selected.addAll(items.map((e) => e.id))),
-                      style: TextButton.styleFrom(foregroundColor: SweeepColors.brand, minimumSize: const Size(48, 44)),
-                      child: Text(allSelected ? l10n.clear : l10n.selectAll, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
-                    ),
-                  ),
-                ]),
+              ListTitle(title: categoryTitle(widget.kind), subtitle: items == null ? '' : '${filesLabel(items.length)} · ${formatBytes(total)}'),
+              ListToolbar(
+                chips: [
+                  SweeepChip(l10n.sortNewest, !_bySize, () => _sort(false)),
+                  SweeepChip(l10n.sortLargest, _bySize, () => _sort(true)),
+                  if (widget.kind == CategoryKind.chat && _sources.length > 1) ...[
+                    SweeepChip(l10n.allApps, _source == null, () => _filter(null)),
+                    for (final s in _sources) SweeepChip(_sourceName(s), _source == s, () => _filter(s)),
+                  ],
+                ],
+                actionLabel: allSelected ? l10n.clear : l10n.selectAll,
+                onAction: items == null || items.isEmpty ? null : () => setState(() => allSelected ? _selected.clear() : _selected.addAll(items.map((e) => e.id))),
               ),
               Expanded(
                 child: items == null
@@ -229,30 +191,6 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
     });
     _load();
   }
-}
-
-class _Chip extends StatelessWidget {
-  const _Chip(this.label, this.selected, this.onTap);
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) => GestureDetector(
-        onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 160),
-          height: 44,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: selected ? SweeepColors.brand.withValues(alpha: .16) : SweeepColors.card,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: selected ? SweeepColors.brand : SweeepColors.cardBorder),
-          ),
-          child: Text(label, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: selected ? SweeepColors.brand : SweeepColors.textMutedSmall)),
-        ),
-      );
 }
 
 class _Cell extends StatelessWidget {
