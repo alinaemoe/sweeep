@@ -6,6 +6,7 @@ import '../../core/theme.dart';
 import '../../l10n/l10n.dart';
 import '../../providers.dart';
 import '../home/home_screen.dart';
+import '../scan/scan_screen.dart';
 import '../swipe/timeline_screen.dart';
 import '../tools/tools_screen.dart';
 import '../trash/trash_screen.dart';
@@ -36,6 +37,7 @@ class _AppShellState extends ConsumerState<AppShell> {
 
   @override
   Widget build(BuildContext context) {
+    final scanning = ref.watch(scanScreenProvider);
     return Scaffold(
       body: Stack(children: [
         // Home stays alive; it fades in/out instead of popping, so returning
@@ -74,11 +76,26 @@ class _AppShellState extends ConsumerState<AppShell> {
             ),
           ),
         ),
+        // long scans take over the whole screen (and the nav bar steps aside)
+        Positioned.fill(
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 320),
+            child: scanning ? const ScanScreen(key: ValueKey('scan')) : const SizedBox.shrink(key: ValueKey('no-scan')),
+          ),
+        ),
         Positioned(
           left: 20,
           right: 20,
           bottom: MediaQuery.paddingOf(context).bottom + 12,
-          child: SweeepNavBar(index: _tab, onChanged: _select),
+          child: IgnorePointer(
+            ignoring: scanning,
+            child: AnimatedSlide(
+              offset: scanning ? const Offset(0, 1.8) : Offset.zero,
+              duration: const Duration(milliseconds: 320),
+              curve: Curves.easeInOutCubic,
+              child: SweeepNavBar(index: _tab, onChanged: _select),
+            ),
+          ),
         ),
       ]),
     );

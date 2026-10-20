@@ -938,6 +938,96 @@ abstract class AppLocalizations {
   /// **'Checking duplicates · {done} of {total}'**
   String notifChecking(String done, String total);
 
+  /// No description provided for @scanOfFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} OF {total} FILES'**
+  String scanOfFiles(String done, String total);
+
+  /// No description provided for @scanStepRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading library'**
+  String get scanStepRead;
+
+  /// No description provided for @scanStepFinger.
+  ///
+  /// In en, this message translates to:
+  /// **'Fingerprinting photos'**
+  String get scanStepFinger;
+
+  /// No description provided for @scanStepCompare.
+  ///
+  /// In en, this message translates to:
+  /// **'Comparing similar shots'**
+  String get scanStepCompare;
+
+  /// No description provided for @scanStepGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Grouping & ranking'**
+  String get scanStepGroup;
+
+  /// No description provided for @scanStatusDone.
+  ///
+  /// In en, this message translates to:
+  /// **'done'**
+  String get scanStatusDone;
+
+  /// No description provided for @scanStatusNext.
+  ///
+  /// In en, this message translates to:
+  /// **'next'**
+  String get scanStatusNext;
+
+  /// No description provided for @scanCountGroups.
+  ///
+  /// In en, this message translates to:
+  /// **'groups'**
+  String get scanCountGroups;
+
+  /// No description provided for @scanCountShots.
+  ///
+  /// In en, this message translates to:
+  /// **'screenshots'**
+  String get scanCountShots;
+
+  /// No description provided for @scanCountFound.
+  ///
+  /// In en, this message translates to:
+  /// **'found so far'**
+  String get scanCountFound;
+
+  /// No description provided for @scanPrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Analyzed on this device. Nothing is uploaded.'**
+  String get scanPrivacy;
+
+  /// No description provided for @scanPausedNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused. Progress is saved.'**
+  String get scanPausedNote;
+
+  /// No description provided for @scanPause.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause scan'**
+  String get scanPause;
+
+  /// No description provided for @scanResume.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume scan'**
+  String get scanResume;
+
+  /// No description provided for @scanLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get scanLater;
+
   /// No description provided for @toolsWater.
   ///
   /// In en, this message translates to:

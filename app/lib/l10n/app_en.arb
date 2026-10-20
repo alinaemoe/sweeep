@@ -525,6 +525,31 @@
       }
     }
   },
+  "scanOfFiles": "{done} OF {total} FILES",
+  "@scanOfFiles": {
+    "placeholders": {
+      "done": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "scanStepRead": "Reading library",
+  "scanStepFinger": "Fingerprinting photos",
+  "scanStepCompare": "Comparing similar shots",
+  "scanStepGroup": "Grouping & ranking",
+  "scanStatusDone": "done",
+  "scanStatusNext": "next",
+  "scanCountGroups": "groups",
+  "scanCountShots": "screenshots",
+  "scanCountFound": "found so far",
+  "scanPrivacy": "Analyzed on this device. Nothing is uploaded.",
+  "scanPausedNote": "Paused. Progress is saved.",
+  "scanPause": "Pause scan",
+  "scanResume": "Resume scan",
+  "scanLater": "Later",
   "toolsWater": "Water",
   "toolsDust": "Dust",
   "toolsSound": "Sound test",

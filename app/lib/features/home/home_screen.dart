@@ -63,15 +63,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderStat
     }
   }
 
-  /// Overall scan progress 0..1 (read library 0-8%, hash 8-80%, compare 80-100%).
-  static double _progressOf(LibraryState s) {
-    double frac(int done, int total) => total <= 0 ? 1 : (done / total).clamp(0.0, 1.0);
-    if (s.syncing) return .04;
-    if (s.analyzing) return .08 + .72 * frac(s.alreadyHashed + s.analysisDone, s.alreadyHashed + s.analysisTotal);
-    if (s.verifying) return .8 + .2 * (s.verifyTotal == 0 ? 0 : frac(s.verifyDone, s.verifyTotal));
-    return 1;
-  }
-
   static String _labelOf(LibraryState s) {
     if (s.syncing) return l10n.scanReading;
     if (s.analyzing) return l10n.scanAnalyzing(_n(s.alreadyHashed + s.analysisDone), _n(s.alreadyHashed + s.analysisTotal));
@@ -106,7 +97,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderStat
     ref.listen(libraryProvider.select((s) => s.syncing || s.analyzing || s.verifying), (_, b) => _onBusy(b));
     final data = home.value;
     // While busy follow the real progress; while settling run it to 100%.
-    final target = busy ? _progressOf(lib) : 1.0;
+    final target = busy ? lib.progress : 1.0;
     final scanLabel = busy ? _labelOf(lib) : _lastLabel;
     if (busy) _lastLabel = scanLabel;
     final reclaimNow = (data?.reclaimableBytes ?? 0).toDouble();

@@ -547,6 +547,54 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String scanOfFiles(String done, String total) {
+    return '$done ИЗ $total ФАЙЛОВ';
+  }
+
+  @override
+  String get scanStepRead => 'Читаю библиотеку';
+
+  @override
+  String get scanStepFinger => 'Смотрю фото';
+
+  @override
+  String get scanStepCompare => 'Сравниваю похожие';
+
+  @override
+  String get scanStepGroup => 'Собираю группы';
+
+  @override
+  String get scanStatusDone => 'готово';
+
+  @override
+  String get scanStatusNext => 'дальше';
+
+  @override
+  String get scanCountGroups => 'групп';
+
+  @override
+  String get scanCountShots => 'скриншотов';
+
+  @override
+  String get scanCountFound => 'найдено пока';
+
+  @override
+  String get scanPrivacy =>
+      'Всё считается на телефоне. Ничего не уходит в сеть.';
+
+  @override
+  String get scanPausedNote => 'Пауза. Прогресс сохранён.';
+
+  @override
+  String get scanPause => 'Пауза';
+
+  @override
+  String get scanResume => 'Продолжить';
+
+  @override
+  String get scanLater => 'Позже';
+
+  @override
   String get toolsWater => 'Вода';
 
   @override
