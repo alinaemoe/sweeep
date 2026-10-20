@@ -156,4 +156,24 @@ void main() {
     expect((await db.select(db.groups).get()).length, 1);
     expect((await db.select(db.groupMembers).get()).length, 2);
   });
+
+  test('rescan keeps ids of unchanged groups, adds new ones and drops vanished ones', () async {
+    await addAsset('p', size: 10, created: 1, phash: 4);
+    await addAsset('q', size: 10, created: 2, phash: 4);
+    await addAsset('m', size: 10, created: 100, phash: 9);
+    await addAsset('n', size: 10, created: 101, phash: 9);
+    final s = svc(FakeMedia({}));
+    await s.rebuild();
+    final before = {for (final g in await s.groups(GroupKind.similar)) (g.members.map((m) => m.assetId).toList()..sort()).join(): g.id};
+    expect(before.length, 2);
+
+    // a third copy joins the first group (membership changed), the second is untouched
+    await addAsset('r', size: 10, created: 3, phash: 4);
+    await s.rebuild();
+    final after = {for (final g in await s.groups(GroupKind.similar)) (g.members.map((m) => m.assetId).toList()..sort()).join(): g.id};
+    expect(after.length, 2);
+    expect(after['mn'], before['mn']);
+    expect(after['pqr'], isNot(before['pq']));
+    expect((await db.select(db.groups).get()).length, 2); // old p+q group is gone
+  });
 }

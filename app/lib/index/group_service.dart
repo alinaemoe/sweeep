@@ -143,18 +143,48 @@ class GroupService {
       }
     }
 
+    // Diff against what is stored instead of wiping everything: a group whose
+    // kind and member set did not change keeps its row (stable id, so open
+    // screens and selections survive a rescan); only new groups are inserted
+    // and vanished ones removed.
     final now = DateTime.now().millisecondsSinceEpoch;
+    String keyOf(GroupKind k, Iterable<String> ids) => '${k.index}|${(ids.toList()..sort()).join(',')}';
     await db.transaction(() async {
-      await db.delete(db.groups).go(); // cascades to members
+      final stored = await db.customSelect(
+        'SELECT g.id AS gid, g.kind AS kind, g.best_asset_id AS best, g.savings_bytes AS savings, m.asset_id AS aid '
+        'FROM groups g JOIN group_members m ON m.group_id = g.id',
+      ).get();
+      final members = <int, List<String>>{};
+      final info = <int, ({int kind, String? best, int savings})>{};
+      for (final r in stored) {
+        final id = r.read<int>('gid');
+        (members[id] ??= []).add(r.read<String>('aid'));
+        info[id] = (kind: r.read<int>('kind'), best: r.read<String?>('best'), savings: r.read<int>('savings'));
+      }
+      final byKey = <String, int>{};
+      members.forEach((id, ids) => byKey[keyOf(GroupKind.values[info[id]!.kind], ids)] = id);
+
+      final keep = <int>{};
       for (final g in newGroups) {
+        final existing = byKey[keyOf(g.kind, g.ids)];
+        if (existing != null && keep.add(existing)) {
+          final old = info[existing]!;
+          if (old.best != g.bestId || old.savings != g.savings) {
+            await (db.update(db.groups)..where((t) => t.id.equals(existing))).write(GroupsCompanion(bestAssetId: Value(g.bestId), savingsBytes: Value(g.savings)));
+          }
+          continue;
+        }
         final id = await db.into(db.groups).insert(GroupsCompanion.insert(
               kind: g.kind.index,
               savingsBytes: g.savings,
               createdAtMs: now,
               bestAssetId: Value(g.bestId),
             ));
+        keep.add(id);
         await db.batch((b) => b.insertAll(db.groupMembers, [for (final m in g.ids) GroupMembersCompanion.insert(groupId: id, assetId: m)]));
       }
+      // groups that no longer exist (members changed or deleted)
+      await (db.delete(db.groups)..where((t) => t.id.isNotIn(keep))).go();
     });
 
     int count(GroupKind k) => newGroups.where((g) => g.kind == k).length;
