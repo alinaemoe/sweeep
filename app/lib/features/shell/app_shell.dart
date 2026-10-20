@@ -3,10 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/theme.dart';
-import '../../index/review_service.dart';
 import '../../providers.dart';
 import '../home/home_screen.dart';
-import '../swipe/swipe_screen.dart';
+import '../swipe/timeline_screen.dart';
 import '../tools/tools_screen.dart';
 import '../trash/trash_screen.dart';
 
@@ -30,6 +29,7 @@ class _AppShellState extends ConsumerState<AppShell> {
     ref.invalidate(trashSummaryProvider);
     ref.invalidate(homeProvider);
     ref.invalidate(groupsProvider);
+    ref.invalidate(timelineProvider);
     setState(() => _tab = i);
   }
 
@@ -66,7 +66,7 @@ class _AppShellState extends ConsumerState<AppShell> {
               key: ValueKey(_tab),
               child: switch (_tab) {
                 0 => const SizedBox.shrink(),
-                1 => const SwipeScreen(source: SwipeSource.all, embedded: true),
+                1 => const TimelineScreen(),
                 2 => const ToolsScreen(),
                 _ => const TrashScreen(embedded: true),
               },

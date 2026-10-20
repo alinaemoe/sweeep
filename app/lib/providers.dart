@@ -50,6 +50,9 @@ final homeProvider = FutureProvider<HomeData>((ref) => ref.watch(homeServiceProv
 
 final reviewServiceProvider = Provider<ReviewService>((ref) => ReviewService(ref.watch(databaseProvider)));
 
+/// Timeline of the library, month by month.
+final timelineProvider = FutureProvider.autoDispose<List<MonthSummary>>((ref) => ref.watch(reviewServiceProvider).months());
+
 final trashListProvider = FutureProvider.autoDispose<List<TrashEntry>>((ref) => ref.watch(reviewServiceProvider).trashed());
 
 /// Large preview for the swipe card; released when the card leaves the screen.

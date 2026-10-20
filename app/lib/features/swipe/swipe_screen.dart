@@ -23,8 +23,11 @@ const _months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 
 /// Tinder-style review: drag left = trash, right = keep. The SWIIIIPE word
 /// stretches with the drag, CLEAAAN waves after a trash.
 class SwipeScreen extends ConsumerStatefulWidget {
-  const SwipeScreen({super.key, required this.source, this.embedded = false});
+  const SwipeScreen({super.key, required this.source, this.embedded = false, this.month});
   final SwipeSource source;
+
+  /// 'YYYY-MM': swipe just that month (from the Timeline).
+  final String? month;
 
   /// Shown as a tab of the app shell (no back button, room for the nav bar).
   final bool embedded;
@@ -52,7 +55,7 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> with TickerProviderSt
   void initState() {
     super.initState();
     final svc = ref.read(reviewServiceProvider);
-    svc.queue(widget.source).then((q) async {
+    svc.queue(widget.source, month: widget.month).then((q) async {
       final seen = await svc.swipeHintSeen();
       if (mounted) {
         setState(() {
@@ -243,7 +246,7 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> with TickerProviderSt
                   ),
                   Expanded(
                     child: Column(children: [
-                      Text(sourceTitle(widget.source), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+                      Text(widget.month != null ? monthTitle(widget.month!) : sourceTitle(widget.source), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
                       Text(q == null ? '' : '${math.min(_i + 1, q.length)} of ${q.length}', style: const TextStyle(fontSize: 12, color: SweeepColors.textMuted, fontWeight: FontWeight.w600)),
                     ]),
                   ),

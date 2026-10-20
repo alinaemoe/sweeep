@@ -41,6 +41,26 @@ void main() {
     expect((await svc.queue(SwipeSource.all)).map((e) => e.id), ['old']);
   });
 
+  test('timeline groups photos by month with progress and a month-only queue', () async {
+    int ms(int y, int m, int d) => DateTime(y, m, d, 12).millisecondsSinceEpoch;
+    await add('o1', t: ms(2026, 10, 3));
+    await add('o2', t: ms(2026, 10, 19));
+    await add('s1', t: ms(2026, 9, 5));
+    await add('v', type: 1, t: ms(2026, 10, 7));
+    final q = await svc.queue(SwipeSource.all, month: '2026-10');
+    expect(q.map((e) => e.id), ['o2', 'o1']);
+    await svc.keep(q.first);
+
+    final months = await svc.months();
+    expect(months.map((m) => m.key), ['2026-10', '2026-09']);
+    expect(months[0].count, 2);
+    expect(months[0].swept, 1);
+    expect(months[0].done, isFalse);
+    expect(months[0].tiles.map((t) => t.id), ['o2', 'o1']);
+    expect(months[0].title, 'October 2026');
+    expect((await svc.queue(SwipeSource.all, month: '2026-10')).map((e) => e.id), ['o1']);
+  });
+
   test('trash lists items, undo and restore bring them back', () async {
     await add('a', t: 1, size: 5);
     await add('b', t: 2, size: 7);

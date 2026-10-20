@@ -7,6 +7,24 @@ import 'home_service.dart';
 
 enum SwipeSource { all, screenshots, blurry }
 
+const _monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+/// '2026-10' -> 'October 2026'.
+String monthTitle(String key) => '${_monthNames[int.parse(key.substring(5)) - 1]} ${key.substring(0, 4)}';
+
+/// One month of the library for the Timeline: how many photos, how many are
+/// already decided (kept or trashed) and the newest few as preview tiles.
+class MonthSummary {
+  const MonthSummary({required this.key, required this.count, required this.swept, required this.tiles});
+  final String key; // 'YYYY-MM'
+  final int count;
+  final int swept;
+  final List<({String id, int t})> tiles;
+
+  bool get done => swept >= count;
+  String get title => monthTitle(key);
+}
+
 enum CategoryKind { videos, screenshots, chat }
 
 class SwipeItem {
@@ -56,8 +74,35 @@ class ReviewService {
 
   static const queueLimit = 500;
 
-  /// Undecided photos for [source], newest first.
-  Future<List<SwipeItem>> queue(SwipeSource source) async {
+  static const _monthExpr = "strftime('%Y-%m', a.created_at_ms / 1000, 'unixepoch', 'localtime')";
+
+  /// Every month that has photos, newest first, with progress and preview tiles.
+  Future<List<MonthSummary>> months() async {
+    final rows = await db.customSelect('''
+      SELECT $_monthExpr AS m, COUNT(*) AS n,
+        SUM(CASE WHEN a.id IN (SELECT asset_id FROM decisions) OR a.id IN (SELECT asset_id FROM trash_items) THEN 1 ELSE 0 END) AS swept
+      FROM assets a WHERE a.media_type = 0 GROUP BY m ORDER BY m DESC
+    ''').get();
+    final tileRows = await db.customSelect('''
+      SELECT id, t, m FROM (
+        SELECT a.id AS id, a.created_at_ms AS t, $_monthExpr AS m,
+          ROW_NUMBER() OVER (PARTITION BY $_monthExpr ORDER BY a.created_at_ms DESC) AS rn
+        FROM assets a WHERE a.media_type = 0
+      ) WHERE rn <= 6 ORDER BY m DESC, t DESC
+    ''').get();
+    final tiles = <String, List<({String id, int t})>>{};
+    for (final r in tileRows) {
+      tiles.putIfAbsent(r.read<String>('m'), () => []).add((id: r.read<String>('id'), t: r.read<int>('t')));
+    }
+    return [
+      for (final r in rows)
+        MonthSummary(key: r.read<String>('m'), count: r.read<int>('n'), swept: r.read<int>('swept'), tiles: tiles[r.read<String>('m')] ?? const []),
+    ];
+  }
+
+  /// Undecided photos for [source], newest first. [month] ('YYYY-MM') narrows
+  /// the queue to one month of the Timeline.
+  Future<List<SwipeItem>> queue(SwipeSource source, {String? month}) async {
     final where = switch (source) {
       SwipeSource.all => 'a.media_type = 0',
       SwipeSource.screenshots => 'a.media_type = 0 AND a.is_screenshot = 1',
@@ -71,6 +116,7 @@ class ReviewService {
       WHERE $where
         AND a.id NOT IN (SELECT asset_id FROM trash_items)
         AND a.id NOT IN (SELECT asset_id FROM decisions)
+        ${month == null ? '' : "AND $_monthExpr = '$month'"}
       ORDER BY a.created_at_ms DESC LIMIT $queueLimit
     ''').get();
     return [for (final r in rows) SwipeItem(id: r.read<String>('id'), sizeBytes: r.read<int>('size'), createdAtMs: r.read<int>('t'))];
