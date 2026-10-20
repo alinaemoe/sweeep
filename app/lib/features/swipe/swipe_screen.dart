@@ -11,7 +11,9 @@ import '../../l10n/l10n.dart';
 import '../../core/widgets.dart';
 import '../../index/review_service.dart';
 import '../../providers.dart';
+import '../../index/storage_service.dart';
 import '../category/category_screen.dart';
+import '../storage/storage_labels.dart';
 import '../groups/group_widgets.dart';
 import 'video_layer.dart';
 import '../trash/trash_screen.dart';
@@ -23,12 +25,13 @@ String sourceTitle(SwipeSource s) => switch (s) {
       SwipeSource.videos => l10n.secVideos,
       SwipeSource.chat => l10n.secChat,
       SwipeSource.blurry => l10n.secBlurry,
+      SwipeSource.quickWin => '',
     };
 
 /// Tinder-style review: drag left = trash, right = keep. The SWIIIIPE word
 /// stretches with the drag, CLEAAAN waves after a trash.
 class SwipeScreen extends ConsumerStatefulWidget {
-  const SwipeScreen({super.key, required this.source, this.embedded = false, this.month, this.chatSource, this.startId});
+  const SwipeScreen({super.key, required this.source, this.embedded = false, this.month, this.chatSource, this.startId, this.win});
   final SwipeSource source;
 
   /// 'YYYY-MM': swipe just that month (from the Timeline).
@@ -39,6 +42,9 @@ class SwipeScreen extends ConsumerStatefulWidget {
 
   /// Start on this item (a tapped tile).
   final String? startId;
+
+  /// Quick win decks only: which rule picked these files.
+  final QuickWin? win;
 
   /// Shown as a tab of the app shell (no back button, room for the nav bar).
   final bool embedded;
@@ -66,7 +72,7 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> with TickerProviderSt
   void initState() {
     super.initState();
     final svc = ref.read(reviewServiceProvider);
-    svc.queue(widget.source, month: widget.month, chatSource: widget.chatSource, startId: widget.startId).then((q) async {
+    svc.queue(widget.source, month: widget.month, chatSource: widget.chatSource, startId: widget.startId, win: widget.win).then((q) async {
       final seen = await svc.swipeHintSeen();
       if (mounted) {
         setState(() {
@@ -261,7 +267,7 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> with TickerProviderSt
                   ),
                   Expanded(
                     child: Column(children: [
-                      Text(widget.month != null ? monthTitle(widget.month!) : sourceTitle(widget.source), maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+                      Text(widget.month != null ? monthTitle(widget.month!) : (widget.win != null ? quickWinTitle(widget.win!) : sourceTitle(widget.source)), maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
                       Text(q == null ? '' : l10n.swipeOf(math.min(_i + 1, q.length), q.length), style: const TextStyle(fontSize: 12, color: SweeepColors.textMuted, fontWeight: FontWeight.w600)),
                     ]),
                   ),
@@ -273,7 +279,7 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> with TickerProviderSt
                         ModeOption(value: 1, label: l10n.modeSwipe, icon: swipeModeIcon),
                       ],
                       onChanged: (_) => Navigator.of(context).pushReplacement(MaterialPageRoute<void>(
-                        builder: (_) => CategoryScreen(kind: categoryOfSwipe(widget.source)!, initialSource: widget.chatSource),
+                        builder: (_) => CategoryScreen(kind: categoryOfSwipe(widget.source)!, initialSource: widget.chatSource, win: widget.win),
                       )),
                     )
                   else

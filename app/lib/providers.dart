@@ -13,6 +13,7 @@ import 'index/group_service.dart';
 import 'index/home_service.dart';
 import 'index/index_service.dart';
 import 'index/review_service.dart';
+import 'index/storage_service.dart';
 import 'l10n/l10n.dart';
 import 'platform/media_source.dart';
 import 'platform/messages.g.dart' show PermissionState;
@@ -49,6 +50,9 @@ final homeServiceProvider = Provider<HomeService>((ref) => HomeService(ref.watch
 
 /// Everything the Home feed shows. Invalidate after groups are rebuilt or items trashed.
 final homeProvider = FutureProvider<HomeData>((ref) => ref.watch(homeServiceProvider).load());
+
+/// Storage map numbers. Recomputed each time the screen opens.
+final storageProvider = FutureProvider.autoDispose<StorageData>((ref) => StorageService(ref.watch(databaseProvider)).load());
 
 final reviewServiceProvider = Provider<ReviewService>((ref) => ReviewService(ref.watch(databaseProvider)));
 

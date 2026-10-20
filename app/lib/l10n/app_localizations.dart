@@ -1088,6 +1088,282 @@ abstract class AppLocalizations {
   /// **'Can\'t play this video'**
   String get videoFailed;
 
+  /// No description provided for @storUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated just now'**
+  String get storUpdated;
+
+  /// No description provided for @storSafeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'YOU CAN SAFELY FREE'**
+  String get storSafeLabel;
+
+  /// No description provided for @storOfTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'of {size} your photos and videos take up'**
+  String storOfTotal(String size);
+
+  /// No description provided for @storCutMonths.
+  ///
+  /// In en, this message translates to:
+  /// **'Months'**
+  String get storCutMonths;
+
+  /// No description provided for @storCutTypes.
+  ///
+  /// In en, this message translates to:
+  /// **'Types'**
+  String get storCutTypes;
+
+  /// No description provided for @storCutSources.
+  ///
+  /// In en, this message translates to:
+  /// **'Sources'**
+  String get storCutSources;
+
+  /// No description provided for @storLegend.
+  ///
+  /// In en, this message translates to:
+  /// **'the part you can clear in this block'**
+  String get storLegend;
+
+  /// No description provided for @storClear.
+  ///
+  /// In en, this message translates to:
+  /// **'clear {size}'**
+  String storClear(String size);
+
+  /// No description provided for @storReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Review this block'**
+  String get storReview;
+
+  /// No description provided for @storQuickTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick wins'**
+  String get storQuickTitle;
+
+  /// No description provided for @storQuickSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Safe to clear, one tap each'**
+  String get storQuickSub;
+
+  /// No description provided for @storQuickTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'{size} total'**
+  String storQuickTotal(String size);
+
+  /// No description provided for @storSafe.
+  ///
+  /// In en, this message translates to:
+  /// **'SAFE'**
+  String get storSafe;
+
+  /// No description provided for @storClean.
+  ///
+  /// In en, this message translates to:
+  /// **'Clean'**
+  String get storClean;
+
+  /// No description provided for @storEarlier.
+  ///
+  /// In en, this message translates to:
+  /// **'Earlier'**
+  String get storEarlier;
+
+  /// No description provided for @storEarlierSub.
+  ///
+  /// In en, this message translates to:
+  /// **'before {month} · {n} files'**
+  String storEarlierSub(String month, String n);
+
+  /// No description provided for @storMonthSub.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{1 photo or video} other{{n} photos and videos}}'**
+  String storMonthSub(int n);
+
+  /// No description provided for @storTypeVideos.
+  ///
+  /// In en, this message translates to:
+  /// **'Videos'**
+  String get storTypeVideos;
+
+  /// No description provided for @storTypePhotos.
+  ///
+  /// In en, this message translates to:
+  /// **'Photos'**
+  String get storTypePhotos;
+
+  /// No description provided for @storTypeChat.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat media'**
+  String get storTypeChat;
+
+  /// No description provided for @storTypeShots.
+  ///
+  /// In en, this message translates to:
+  /// **'Screenshots'**
+  String get storTypeShots;
+
+  /// No description provided for @storTypeRecs.
+  ///
+  /// In en, this message translates to:
+  /// **'Screen rec.'**
+  String get storTypeRecs;
+
+  /// No description provided for @storSubVideos.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{1 clip} other{{n} clips}}'**
+  String storSubVideos(int n);
+
+  /// No description provided for @storSubPhotos.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{1 photo} other{{n} photos}}'**
+  String storSubPhotos(int n);
+
+  /// No description provided for @storSubChat.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{1 file from messengers} other{{n} files from messengers}}'**
+  String storSubChat(int n);
+
+  /// No description provided for @storSubShots.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{1 screenshot} other{{n} screenshots}}'**
+  String storSubShots(int n);
+
+  /// No description provided for @storSubRecs.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{1 recording} other{{n} recordings}}'**
+  String storSubRecs(int n);
+
+  /// No description provided for @storSrcCamera.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera'**
+  String get storSrcCamera;
+
+  /// No description provided for @storSrcDownloads.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloads'**
+  String get storSrcDownloads;
+
+  /// No description provided for @storSrcOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get storSrcOther;
+
+  /// No description provided for @storSubCamera.
+  ///
+  /// In en, this message translates to:
+  /// **'taken on this phone'**
+  String get storSubCamera;
+
+  /// No description provided for @storSubChatSrc.
+  ///
+  /// In en, this message translates to:
+  /// **'received and sent media'**
+  String get storSubChatSrc;
+
+  /// No description provided for @storSubShotsSrc.
+  ///
+  /// In en, this message translates to:
+  /// **'screen captures'**
+  String get storSubShotsSrc;
+
+  /// No description provided for @storSubDownloads.
+  ///
+  /// In en, this message translates to:
+  /// **'saved from the browser'**
+  String get storSubDownloads;
+
+  /// No description provided for @storSubInstagram.
+  ///
+  /// In en, this message translates to:
+  /// **'saved posts and stories'**
+  String get storSubInstagram;
+
+  /// No description provided for @storSubOther.
+  ///
+  /// In en, this message translates to:
+  /// **'everything else'**
+  String get storSubOther;
+
+  /// No description provided for @qwOldShots.
+  ///
+  /// In en, this message translates to:
+  /// **'Old screenshots'**
+  String get qwOldShots;
+
+  /// No description provided for @qwOldShotsSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Older than 90 days, never opened since'**
+  String get qwOldShotsSub;
+
+  /// No description provided for @qwBlurry.
+  ///
+  /// In en, this message translates to:
+  /// **'Blurry and dark'**
+  String get qwBlurry;
+
+  /// No description provided for @qwBlurrySub.
+  ///
+  /// In en, this message translates to:
+  /// **'Out of focus or nearly black frames'**
+  String get qwBlurrySub;
+
+  /// No description provided for @qwChat.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat leftovers'**
+  String get qwChat;
+
+  /// No description provided for @qwChatSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Memes and forwards you already have in a chat'**
+  String get qwChatSub;
+
+  /// No description provided for @qwRecs.
+  ///
+  /// In en, this message translates to:
+  /// **'Long screen recordings'**
+  String get qwRecs;
+
+  /// No description provided for @qwRecsSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Over a minute, saved months ago'**
+  String get qwRecsSub;
+
+  /// No description provided for @qwDups.
+  ///
+  /// In en, this message translates to:
+  /// **'Exact duplicates'**
+  String get qwDups;
+
+  /// No description provided for @qwDupsSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Identical files, the oldest copy stays'**
+  String get qwDupsSub;
+
   /// No description provided for @toolsWater.
   ///
   /// In en, this message translates to:

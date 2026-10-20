@@ -8,7 +8,9 @@ import '../../core/theme.dart';
 import '../../l10n/l10n.dart';
 import '../../index/review_service.dart';
 import '../../providers.dart';
+import '../../index/storage_service.dart';
 import '../groups/group_widgets.dart';
+import '../storage/storage_labels.dart';
 import '../swipe/swipe_screen.dart';
 
 String categoryTitle(CategoryKind k) => switch (k) {
@@ -16,6 +18,7 @@ String categoryTitle(CategoryKind k) => switch (k) {
       CategoryKind.screenRecordings => l10n.secScreenRecordings,
       CategoryKind.screenshots => l10n.secScreenshots,
       CategoryKind.chat => l10n.secChat,
+      CategoryKind.quickWin => '',
     };
 
 String _sourceName(String s) => s.isEmpty ? s : s[0].toUpperCase() + s.substring(1);
@@ -23,8 +26,11 @@ String _sourceName(String s) => s.isEmpty ? s : s[0].toUpperCase() + s.substring
 /// Grid of one category (videos, screenshots, chat media). Tap to select,
 /// then move the selection to the app trash. Nothing leaves the device here.
 class CategoryScreen extends ConsumerStatefulWidget {
-  const CategoryScreen({super.key, required this.kind, this.initialSource});
+  const CategoryScreen({super.key, required this.kind, this.initialSource, this.win});
   final CategoryKind kind;
+
+  /// Quick win lists only: which rule picked these files.
+  final QuickWin? win;
 
   /// Chat only: start with this app selected.
   final String? initialSource;
@@ -37,7 +43,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
   List<CategoryItem>? _items;
   List<String> _sources = const [];
   late String? _source = widget.initialSource; // chat filter, null = all
-  late bool _bySize = widget.kind == CategoryKind.videos || widget.kind == CategoryKind.screenRecordings;
+  late bool _bySize = widget.kind == CategoryKind.videos || widget.kind == CategoryKind.screenRecordings || widget.kind == CategoryKind.quickWin;
   final _selected = <String>{};
 
   @override
@@ -52,7 +58,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
   }
 
   Future<void> _load() async {
-    final items = await ref.read(reviewServiceProvider).category(widget.kind, chatSource: _source, bySize: _bySize);
+    final items = await ref.read(reviewServiceProvider).category(widget.kind, chatSource: _source, bySize: _bySize, win: widget.win);
     if (mounted) setState(() => _items = items);
   }
 
@@ -110,11 +116,11 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                     ModeOption(value: 1, label: l10n.modeSwipe, icon: swipeModeIcon),
                   ],
                   onChanged: (_) => Navigator.of(context).pushReplacement(MaterialPageRoute<void>(
-                    builder: (_) => SwipeScreen(source: swipeSourceOf(widget.kind), chatSource: _source),
+                    builder: (_) => SwipeScreen(source: swipeSourceOf(widget.kind), chatSource: _source, win: widget.win),
                   )),
                 ),
               ),
-              ListTitle(title: categoryTitle(widget.kind), subtitle: items == null ? '' : '${filesLabel(items.length)} · ${formatBytes(total)}'),
+              ListTitle(title: widget.win != null ? quickWinTitle(widget.win!) : categoryTitle(widget.kind), subtitle: items == null ? '' : '${filesLabel(items.length)} · ${formatBytes(total)}'),
               ListToolbar(
                 chips: [
                   SweeepChip(l10n.sortNewest, !_bySize, () => _sort(false)),

@@ -1,5 +1,6 @@
 import '../data/database.dart';
 import 'group_service.dart';
+import 'storage_service.dart';
 
 /// One tile in a category carousel.
 class HomeItem {
@@ -37,6 +38,7 @@ class HomeData {
     required this.videos,
     required this.blurry,
     required this.chat,
+    this.safeBytes = 0,
   });
 
   final int libraryBytes;
@@ -55,8 +57,11 @@ class HomeData {
   final HomeCategory blurry;
   final HomeCategory chat;
 
-  /// What "Free up" would reclaim: duplicates + all-but-best of similar groups.
-  int get reclaimableBytes => duplicateBytes + similarBytes;
+  /// Everything the Storage map calls safe to clear (quick wins + extras of
+  /// duplicate and similar groups). This is the number in the oval.
+  final int safeBytes;
+
+  int get reclaimableBytes => safeBytes;
 }
 
 /// Read-only queries behind the Home feed. Everything already in the app
@@ -83,7 +88,9 @@ class HomeService {
     final lib = await db.customSelect('SELECT COUNT(*) AS n, COALESCE(SUM(size_bytes), 0) AS b FROM assets').getSingle();
     final dup = await groups.groupTotals(GroupKind.duplicate);
     final sim = await groups.groupTotals(GroupKind.similar);
+    final safe = await db.customSelect('SELECT COALESCE(SUM(a.size_bytes), 0) AS b FROM assets a WHERE ${safeWhere(DateTime.now().millisecondsSinceEpoch)}').getSingle();
     return HomeData(
+      safeBytes: safe.read<int>('b'),
       libraryCount: lib.read<int>('n'),
       libraryBytes: lib.read<int>('b'),
       duplicates: await groups.groups(GroupKind.duplicate, limit: groupPreview),

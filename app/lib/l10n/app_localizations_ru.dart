@@ -46,39 +46,51 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String filesCount(int n) {
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
     String _temp0 = intl.Intl.pluralLogic(
       n,
       locale: localeName,
-      other: '$n файла',
-      many: '$n файлов',
-      few: '$n файла',
-      one: '$n файл',
+      other: '$nString файла',
+      many: '$nString файлов',
+      few: '$nString файла',
+      one: '$nString файл',
     );
     return '$_temp0';
   }
 
   @override
   String photosCount(int n) {
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
     String _temp0 = intl.Intl.pluralLogic(
       n,
       locale: localeName,
-      other: '$n фото',
-      many: '$n фото',
-      few: '$n фото',
-      one: '$n фото',
+      other: '$nString фото',
+      many: '$nString фото',
+      few: '$nString фото',
+      one: '$nString фото',
     );
     return '$_temp0';
   }
 
   @override
   String groupsCount(int n) {
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
     String _temp0 = intl.Intl.pluralLogic(
       n,
       locale: localeName,
-      other: '$n группы',
-      many: '$n групп',
-      few: '$n группы',
-      one: '$n группа',
+      other: '$nString группы',
+      many: '$nString групп',
+      few: '$nString группы',
+      one: '$nString группа',
     );
     return '$_temp0';
   }
@@ -190,12 +202,20 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String semGroupDup(int count, String size) {
-    return 'Дубликаты: $count фото, экономия $size';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return 'Дубликаты: $countString фото, экономия $size';
   }
 
   @override
   String semGroupSim(int count, String size) {
-    return 'Похожие: $count фото, экономия $size';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return 'Похожие: $countString фото, экономия $size';
   }
 
   @override
@@ -220,7 +240,14 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String swipeOf(int i, int n) {
-    return '$i из $n';
+    final intl.NumberFormat iNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String iString = iNumberFormat.format(i);
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    return '$iString из $nString';
   }
 
   @override
@@ -375,12 +402,20 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String trashSelected(int n, String size) {
-    return 'Выбрано: $n · $size · можно вернуть, пока не очистишь';
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    return 'Выбрано: $nString · $size · можно вернуть, пока не очистишь';
   }
 
   @override
   String restoreN(int n) {
-    return 'Вернуть: $n';
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    return 'Вернуть: $nString';
   }
 
   @override
@@ -401,7 +436,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String daysLeft(int n) {
-    return '$n дн.';
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    return '$nString дн.';
   }
 
   @override
@@ -423,12 +462,20 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String catSelected(int n, String size) {
-    return 'Выбрано: $n · $size · можно вернуть из корзины';
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    return 'Выбрано: $nString · $size · можно вернуть из корзины';
   }
 
   @override
   String moveNToTrash(int n) {
-    return 'В корзину: $n';
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    return 'В корзину: $nString';
   }
 
   @override
@@ -438,7 +485,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String groupsInTrash(int count, String size) {
-    return ' · в корзине $count ($size)';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return ' · в корзине $countString ($size)';
   }
 
   @override
@@ -462,7 +513,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String groupSemantics(String kind, int count, String state) {
-    return '$kind: $count файлов, $state';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '$kind: $countString файлов, $state';
   }
 
   @override
@@ -483,7 +538,14 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String pagerGroupOf(int i, int n) {
-    return 'Группа $i из $n';
+    final intl.NumberFormat iNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String iString = iNumberFormat.format(i);
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    return 'Группа $iString из $nString';
   }
 
   @override
@@ -497,7 +559,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String pagerTrashN(int n, String size) {
-    return 'В корзину: $n · $size';
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    return 'В корзину: $nString · $size';
   }
 
   @override
@@ -530,7 +596,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String pagerTrashAllN(int n, String size) {
-    return 'Удалить все $n · $size';
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    return 'Удалить все $nString · $size';
   }
 
   @override
@@ -628,6 +698,236 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get videoFailed => 'Не получилось включить';
+
+  @override
+  String get storUpdated => 'Только что обновлено';
+
+  @override
+  String get storSafeLabel => 'МОЖНО СМЕЛО ОСВОБОДИТЬ';
+
+  @override
+  String storOfTotal(String size) {
+    return 'из $size, что занимают фото и видео';
+  }
+
+  @override
+  String get storCutMonths => 'Месяцы';
+
+  @override
+  String get storCutTypes => 'Типы';
+
+  @override
+  String get storCutSources => 'Источники';
+
+  @override
+  String get storLegend => 'сколько тут можно убрать';
+
+  @override
+  String storClear(String size) {
+    return 'убрать $size';
+  }
+
+  @override
+  String get storReview => 'Разобрать блок';
+
+  @override
+  String get storQuickTitle => 'Быстрая уборка';
+
+  @override
+  String get storQuickSub => 'Безопасно, по одной кнопке';
+
+  @override
+  String storQuickTotal(String size) {
+    return 'всего $size';
+  }
+
+  @override
+  String get storSafe => 'БЕЗОПАСНО';
+
+  @override
+  String get storClean => 'Убрать';
+
+  @override
+  String get storEarlier => 'Раньше';
+
+  @override
+  String storEarlierSub(String month, String n) {
+    return 'до $month · $n файлов';
+  }
+
+  @override
+  String storMonthSub(int n) {
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nString фото и видео',
+      many: '$nString фото и видео',
+      few: '$nString фото и видео',
+      one: '$nString фото или видео',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get storTypeVideos => 'Видео';
+
+  @override
+  String get storTypePhotos => 'Фото';
+
+  @override
+  String get storTypeChat => 'Чаты';
+
+  @override
+  String get storTypeShots => 'Скриншоты';
+
+  @override
+  String get storTypeRecs => 'Запись экрана';
+
+  @override
+  String storSubVideos(int n) {
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nString ролика',
+      many: '$nString роликов',
+      few: '$nString ролика',
+      one: '$nString ролик',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String storSubPhotos(int n) {
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nString фото',
+      many: '$nString фото',
+      few: '$nString фото',
+      one: '$nString фото',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String storSubChat(int n) {
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nString файла из мессенджеров',
+      many: '$nString файлов из мессенджеров',
+      few: '$nString файла из мессенджеров',
+      one: '$nString файл из мессенджеров',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String storSubShots(int n) {
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nString скриншота',
+      many: '$nString скриншотов',
+      few: '$nString скриншота',
+      one: '$nString скриншот',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String storSubRecs(int n) {
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nString записи',
+      many: '$nString записей',
+      few: '$nString записи',
+      one: '$nString запись',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get storSrcCamera => 'Камера';
+
+  @override
+  String get storSrcDownloads => 'Загрузки';
+
+  @override
+  String get storSrcOther => 'Другое';
+
+  @override
+  String get storSubCamera => 'снято на этот телефон';
+
+  @override
+  String get storSubChatSrc => 'присланное и отправленное';
+
+  @override
+  String get storSubShotsSrc => 'снимки экрана';
+
+  @override
+  String get storSubDownloads => 'скачано из браузера';
+
+  @override
+  String get storSubInstagram => 'сохранённые посты и сторис';
+
+  @override
+  String get storSubOther => 'всё остальное';
+
+  @override
+  String get qwOldShots => 'Старые скриншоты';
+
+  @override
+  String get qwOldShotsSub => 'Старше 90 дней, потом не открывали';
+
+  @override
+  String get qwBlurry => 'Мутные и тёмные';
+
+  @override
+  String get qwBlurrySub => 'Не в фокусе или почти чёрные кадры';
+
+  @override
+  String get qwChat => 'Остатки из чатов';
+
+  @override
+  String get qwChatSub => 'Мемы и пересылки, они и так есть в чате';
+
+  @override
+  String get qwRecs => 'Длинные записи экрана';
+
+  @override
+  String get qwRecsSub => 'Дольше минуты, записаны давно';
+
+  @override
+  String get qwDups => 'Точные дубли';
+
+  @override
+  String get qwDupsSub => 'Одинаковые файлы, старая копия остаётся';
 
   @override
   String get toolsWater => 'Вода';

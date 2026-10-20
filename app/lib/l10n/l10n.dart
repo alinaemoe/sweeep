@@ -30,3 +30,15 @@ String fmtMonth(int year, int month) {
   final s = DateFormat('LLLL y', _loc).format(DateTime(year, month));
   return s[0].toUpperCase() + s.substring(1);
 }
+
+/// Oct 2026 / окт. 2026 г.
+String fmtMonthShort(int year, int month) {
+  final s = DateFormat('MMM y', _loc).format(DateTime(year, month));
+  return s[0].toUpperCase() + s.substring(1);
+}
+
+/// Oct / окт.
+String fmtMonthAbbr(int year, int month) {
+  final s = DateFormat('MMM', _loc).format(DateTime(year, month));
+  return s[0].toUpperCase() + s.substring(1);
+}

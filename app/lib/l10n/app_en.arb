@@ -16,7 +16,8 @@
   "@filesCount": {
     "placeholders": {
       "n": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -24,7 +25,8 @@
   "@photosCount": {
     "placeholders": {
       "n": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -32,7 +34,8 @@
   "@groupsCount": {
     "placeholders": {
       "n": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -109,7 +112,8 @@
   "@semGroupDup": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       },
       "size": {
         "type": "String"
@@ -120,7 +124,8 @@
   "@semGroupSim": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       },
       "size": {
         "type": "String"
@@ -169,10 +174,12 @@
   "@swipeOf": {
     "placeholders": {
       "i": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       },
       "n": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -318,7 +325,8 @@
   "@trashSelected": {
     "placeholders": {
       "n": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       },
       "size": {
         "type": "String"
@@ -329,7 +337,8 @@
   "@restoreN": {
     "placeholders": {
       "n": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -355,7 +364,8 @@
   "@daysLeft": {
     "placeholders": {
       "n": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -375,7 +385,8 @@
   "@catSelected": {
     "placeholders": {
       "n": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       },
       "size": {
         "type": "String"
@@ -386,7 +397,8 @@
   "@moveNToTrash": {
     "placeholders": {
       "n": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -405,7 +417,8 @@
   "@groupsInTrash": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       },
       "size": {
         "type": "String"
@@ -441,7 +454,8 @@
         "type": "String"
       },
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       },
       "state": {
         "type": "String"
@@ -470,10 +484,12 @@
   "@pagerGroupOf": {
     "placeholders": {
       "i": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       },
       "n": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -484,7 +500,8 @@
   "@pagerTrashN": {
     "placeholders": {
       "n": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       },
       "size": {
         "type": "String"
@@ -504,7 +521,8 @@
   "@pagerTrashAllN": {
     "placeholders": {
       "n": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       },
       "size": {
         "type": "String"
@@ -580,6 +598,131 @@
   "videoPlay": "Play video",
   "videoPause": "Pause video",
   "videoFailed": "Can't play this video",
+  "storUpdated": "Updated just now",
+  "storSafeLabel": "YOU CAN SAFELY FREE",
+  "storOfTotal": "of {size} your photos and videos take up",
+  "@storOfTotal": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "storCutMonths": "Months",
+  "storCutTypes": "Types",
+  "storCutSources": "Sources",
+  "storLegend": "the part you can clear in this block",
+  "storClear": "clear {size}",
+  "@storClear": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "storReview": "Review this block",
+  "storQuickTitle": "Quick wins",
+  "storQuickSub": "Safe to clear, one tap each",
+  "storQuickTotal": "{size} total",
+  "@storQuickTotal": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "storSafe": "SAFE",
+  "storClean": "Clean",
+  "storEarlier": "Earlier",
+  "storEarlierSub": "before {month} · {n} files",
+  "@storEarlierSub": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "storMonthSub": "{n, plural, =1{1 photo or video} other{{n} photos and videos}}",
+  "@storMonthSub": {
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "storTypeVideos": "Videos",
+  "storTypePhotos": "Photos",
+  "storTypeChat": "Chat media",
+  "storTypeShots": "Screenshots",
+  "storTypeRecs": "Screen rec.",
+  "storSubVideos": "{n, plural, =1{1 clip} other{{n} clips}}",
+  "@storSubVideos": {
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "storSubPhotos": "{n, plural, =1{1 photo} other{{n} photos}}",
+  "@storSubPhotos": {
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "storSubChat": "{n, plural, =1{1 file from messengers} other{{n} files from messengers}}",
+  "@storSubChat": {
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "storSubShots": "{n, plural, =1{1 screenshot} other{{n} screenshots}}",
+  "@storSubShots": {
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "storSubRecs": "{n, plural, =1{1 recording} other{{n} recordings}}",
+  "@storSubRecs": {
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "storSrcCamera": "Camera",
+  "storSrcDownloads": "Downloads",
+  "storSrcOther": "Other",
+  "storSubCamera": "taken on this phone",
+  "storSubChatSrc": "received and sent media",
+  "storSubShotsSrc": "screen captures",
+  "storSubDownloads": "saved from the browser",
+  "storSubInstagram": "saved posts and stories",
+  "storSubOther": "everything else",
+  "qwOldShots": "Old screenshots",
+  "qwOldShotsSub": "Older than 90 days, never opened since",
+  "qwBlurry": "Blurry and dark",
+  "qwBlurrySub": "Out of focus or nearly black frames",
+  "qwChat": "Chat leftovers",
+  "qwChatSub": "Memes and forwards you already have in a chat",
+  "qwRecs": "Long screen recordings",
+  "qwRecsSub": "Over a minute, saved months ago",
+  "qwDups": "Exact duplicates",
+  "qwDupsSub": "Identical files, the oldest copy stays",
   "toolsWater": "Water",
   "toolsDust": "Dust",
   "toolsSound": "Sound test",

@@ -5,8 +5,9 @@ import '../l10n/l10n.dart';
 import '../platform/media_source.dart';
 import 'group_service.dart';
 import 'home_service.dart';
+import 'storage_service.dart';
 
-enum SwipeSource { all, screenshots, screenRecordings, videos, chat, blurry }
+enum SwipeSource { all, screenshots, screenRecordings, videos, chat, blurry, quickWin }
 
 /// '2026-10' -> 'October 2026' / 'Октябрь 2026'.
 String monthTitle(String key) => fmtMonth(int.parse(key.substring(0, 4)), int.parse(key.substring(5)));
@@ -24,7 +25,7 @@ class MonthSummary {
   String get title => monthTitle(key);
 }
 
-enum CategoryKind { videos, screenRecordings, screenshots, chat }
+enum CategoryKind { videos, screenRecordings, screenshots, chat, quickWin }
 
 /// The Swipe deck that goes with a grid category (and back).
 SwipeSource swipeSourceOf(CategoryKind k) => switch (k) {
@@ -32,6 +33,7 @@ SwipeSource swipeSourceOf(CategoryKind k) => switch (k) {
       CategoryKind.screenRecordings => SwipeSource.screenRecordings,
       CategoryKind.screenshots => SwipeSource.screenshots,
       CategoryKind.chat => SwipeSource.chat,
+      CategoryKind.quickWin => SwipeSource.quickWin,
     };
 
 CategoryKind? categoryOfSwipe(SwipeSource s) => switch (s) {
@@ -39,6 +41,7 @@ CategoryKind? categoryOfSwipe(SwipeSource s) => switch (s) {
       SwipeSource.screenRecordings => CategoryKind.screenRecordings,
       SwipeSource.screenshots => CategoryKind.screenshots,
       SwipeSource.chat => CategoryKind.chat,
+      SwipeSource.quickWin => CategoryKind.quickWin,
       _ => null,
     };
 
@@ -125,8 +128,9 @@ class ReviewService {
   ///
   /// [chatSource] narrows the chat deck to one app; [startId] moves that item
   /// to the front, so tapping a tile starts the deck on it.
-  Future<List<SwipeItem>> queue(SwipeSource source, {String? month, String? chatSource, String? startId}) async {
+  Future<List<SwipeItem>> queue(SwipeSource source, {String? month, String? chatSource, String? startId, QuickWin? win}) async {
     final where = switch (source) {
+      SwipeSource.quickWin => '($quickWinGuard) AND (${quickWinWhere(win ?? QuickWin.blurry, DateTime.now().millisecondsSinceEpoch)})',
       SwipeSource.all => 'a.media_type = 0',
       SwipeSource.screenshots => 'a.media_type = 0 AND a.is_screenshot = 1',
       SwipeSource.screenRecordings => 'a.media_type = 1 AND a.is_screen_recording = 1',
@@ -158,8 +162,9 @@ class ReviewService {
 
   /// All items of a category (not yet in the app trash). [chatSource] filters
   /// the chat category to one app; [bySize] sorts largest first, else newest.
-  Future<List<CategoryItem>> category(CategoryKind kind, {String? chatSource, bool bySize = false}) async {
+  Future<List<CategoryItem>> category(CategoryKind kind, {String? chatSource, bool bySize = false, QuickWin? win}) async {
     final where = switch (kind) {
+      CategoryKind.quickWin => '($quickWinGuard) AND (${quickWinWhere(win ?? QuickWin.blurry, DateTime.now().millisecondsSinceEpoch)})',
       CategoryKind.videos => 'a.media_type = 1 AND a.is_screen_recording = 0',
       CategoryKind.screenRecordings => 'a.media_type = 1 AND a.is_screen_recording = 1',
       CategoryKind.screenshots => 'a.media_type = 0 AND a.is_screenshot = 1',

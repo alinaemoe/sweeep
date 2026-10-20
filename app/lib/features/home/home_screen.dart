@@ -13,6 +13,7 @@ import '../../providers.dart';
 import '../groups/group_pager.dart';
 import '../groups/group_widgets.dart';
 import '../groups/groups_screen.dart';
+import '../storage/storage_screen.dart';
 import '../library/library_screen.dart';
 import '../category/category_screen.dart';
 import '../swipe/swipe_screen.dart';
@@ -163,7 +164,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderStat
                 onSettings: () => _push(const LibraryScreen()),
                 onFree: data == null || data.reclaimableBytes == 0
                     ? null
-                    : () => _push(GroupsScreen(kind: data.duplicates.isNotEmpty ? GroupKind.duplicate : GroupKind.similar)),
+                    : () => _push(const StorageScreen()),
               );
             },
           ),
