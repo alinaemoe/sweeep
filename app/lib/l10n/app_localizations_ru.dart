@@ -525,7 +525,19 @@ class AppLocalizationsRu extends AppLocalizations {
   String get semTrashCopy => 'В корзину. Тап — оставить';
 
   @override
-  String get pagerTip => 'Тап по копии — переключить · свайп — дальше';
+  String get pagerTip =>
+      'Тап — сравнить · удержать — оставить/удалить · вниз — удалить все';
+
+  @override
+  String pagerTrashAllN(int n, String size) {
+    return 'Удалить все $n · $size';
+  }
+
+  @override
+  String get stampTrashAll => 'УДАЛИТЬ ВСЕ';
+
+  @override
+  String get secScreenRecordings => 'Записи экрана';
 
   @override
   String get notifTitle => 'Sweeep сканирует';
@@ -545,6 +557,54 @@ class AppLocalizationsRu extends AppLocalizations {
   String notifChecking(String done, String total) {
     return 'Ищу дубликаты · $done из $total';
   }
+
+  @override
+  String scanOfFiles(String done, String total) {
+    return '$done ИЗ $total ФАЙЛОВ';
+  }
+
+  @override
+  String get scanStepRead => 'Читаю библиотеку';
+
+  @override
+  String get scanStepFinger => 'Смотрю фото';
+
+  @override
+  String get scanStepCompare => 'Сравниваю похожие';
+
+  @override
+  String get scanStepGroup => 'Собираю группы';
+
+  @override
+  String get scanStatusDone => 'готово';
+
+  @override
+  String get scanStatusNext => 'дальше';
+
+  @override
+  String get scanCountGroups => 'групп';
+
+  @override
+  String get scanCountShots => 'скриншотов';
+
+  @override
+  String get scanCountFound => 'найдено пока';
+
+  @override
+  String get scanPrivacy =>
+      'Всё считается на телефоне. Ничего не уходит в сеть.';
+
+  @override
+  String get scanPausedNote => 'Пауза. Прогресс сохранён.';
+
+  @override
+  String get scanPause => 'Пауза';
+
+  @override
+  String get scanResume => 'Продолжить';
+
+  @override
+  String get scanLater => 'Позже';
 
   @override
   String get toolsWater => 'Вода';

@@ -11,6 +11,7 @@ import '../swipe/swipe_screen.dart';
 
 String categoryTitle(CategoryKind k) => switch (k) {
       CategoryKind.videos => l10n.secVideos,
+      CategoryKind.screenRecordings => l10n.secScreenRecordings,
       CategoryKind.screenshots => l10n.secScreenshots,
       CategoryKind.chat => l10n.secChat,
     };
@@ -31,7 +32,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
   List<CategoryItem>? _items;
   List<String> _sources = const [];
   String? _source; // chat filter, null = all
-  late bool _bySize = widget.kind == CategoryKind.videos;
+  late bool _bySize = widget.kind == CategoryKind.videos || widget.kind == CategoryKind.screenRecordings;
   final _selected = <String>{};
 
   @override

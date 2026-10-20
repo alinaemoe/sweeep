@@ -170,7 +170,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderStat
   }
 
   List<Widget> _feed(HomeData d) {
-    final empty = d.chat.count == 0 && d.duplicates.isEmpty && d.similar.isEmpty && d.screenshots.count == 0 && d.videos.count == 0 && d.blurry.count == 0;
+    final empty = d.chat.count == 0 && d.duplicates.isEmpty && d.similar.isEmpty && d.screenshots.count == 0 && d.screenRecordings.count == 0 && d.videos.count == 0 && d.blurry.count == 0;
     if (empty) {
       return [
         Padding(
@@ -192,6 +192,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderStat
       if (d.screenshots.count > 0) ...[
         _SectionHeader(l10n.secScreenshots, '${_n(d.screenshots.count)} · ${formatBytes(d.screenshots.bytes)}', l10n.seeAll, () => _push(const CategoryScreen(kind: CategoryKind.screenshots))),
         _TileRow(height: 130, items: d.screenshots.items, builder: (it) => _Tile(item: it, width: 74, height: 130, radius: 14)),
+      ],
+      if (d.screenRecordings.count > 0) ...[
+        _SectionHeader(l10n.secScreenRecordings, '${_n(d.screenRecordings.count)} · ${formatBytes(d.screenRecordings.bytes)}', l10n.seeAll, () => _push(const CategoryScreen(kind: CategoryKind.screenRecordings))),
+        _TileRow(height: 130, items: d.screenRecordings.items, builder: (it) => _Tile(item: it, width: 74, height: 130, radius: 14, video: true)),
       ],
       if (d.videos.count > 0) ...[
         _SectionHeader(l10n.secVideos, '${_n(d.videos.count)} · ${formatBytes(d.videos.bytes)}', l10n.seeAll, () => _push(const CategoryScreen(kind: CategoryKind.videos))),

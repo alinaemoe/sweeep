@@ -24,7 +24,7 @@ class MonthSummary {
   String get title => monthTitle(key);
 }
 
-enum CategoryKind { videos, screenshots, chat }
+enum CategoryKind { videos, screenRecordings, screenshots, chat }
 
 class SwipeItem {
   const SwipeItem({required this.id, required this.sizeBytes, required this.createdAtMs});
@@ -128,7 +128,8 @@ class ReviewService {
   /// the chat category to one app; [bySize] sorts largest first, else newest.
   Future<List<CategoryItem>> category(CategoryKind kind, {String? chatSource, bool bySize = false}) async {
     final where = switch (kind) {
-      CategoryKind.videos => 'a.media_type = 1',
+      CategoryKind.videos => 'a.media_type = 1 AND a.is_screen_recording = 0',
+      CategoryKind.screenRecordings => 'a.media_type = 1 AND a.is_screen_recording = 1',
       CategoryKind.screenshots => 'a.media_type = 0 AND a.is_screenshot = 1',
       CategoryKind.chat => chatSource == null ? 'a.chat_source IS NOT NULL' : 'a.chat_source = ?',
     };

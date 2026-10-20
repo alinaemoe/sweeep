@@ -287,6 +287,17 @@ class GroupService {
     });
   }
 
+  /// Records "keep" decisions, so photos the user deliberately kept in a
+  /// group do not come back later in the Swipe deck.
+  Future<void> markKept(List<GroupMember> members) async {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    await db.batch((b) {
+      b.insertAllOnConflictUpdate(db.decisions, [
+        for (final m in members) DecisionsCompanion.insert(assetId: m.assetId, decision: 0, decidedAtMs: now),
+      ]);
+    });
+  }
+
   Future<TrashSummary> trashSummary() async {
     final r = await db.customSelect('SELECT COUNT(*) AS n, COALESCE(SUM(size_bytes), 0) AS b FROM trash_items').getSingle();
     return TrashSummary(r.read<int>('n'), r.read<int>('b'));

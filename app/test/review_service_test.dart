@@ -26,8 +26,8 @@ void main() {
   });
   tearDown(() => db.close());
 
-  Future<void> add(String id, {int type = 0, bool shot = false, int t = 0, int size = 10, String? chat}) => db.into(db.assets).insert(AssetsCompanion.insert(
-        id: id, mediaType: type, width: 1, height: 1, sizeBytes: size, createdAtMs: t, modifiedAtMs: t, isScreenshot: Value(shot), chatSource: Value(chat)));
+  Future<void> add(String id, {int type = 0, bool shot = false, bool rec = false, int t = 0, int size = 10, String? chat}) => db.into(db.assets).insert(AssetsCompanion.insert(
+        id: id, mediaType: type, width: 1, height: 1, sizeBytes: size, createdAtMs: t, modifiedAtMs: t, isScreenshot: Value(shot), isScreenRecording: Value(rec), chatSource: Value(chat)));
 
   test('queue is newest first, photos only, skips decided items', () async {
     await add('old', t: 1);
@@ -111,6 +111,14 @@ void main() {
     await svc.trashMany(await svc.category(CategoryKind.videos));
     expect(await svc.category(CategoryKind.videos), isEmpty);
     expect((await svc.trashed()).length, 2);
+  });
+
+  test('screen recordings are their own category, not part of videos', () async {
+    await add('v1', type: 1, t: 1, size: 500);
+    await add('r1', type: 1, rec: true, t: 2, size: 900);
+    await add('r2', type: 1, rec: true, t: 3, size: 100);
+    expect((await svc.category(CategoryKind.videos)).map((e) => e.id), ['v1']);
+    expect((await svc.category(CategoryKind.screenRecordings, bySize: true)).map((e) => e.id), ['r1', 'r2']);
   });
 
   test('trash entries know their days left; swipe hint is remembered', () async {

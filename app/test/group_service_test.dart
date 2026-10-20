@@ -177,6 +177,19 @@ void main() {
     expect((await db.select(db.groups).get()).length, 2); // old p+q group is gone
   });
 
+  test('kept photos are recorded as reviewed and leave the swipe queue', () async {
+    await addAsset('k1', size: 10, created: 1, phash: 3, lap: 9);
+    await addAsset('k2', size: 10, created: 2, phash: 3, lap: 1);
+    final s = svc(FakeMedia({}));
+    await s.rebuild();
+    final g = (await s.groups(GroupKind.similar)).single;
+    await s.markKept(g.members);
+    final decided = await db.select(db.decisions).get();
+    expect(decided.map((d) => (d.assetId, d.decision)).toSet(), {('k1', 0), ('k2', 0)});
+    await s.trash([g.others.single]); // changing one's mind later: trash wins
+    expect((await s.trashSummary()).count, 1);
+  });
+
   test('limit and totals agree with the full list, and ignore trashed groups', () async {
     // three similar pairs with different savings (size of the extra copy)
     for (final (i, size) in [(1, 10), (2, 30), (3, 20)]) {

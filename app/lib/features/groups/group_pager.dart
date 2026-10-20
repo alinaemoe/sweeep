@@ -10,9 +10,14 @@ import '../../providers.dart';
 import 'group_widgets.dart';
 import 'groups_screen.dart';
 
-/// Group review: swipe sideways through groups of one category, keep the
-/// best photo, tap copies to flip TRASH / KEEP, then trash the rest.
-/// Trashing is soft (app trash); nothing leaves the device yet.
+/// Group review: swipe sideways through groups of one category. Every photo
+/// of a group is either KEEP or TRASH (the suggested BEST PICK is only a
+/// starting point, it can be trashed too, or any other photo can be kept).
+///
+/// - tap a small photo: look at it big (compare)
+/// - tap the big photo, or hold a small one: flip KEEP / TRASH
+/// - pull the big photo down: trash the whole group
+/// - the main button commits; Undo brings it back (the app trash is soft)
 class GroupPager extends ConsumerStatefulWidget {
   const GroupPager({super.key, required this.kind, this.initialIndex = 0, this.initialGroupId});
   final GroupKind kind;
@@ -29,7 +34,8 @@ class _GroupPagerState extends ConsumerState<GroupPager> {
   List<GroupView>? _groups; // snapshot, so trashing doesn't reshuffle the pages
   // neighbouring cards peek in from both sides
   late PageController _controller = PageController(initialPage: widget.initialIndex, viewportFraction: .9);
-  final Map<int, Set<String>> _flipped = {}; // group id -> copies the user flipped from their default
+  final Map<int, Map<String, bool>> _choice = {}; // group id -> photo id -> kept (only what the user changed)
+  final Map<int, String> _focus = {}; // group id -> photo shown big
   int _page = 0;
 
   @override
@@ -54,23 +60,61 @@ class _GroupPagerState extends ConsumerState<GroupPager> {
     super.dispose();
   }
 
-  /// Exact duplicates default to TRASH (identical files). Similar photos
-  /// default to KEEP: lookalikes are a judgment call, so the user opts in.
-  bool _defaultTrash(GroupView g) => g.kind == GroupKind.duplicate;
+  /// Exact duplicates: keep the best, trash the identical copies. Similar
+  /// photos: keep everything, lookalikes are a judgment call.
+  bool _defaultKept(GroupView g, String id) => g.kind == GroupKind.duplicate ? id == g.bestId : true;
 
-  bool _isKept(GroupView g, String id) => (_flipped[g.id]?.contains(id) ?? false) == _defaultTrash(g);
+  bool _isKept(GroupView g, String id) => _choice[g.id]?[id] ?? _defaultKept(g, id);
 
-  List<GroupMember> _toTrash(GroupView g) => g.others.where((m) => !_isKept(g, m.assetId)).toList();
+  String _focusOf(GroupView g) => _focus[g.id] ?? g.bestId;
 
-  Future<void> _trash(GroupView g) async {
-    final list = _toTrash(g);
-    if (list.isNotEmpty) {
-      HapticFeedback.lightImpact();
-      await ref.read(groupServiceProvider).trash(list);
-    }
+  List<GroupMember> _toTrash(GroupView g) => g.members.where((m) => !_isKept(g, m.assetId)).toList();
+
+  void _toggle(GroupView g, String id) {
+    HapticFeedback.selectionClick();
+    setState(() => (_choice[g.id] ??= {})[id] = !_isKept(g, id));
+  }
+
+  void _invalidate() {
     ref.invalidate(groupsProvider(widget.kind));
     ref.invalidate(trashSummaryProvider);
     ref.invalidate(homeProvider);
+    ref.invalidate(timelineProvider);
+  }
+
+  /// Applies the group's choices: trashed photos go to the app trash, kept
+  /// ones are marked as reviewed. [all] trashes everything, the suggested
+  /// best too.
+  Future<void> _commit(GroupView g, {bool all = false}) async {
+    final trash = all ? g.members : _toTrash(g);
+    final keep = all ? <GroupMember>[] : g.members.where((m) => _isKept(g, m.assetId)).toList();
+    final svc = ref.read(groupServiceProvider);
+    if (trash.isNotEmpty) {
+      HapticFeedback.lightImpact();
+      await svc.trash(trash);
+    }
+    if (keep.isNotEmpty) await svc.markKept(keep);
+    _invalidate();
+    if (!mounted) return;
+    if (trash.isNotEmpty) {
+      final ids = [for (final m in [...trash, ...keep]) m.assetId];
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.fromLTRB(16, 0, 16, 96),
+          content: Text(l10n.movedToTrash(filesLabel(trash.length))),
+          action: SnackBarAction(
+            label: l10n.undo,
+            textColor: SweeepColors.brand,
+            onPressed: () async {
+              await ref.read(reviewServiceProvider).restore(ids);
+              if (mounted) setState(() => _choice.remove(g.id));
+              _invalidate();
+            },
+          ),
+        ));
+    }
     _next();
   }
 
@@ -93,6 +137,7 @@ class _GroupPagerState extends ConsumerState<GroupPager> {
     final current = groups[_page.clamp(0, groups.length - 1)];
     final toTrash = _toTrash(current);
     final saving = toTrash.fold<int>(0, (s, m) => s + m.sizeBytes);
+    final allTrash = toTrash.length == current.members.length;
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -141,13 +186,14 @@ class _GroupPagerState extends ConsumerState<GroupPager> {
                   controller: _controller,
                   index: i,
                   child: _GroupPage(
-                  group: groups[i],
-                  isKept: (id) => _isKept(groups[i], id),
-                  onToggle: (id) => setState(() {
-                    final k = _flipped.putIfAbsent(groups[i].id, () => <String>{});
-                    k.contains(id) ? k.remove(id) : k.add(id);
-                  }),
-                )),
+                    group: groups[i],
+                    focusId: _focusOf(groups[i]),
+                    isKept: (id) => _isKept(groups[i], id),
+                    onFocus: (id) => setState(() => _focus[groups[i].id] = id),
+                    onToggle: (id) => _toggle(groups[i], id),
+                    onTrashAll: () => _commit(groups[i], all: true),
+                  ),
+                ),
               ),
             ),
             Container(
@@ -174,8 +220,11 @@ class _GroupPagerState extends ConsumerState<GroupPager> {
                   Expanded(
                     child: PillButton(
                       height: 54,
-                      label: toTrash.isEmpty ? l10n.pagerKeepAll : l10n.pagerTrashN(toTrash.length, formatBytes(saving)),
-                      onPressed: () => _trash(current),
+                      color: allTrash ? SweeepColors.trash : SweeepColors.brand,
+                      label: toTrash.isEmpty
+                          ? l10n.pagerKeepAll
+                          : (allTrash ? l10n.pagerTrashAllN(toTrash.length, formatBytes(saving)) : l10n.pagerTrashN(toTrash.length, formatBytes(saving))),
+                      onPressed: () => _commit(current),
                     ),
                   ),
                 ],
@@ -227,90 +276,161 @@ class _Peek extends StatelessWidget {
       );
 }
 
-class _GroupPage extends StatelessWidget {
-  const _GroupPage({required this.group, required this.isKept, required this.onToggle});
+class _GroupPage extends StatefulWidget {
+  const _GroupPage({required this.group, required this.focusId, required this.isKept, required this.onFocus, required this.onToggle, required this.onTrashAll});
   final GroupView group;
+  final String focusId;
   final bool Function(String id) isKept;
+  final void Function(String id) onFocus;
   final void Function(String id) onToggle;
+  final VoidCallback onTrashAll;
+
+  @override
+  State<_GroupPage> createState() => _GroupPageState();
+}
+
+class _GroupPageState extends State<_GroupPage> {
+  static const _commitAt = 110.0;
+  double _pull = 0; // how far the big photo is pulled down
+  bool _armed = false;
+
+  void _pullUpdate(DragUpdateDetails d) {
+    setState(() => _pull = (_pull + d.delta.dy).clamp(0.0, 320.0));
+    final armed = _pull > _commitAt;
+    if (armed != _armed) {
+      _armed = armed;
+      if (armed) HapticFeedback.mediumImpact();
+    }
+  }
+
+  void _pullEnd(DragEndDetails d) {
+    final go = _pull > _commitAt || (d.primaryVelocity ?? 0) > 1100;
+    setState(() {
+      _pull = 0;
+      _armed = false;
+    });
+    if (go) widget.onTrashAll();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final best = group.best;
-    final others = group.others;
-    final why = group.kind == GroupKind.duplicate ? l10n.whyOldest : l10n.whySharpest;
+    final g = widget.group;
+    final focus = g.members.firstWhere((m) => m.assetId == widget.focusId, orElse: () => g.best);
+    final kept = widget.isKept(focus.assetId);
+    final isBest = focus.assetId == g.bestId;
+    final c = kept ? SweeepColors.keep : SweeepColors.trash;
+    final why = g.kind == GroupKind.duplicate ? l10n.whyOldest : l10n.whySharpest;
+    final pullT = (_pull / _commitAt).clamp(0.0, 1.0);
     return Padding(
       padding: const EdgeInsets.fromLTRB(6, 12, 6, 8),
       child: Column(
         children: [
           Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(30),
-                border: Border.all(color: SweeepColors.keep, width: 2),
-                boxShadow: [BoxShadow(color: SweeepColors.keep.withValues(alpha: .18), blurRadius: 32)],
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(28),
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    ThumbImage(id: best.assetId, side: 720, fit: BoxFit.cover),
-                    Positioned(left: 14, top: 14, child: LimePill(l10n.pillBestPick)),
-                    Positioned(
-                      left: 14,
-                      right: 14,
-                      bottom: 14,
-                      child: GlassPill(
-                        height: 46,
-                        padding: const EdgeInsets.symmetric(horizontal: 18),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text('$why · ${best.width}×${best.height}', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700)),
-                            Text(formatBytes(best.sizeBytes), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: SweeepColors.textMutedSmall)),
-                          ],
-                        ),
+            child: GestureDetector(
+              onTap: () => widget.onToggle(focus.assetId),
+              onVerticalDragUpdate: _pullUpdate,
+              onVerticalDragEnd: _pullEnd,
+              child: Transform.translate(
+                offset: Offset(0, _pull * .55),
+                child: Semantics(
+                  button: true,
+                  label: kept ? l10n.semKeptCopy : l10n.semTrashCopy,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 180),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(30),
+                      border: Border.all(color: c, width: 2),
+                      boxShadow: [BoxShadow(color: c.withValues(alpha: .18), blurRadius: 32)],
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(28),
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          ThumbImage(id: focus.assetId, side: 720, fit: BoxFit.cover),
+                          // trashed: tinted red, like on the Swipe card
+                          IgnorePointer(child: AnimatedContainer(duration: const Duration(milliseconds: 180), color: SweeepColors.trash.withValues(alpha: kept ? 0 : .2))),
+                          if (_pull > 0) IgnorePointer(child: ColoredBox(color: SweeepColors.trash.withValues(alpha: .45 * pullT))),
+                          if (_pull > 8)
+                            Center(
+                              child: Opacity(
+                                opacity: pullT,
+                                child: Transform.rotate(angle: -8 * 3.14159 / 180, child: _BigStamp(l10n.stampTrashAll)),
+                              ),
+                            ),
+                          if (isBest) Positioned(left: 14, top: 14, child: LimePill(l10n.pillBestPick)),
+                          Positioned(right: 14, top: 14, child: LimePill(kept ? l10n.pillKeep : l10n.pillTrash, color: c)),
+                          Positioned(
+                            left: 14,
+                            right: 14,
+                            bottom: 14,
+                            child: GlassPill(
+                              height: 46,
+                              padding: const EdgeInsets.symmetric(horizontal: 18),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(isBest ? '$why · ${focus.width}×${focus.height}' : '${focus.width}×${focus.height}', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700)),
+                                  Text(formatBytes(focus.sizeBytes), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: SweeepColors.textMutedSmall)),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ],
+                  ),
                 ),
               ),
             ),
           ),
           const SizedBox(height: 12),
           SizedBox(
-            height: 92,
+            height: 104,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
-              itemCount: others.length,
+              itemCount: g.members.length,
               separatorBuilder: (_, __) => const SizedBox(width: 10),
               itemBuilder: (context, i) {
-                final m = others[i];
-                final kept = isKept(m.assetId);
-                final c = kept ? SweeepColors.keep : SweeepColors.trash;
+                final m = g.members[i];
+                final k = widget.isKept(m.assetId);
+                final tc = k ? SweeepColors.keep : SweeepColors.trash;
+                final here = m.assetId == focus.assetId;
                 return Semantics(
                   button: true,
-                  label: kept ? l10n.semKeptCopy : l10n.semTrashCopy,
+                  selected: here,
+                  label: k ? l10n.semKeptCopy : l10n.semTrashCopy,
                   child: GestureDetector(
-                    onTap: () => onToggle(m.assetId),
+                    onTap: () {
+                      HapticFeedback.selectionClick();
+                      widget.onFocus(m.assetId);
+                    },
+                    onLongPress: () => widget.onToggle(m.assetId),
                     child: AspectRatio(
-                      aspectRatio: 1.15,
-                      child: Container(
-                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(20), border: Border.all(color: c, width: 2)),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(18),
-                          child: Stack(
-                            fit: StackFit.expand,
-                            children: [
-                              ThumbImage(id: m.assetId, side: 256),
-                              if (!kept) Container(color: SweeepColors.trash.withValues(alpha: .18)),
-                              Positioned(left: 8, bottom: 8, child: LimePill(kept ? l10n.pillKeep : l10n.pillTrash, color: c)),
-                              Positioned(
-                                right: 8,
-                                top: 8,
-                                child: GlassPill(height: 22, padding: const EdgeInsets.symmetric(horizontal: 7), child: Text(formatBytes(m.sizeBytes), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700))),
-                              ),
-                            ],
+                      aspectRatio: 1,
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 160),
+                        // the photo shown big gets a white ring
+                        padding: const EdgeInsets.all(3),
+                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(22), border: Border.all(color: here ? SweeepColors.text : Colors.transparent, width: 2)),
+                        child: Container(
+                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(18), border: Border.all(color: tc, width: 2)),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(16),
+                            child: Stack(
+                              fit: StackFit.expand,
+                              children: [
+                                ThumbImage(id: m.assetId, side: 256),
+                                if (!k) Container(color: SweeepColors.trash.withValues(alpha: .22)),
+                                Positioned(left: 6, bottom: 6, child: LimePill(k ? l10n.pillKeep : l10n.pillTrash, color: tc)),
+                                if (m.assetId == g.bestId) const Positioned(left: 6, top: 6, child: Icon(Icons.star_rounded, size: 18, color: SweeepColors.keep)),
+                                Positioned(
+                                  right: 6,
+                                  top: 6,
+                                  child: GlassPill(height: 20, padding: const EdgeInsets.symmetric(horizontal: 6), child: Text(formatBytes(m.sizeBytes), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700))),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -322,9 +442,22 @@ class _GroupPage extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(l10n.pagerTip,
+              textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 12, color: SweeepColors.textMutedSmall, fontWeight: FontWeight.w600)),
         ],
       ),
     );
   }
+}
+
+class _BigStamp extends StatelessWidget {
+  const _BigStamp(this.text);
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+        decoration: BoxDecoration(border: Border.all(color: SweeepColors.text, width: 3), borderRadius: BorderRadius.circular(14)),
+        child: Text(text, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w800, letterSpacing: 2, color: SweeepColors.text)),
+      );
 }

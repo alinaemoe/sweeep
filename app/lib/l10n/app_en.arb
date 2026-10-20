@@ -499,7 +499,20 @@
   "pillTrash": "TRASH",
   "semKeptCopy": "Keep this copy. Tap to trash it",
   "semTrashCopy": "Trash this copy. Tap to keep it",
-  "pagerTip": "Tap a copy to flip it · swipe for the next group",
+  "pagerTip": "Tap to compare · hold to flip KEEP/TRASH · pull down to trash all",
+  "pagerTrashAllN": "Trash all {n} · save {size}",
+  "@pagerTrashAllN": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "stampTrashAll": "TRASH ALL",
+  "secScreenRecordings": "Screen recordings",
   "notifTitle": "Sweeep is scanning",
   "notifChannel": "Library scan",
   "notifStart": "Scanning your library",
@@ -525,6 +538,31 @@
       }
     }
   },
+  "scanOfFiles": "{done} OF {total} FILES",
+  "@scanOfFiles": {
+    "placeholders": {
+      "done": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "scanStepRead": "Reading library",
+  "scanStepFinger": "Fingerprinting photos",
+  "scanStepCompare": "Comparing similar shots",
+  "scanStepGroup": "Grouping & ranking",
+  "scanStatusDone": "done",
+  "scanStatusNext": "next",
+  "scanCountGroups": "groups",
+  "scanCountShots": "screenshots",
+  "scanCountFound": "found so far",
+  "scanPrivacy": "Analyzed on this device. Nothing is uploaded.",
+  "scanPausedNote": "Paused. Progress is saved.",
+  "scanPause": "Pause scan",
+  "scanResume": "Resume scan",
+  "scanLater": "Later",
   "toolsWater": "Water",
   "toolsDust": "Dust",
   "toolsSound": "Sound test",

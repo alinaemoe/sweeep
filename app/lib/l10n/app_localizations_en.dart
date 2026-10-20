@@ -519,7 +519,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get semTrashCopy => 'Trash this copy. Tap to keep it';
 
   @override
-  String get pagerTip => 'Tap a copy to flip it · swipe for the next group';
+  String get pagerTip =>
+      'Tap to compare · hold to flip KEEP/TRASH · pull down to trash all';
+
+  @override
+  String pagerTrashAllN(int n, String size) {
+    return 'Trash all $n · save $size';
+  }
+
+  @override
+  String get stampTrashAll => 'TRASH ALL';
+
+  @override
+  String get secScreenRecordings => 'Screen recordings';
 
   @override
   String get notifTitle => 'Sweeep is scanning';
@@ -539,6 +551,53 @@ class AppLocalizationsEn extends AppLocalizations {
   String notifChecking(String done, String total) {
     return 'Checking duplicates · $done of $total';
   }
+
+  @override
+  String scanOfFiles(String done, String total) {
+    return '$done OF $total FILES';
+  }
+
+  @override
+  String get scanStepRead => 'Reading library';
+
+  @override
+  String get scanStepFinger => 'Fingerprinting photos';
+
+  @override
+  String get scanStepCompare => 'Comparing similar shots';
+
+  @override
+  String get scanStepGroup => 'Grouping & ranking';
+
+  @override
+  String get scanStatusDone => 'done';
+
+  @override
+  String get scanStatusNext => 'next';
+
+  @override
+  String get scanCountGroups => 'groups';
+
+  @override
+  String get scanCountShots => 'screenshots';
+
+  @override
+  String get scanCountFound => 'found so far';
+
+  @override
+  String get scanPrivacy => 'Analyzed on this device. Nothing is uploaded.';
+
+  @override
+  String get scanPausedNote => 'Paused. Progress is saved.';
+
+  @override
+  String get scanPause => 'Pause scan';
+
+  @override
+  String get scanResume => 'Resume scan';
+
+  @override
+  String get scanLater => 'Later';
 
   @override
   String get toolsWater => 'Water';

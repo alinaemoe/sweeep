@@ -44,6 +44,13 @@ abstract final class SweeepTheme {
         TargetPlatform.android: SweeepPageTransitions(),
         TargetPlatform.iOS: SweeepPageTransitions(),
       }),
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: const Color(0xFF23252F),
+        contentTextStyle: const TextStyle(fontFamily: 'PlusJakartaSans', fontFamilyFallback: ['Manrope'], color: SweeepColors.text, fontSize: 14, fontWeight: FontWeight.w600),
+        actionTextColor: SweeepColors.brand,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18), side: const BorderSide(color: SweeepColors.cardBorder)),
+      ),
       textTheme: base.textTheme
           .apply(fontFamily: 'PlusJakartaSans', bodyColor: SweeepColors.text, displayColor: SweeepColors.text),
     );

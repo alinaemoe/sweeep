@@ -13,7 +13,7 @@ Full spec: `docs/SPECIFICATION.md`. Dev instructions + per-phase status: `README
 
 ## Design (final)
 Obsidian + Lavender: bg #0F1015, card #181920, brand lavender #B8A6FF, lime #D4F563 ONLY for keep/best pick, coral #FF5A5A for trash/delete. Stretchy-letter wordmark SW**EEE**P; SWIIIIPE stretches with swipe distance; CLEAAAN waves on delete; KEEEEP ONE in group pager. Home = feed of carousels with collapsing oval. Stacks are fanned frames. Tokens in `app/lib/core/theme.dart`.
-Prototypes live in a private design-canvas artifact (8 boards): https://claude.ai/artifact/QbAi2ndjg5exNgcQUi35sq — read it with the Artifact tool (action "read") when building UI screens.
+Prototypes live in a private design-canvas artifact (13 boards, incl. D1 Timeline, D11 Storage map, D12 Cleanup session, D13 Session done): https://claude.ai/artifact/QbAi2ndjg5exNgcQUi35sq — read it with the Artifact tool (action "read") when building UI screens.
 
 ## Pipeline (implemented)
 MediaStore enumerate (keyset paging) -> delta index in Drift `assets` -> 128px gray thumbs -> hashes (checkpointed in `hashes`, `analysisVersion`) -> exact dups (SHA-256 only for same-size files) -> groups persisted -> review UI (Groups grid + GroupPager). Soft trash (`trash_items`/`decisions`, 30 days); real delete via createDeleteRequest in chunks of 1000 (one system dialog per chunk). Sideload-only switch `sweeep.directDelete=true` in app/android/gradle.properties adds MANAGE_EXTERNAL_STORAGE and deletes without the dialog; keep it false for Play.
@@ -28,5 +28,6 @@ Phase 0 skeleton; Phase 1 permissions/enumeration/delta index/gray thumbs; 1b Ru
 5. (done) Foreground service `ScanService` keeps a scan alive in the background (swiping the app from recents still stops it; checkpoints resume next launch), all Android ABIs, groups diffed instead of rebuilt, thumbnail cache is autoDispose. Still open: iOS (Swift) untested; "limited access" permission path untested.
 6. Benchmarks: Dart/SQLite side done (`BENCH=1 flutter test test/bench`, results in docs/benchmarks.md; Home/Timeline/queue fast at 100k). Still open: phone-side peak memory, fps and cold start with 50k+ photos, v1->v2 DB upgrade check on the phone (schema is 2 now, index on assets).
 7. (done) RU/EN localization via gen-l10n (app/lib/l10n: app_en.arb is the source, app_ru.arb; strings through the global `l10n`, dates/numbers via `fmtNum/fmtDate/fmtMonth`). Language follows the phone. Russian copy stays short and casual. Brand words stay English (SWEEEP, SWIPE, CLEAAAN, KEEEEP ONE); Cyrillic uses Manrope as fallback because Plus Jakarta Sans has none. The dev screen library_screen.dart is English only. Add a key to both ARBs (and `flutter gen-l10n`), test/l10n_test.dart checks parity.
-8. Postponed: Email/App Cleaner; monetization/paywall decision.
+8. NEXT BIG IDEAS (prototyped, not built): Storage map + Quick wins, Cleanup session + streak. Plan, code gaps and extra ideas: `docs/IDEAS.md`.
+9. Postponed: Email/App Cleaner; monetization/paywall decision.
 Also: add a Phase 2 status line to docs/SPECIFICATION.md (only README has it).

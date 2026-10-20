@@ -33,6 +33,7 @@ class HomeData {
     required this.similarCount,
     required this.similarBytes,
     required this.screenshots,
+    required this.screenRecordings,
     required this.videos,
     required this.blurry,
     required this.chat,
@@ -49,6 +50,7 @@ class HomeData {
   final int similarCount;
   final int similarBytes;
   final HomeCategory screenshots;
+  final HomeCategory screenRecordings;
   final HomeCategory videos;
   final HomeCategory blurry;
   final HomeCategory chat;
@@ -91,7 +93,8 @@ class HomeService {
       similarCount: sim.count,
       similarBytes: sim.savings,
       screenshots: await _category('a.is_screenshot = 1 AND a.media_type = 0', 'a.created_at_ms DESC'),
-      videos: await _category('a.media_type = 1', 'a.size_bytes DESC', withDuration: true),
+      screenRecordings: await _category('a.media_type = 1 AND a.is_screen_recording = 1', 'a.size_bytes DESC', withDuration: true),
+      videos: await _category('a.media_type = 1 AND a.is_screen_recording = 0', 'a.size_bytes DESC', withDuration: true),
       blurry: await _blurry(),
       chat: await _category('a.chat_source IS NOT NULL', 'a.created_at_ms DESC', withDuration: true),
     );
