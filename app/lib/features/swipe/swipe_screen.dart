@@ -257,23 +257,10 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> with TickerProviderSt
                   ),
                   Expanded(
                     child: Column(children: [
-                      Text(widget.month != null ? monthTitle(widget.month!) : sourceTitle(widget.source), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+                      Text(widget.month != null ? monthTitle(widget.month!) : sourceTitle(widget.source), maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
                       Text(q == null ? '' : l10n.swipeOf(math.min(_i + 1, q.length), q.length), style: const TextStyle(fontSize: 12, color: SweeepColors.textMuted, fontWeight: FontWeight.w600)),
                     ]),
                   ),
-                  if (categoryOfSwipe(widget.source) != null && !widget.embedded) ...[
-                    ModeSwitch<int>(
-                      value: 1,
-                      options: [
-                        ModeOption(value: 0, label: l10n.modeGrid, icon: gridModeIcon),
-                        ModeOption(value: 1, label: l10n.modeSwipe, icon: swipeModeIcon),
-                      ],
-                      onChanged: (_) => Navigator.of(context).pushReplacement(MaterialPageRoute<void>(
-                        builder: (_) => CategoryScreen(kind: categoryOfSwipe(widget.source)!, initialSource: widget.chatSource),
-                      )),
-                    ),
-                    const SizedBox(width: 8),
-                  ],
                   IconButton(
                     onPressed: _history.isEmpty ? null : _undo,
                     tooltip: l10n.undo,
@@ -282,7 +269,27 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> with TickerProviderSt
                   ),
                 ]),
               ),
-              SizedBox(height: 64, child: Align(alignment: Alignment.bottomCenter, child: _Word(dx: _dx, wave: _wave, color: accent))),
+              SizedBox(
+                height: 64,
+                child: Stack(children: [
+                  Align(alignment: Alignment.bottomCenter, child: _Word(dx: _dx, wave: _wave, color: accent)),
+                  if (categoryOfSwipe(widget.source) != null && !widget.embedded)
+                    Positioned(
+                      right: 14,
+                      bottom: 6,
+                      child: ModeSwitch<int>(
+                        value: 1,
+                        options: [
+                          ModeOption(value: 0, label: l10n.modeGrid, icon: gridModeIcon),
+                          ModeOption(value: 1, label: l10n.modeSwipe, icon: swipeModeIcon),
+                        ],
+                        onChanged: (_) => Navigator.of(context).pushReplacement(MaterialPageRoute<void>(
+                          builder: (_) => CategoryScreen(kind: categoryOfSwipe(widget.source)!, initialSource: widget.chatSource),
+                        )),
+                      ),
+                    ),
+                ]),
+              ),
               const SizedBox(height: 12),
               Expanded(
                 child: q == null
