@@ -5,3 +5,5 @@ app/build/
 **/Messages.g.kt
 **/Messages.g.swift
 app/android/app/src/main/jniLibs/
+
+*.apk
