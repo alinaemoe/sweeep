@@ -209,7 +209,7 @@ class ReviewService {
 
   /// Deletes [ids] from the device (system confirmation dialog, in chunks)
   /// and forgets every deleted asset locally. Returns what was really deleted.
-  Future<DeleteOutcome> deleteForever(MediaSource media, List<String> ids, {int chunk = 200}) async {
+  Future<DeleteOutcome> deleteForever(MediaSource media, List<String> ids, {int chunk = 1000}) async {
     final deleted = <String>[];
     var cancelled = false;
     for (var i = 0; i < ids.length && !cancelled; i += chunk) {

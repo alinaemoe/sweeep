@@ -4,6 +4,9 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+// see sweeep.directDelete in gradle.properties
+val directDelete = (project.findProperty("sweeep.directDelete") as String?) == "true"
+
 android {
     namespace = "app.sweeep.sweeep"
     compileSdk = flutter.compileSdkVersion
@@ -27,6 +30,13 @@ android {
         // flag during build.
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        buildConfigField("boolean", "DIRECT_DELETE", directDelete.toString())
+        // a harmless duplicate permission unless the direct-delete build asks for all-files access
+        manifestPlaceholders["storagePermission"] = if (directDelete) "android.permission.MANAGE_EXTERNAL_STORAGE" else "android.permission.WAKE_LOCK"
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 
     buildTypes {

@@ -10,6 +10,8 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
 import android.net.Uri
+import android.os.Environment
+import android.provider.Settings
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
@@ -41,6 +43,7 @@ class MediaPlugin :
     private var activityBinding: ActivityPluginBinding? = null
     private var pendingPermission: ((PermissionState) -> Unit)? = null
     private var pendingDelete: ((Boolean) -> Unit)? = null
+    private var askedAllFiles = false
 
     // region plugin lifecycle
 
@@ -384,6 +387,28 @@ class MediaPlugin :
         val uris = withContext(Dispatchers.IO) { assetIds.mapNotNull { id -> uriFor(id)?.let { id to it } } }
         val gone = assetIds.filter { id -> uris.none { it.first == id } }.toMutableList() // already deleted elsewhere
         if (uris.isEmpty()) return@withContext DeleteResult(gone, false)
+
+        // Sideload build with "All files access": delete straight away, no dialog.
+        if (BuildConfig.DIRECT_DELETE && Environment.isExternalStorageManager()) {
+            val deleted = withContext(Dispatchers.IO) {
+                uris.filter { (id, uri) ->
+                    try {
+                        ctx.contentResolver.delete(uri, null, null)
+                    } catch (e: Exception) {
+                    }
+                    uriFor(id) == null
+                }.map { it.first }
+            }
+            return@withContext DeleteResult(gone + deleted, false)
+        }
+        // First time on a direct build: send the user to the all-files switch once, and use the dialog now.
+        if (BuildConfig.DIRECT_DELETE && !askedAllFiles) {
+            askedAllFiles = true
+            try {
+                act.startActivity(Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION, Uri.parse("package:${ctx.packageName}")))
+            } catch (e: Exception) {
+            }
+        }
 
         val request = MediaStore.createDeleteRequest(ctx.contentResolver, uris.map { it.second })
         val ok = suspendCoroutine<Boolean> { cont ->
