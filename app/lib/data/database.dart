@@ -79,6 +79,18 @@ class TrashItems extends Table {
   Set<Column> get primaryKey => {assetId};
 }
 
+/// One finished Cleanup session (for the done screen and later history).
+class Sessions extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get startedMs => integer()();
+  IntColumn get endedMs => integer()();
+  IntColumn get goal => integer()();
+  IntColumn get swept => integer()();
+  IntColumn get trashed => integer()();
+  IntColumn get bytes => integer()(); // size of what went to the app trash
+
+}
+
 /// Key/value for scan checkpoints (cursor, last full scan, thresholds hash).
 class ScanState extends Table {
   TextColumn get key => text()();
@@ -88,17 +100,18 @@ class ScanState extends Table {
   Set<Column> get primaryKey => {key};
 }
 
-@DriftDatabase(tables: [Assets, Hashes, Groups, GroupMembers, Decisions, TrashItems, ScanState])
+@DriftDatabase(tables: [Assets, Hashes, Groups, GroupMembers, Decisions, TrashItems, ScanState, Sessions])
 class SweeepDatabase extends _$SweeepDatabase {
   SweeepDatabase(super.e);
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
         onUpgrade: (m, from, to) async {
           if (from < 2) await m.createIndex(idxAssetsTypeCreated);
+          if (from < 3) await m.createTable(sessions);
         },
         beforeOpen: (details) async {
           await customStatement('PRAGMA foreign_keys = ON');

@@ -9,6 +9,7 @@ import '../../index/review_service.dart';
 import '../../providers.dart';
 import '../groups/group_widgets.dart';
 import 'swipe_screen.dart';
+import '../session/session_screen.dart';
 
 String _num(int n) => fmtNum(n);
 
@@ -32,6 +33,16 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
     ref.invalidate(timelineProvider);
     ref.invalidate(homeProvider);
     ref.invalidate(trashSummaryProvider);
+  }
+
+  Future<void> _openSession() async {
+    HapticFeedback.selectionClick();
+    await Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const SessionScreen()));
+    if (!mounted) return;
+    ref.invalidate(timelineProvider);
+    ref.invalidate(homeProvider);
+    ref.invalidate(trashSummaryProvider);
+    ref.invalidate(streakProvider);
   }
 
   @override
@@ -64,7 +75,8 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
                       bottom: false,
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(20, 12, 20, 22),
-                        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        child: Column(children: [
+                          Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                           Expanded(
                             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                               Text(l10n.tlHeadline, style: const TextStyle(fontSize: 30, height: 1.1, fontWeight: FontWeight.w800, letterSpacing: -1)),
@@ -88,6 +100,9 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
                               ),
                             ),
                           ),
+                          ]),
+                          const SizedBox(height: 16),
+                          _SessionEntry(onOpen: _openSession),
                         ]),
                       ),
                     );
@@ -252,4 +267,45 @@ class _DashedRRect extends CustomPainter {
 
   @override
   bool shouldRepaint(_DashedRRect old) => old.color != color || old.radius != radius;
+}
+
+/// The way into Cleanup sessions: streak at a glance, one tap to open.
+class _SessionEntry extends ConsumerWidget {
+  const _SessionEntry({required this.onOpen});
+  final VoidCallback onOpen;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final streak = ref.watch(streakProvider).value;
+    final days = streak?.current ?? 0;
+    return Semantics(
+      button: true,
+      label: l10n.sessTitle,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onOpen,
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(14, 12, 16, 12),
+          decoration: BoxDecoration(color: SweeepColors.card, borderRadius: BorderRadius.circular(24), border: Border.all(color: SweeepColors.cardBorder)),
+          child: Row(children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(shape: BoxShape.circle, color: SweeepColors.brand.withValues(alpha: .16)),
+              child: const Icon(Icons.local_fire_department_rounded, size: 24, color: SweeepColors.brand),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text(l10n.sessTitle, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, letterSpacing: -.3)),
+                const SizedBox(height: 2),
+                Text(days > 0 ? l10n.doneStreak(days) : l10n.sessEntryNoStreak, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: SweeepColors.textMutedSmall)),
+              ]),
+            ),
+            const Icon(Icons.chevron_right_rounded, color: SweeepColors.textMutedSmall),
+          ]),
+        ),
+      ),
+    );
+  }
 }

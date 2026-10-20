@@ -11,7 +11,9 @@ import '../../l10n/l10n.dart';
 import '../../core/widgets.dart';
 import '../../index/review_service.dart';
 import '../../providers.dart';
+import '../../index/session_service.dart';
 import '../../index/storage_service.dart';
+import '../session/session_done_screen.dart';
 import '../category/category_screen.dart';
 import '../storage/storage_labels.dart';
 import '../groups/group_widgets.dart';
@@ -31,8 +33,27 @@ String sourceTitle(SwipeSource s) => switch (s) {
 /// Tinder-style review: drag left = trash, right = keep. The SWIIIIPE word
 /// stretches with the drag, CLEAAAN waves after a trash.
 class SwipeScreen extends ConsumerStatefulWidget {
-  const SwipeScreen({super.key, required this.source, this.embedded = false, this.month, this.chatSource, this.startId, this.win});
+  const SwipeScreen({super.key, required this.source, this.embedded = false, this.month, this.chatSource, this.startId, this.win})
+      : plan = null,
+        goal = 0,
+        before = null,
+        targetPercent = 100;
+
+  /// A Cleanup session: a ready deck of [goal] photos; reaching the goal
+  /// opens the Session done screen.
+  const SwipeScreen.session({super.key, required SessionPlan this.plan, required this.goal, required StreakInfo this.before, required this.targetPercent})
+      : source = SwipeSource.all,
+        embedded = false,
+        month = null,
+        chatSource = null,
+        startId = null,
+        win = null;
+
   final SwipeSource source;
+  final SessionPlan? plan;
+  final int goal;
+  final StreakInfo? before;
+  final int targetPercent;
 
   /// 'YYYY-MM': swipe just that month (from the Timeline).
   final String? month;
@@ -62,6 +83,13 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> with TickerProviderSt
   bool _busy = false;
   bool _hint = false; // first-run gesture hint
 
+  // Cleanup session bookkeeping
+  final _started = DateTime.now();
+  int _swept = 0;
+  int _trashedN = 0;
+  int _trashedBytes = 0;
+  bool get _inSession => widget.plan != null;
+
   /// action: 0 keep, 1 trash, 2 later
   final _history = <({SwipeItem item, int action})>[];
 
@@ -72,6 +100,17 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> with TickerProviderSt
   void initState() {
     super.initState();
     final svc = ref.read(reviewServiceProvider);
+    if (_inSession) {
+      svc.swipeHintSeen().then((seen) {
+        if (mounted) {
+          setState(() {
+            _queue = [...widget.plan!.items];
+            _hint = !seen && _queue!.isNotEmpty;
+          });
+        }
+      });
+      return;
+    }
     svc.queue(widget.source, month: widget.month, chatSource: widget.chatSource, startId: widget.startId, win: widget.win).then((q) async {
       final seen = await svc.swipeHintSeen();
       if (mounted) {
@@ -133,6 +172,11 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> with TickerProviderSt
       // The card behind is already full size, so this swap is seamless.
       setState(() {
         _history.add((item: item, action: trash ? 1 : 0));
+        _swept++;
+        if (trash) {
+          _trashedN++;
+          _trashedBytes += item.sizeBytes;
+        }
         _i++;
         _dx = 0;
         _dy = 0;
@@ -141,8 +185,11 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> with TickerProviderSt
       });
       HapticFeedback.lightImpact();
       if (trash) _wave.forward(from: 0);
+      final done = _inSession && (_swept >= widget.goal || _i >= _queue!.length);
       write.then((_) {
-        if (mounted) ref.invalidate(trashSummaryProvider);
+        if (!mounted) return;
+        ref.invalidate(trashSummaryProvider);
+        if (done) _finishSession();
       });
     });
   }
@@ -183,7 +230,32 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> with TickerProviderSt
     }
     await ref.read(reviewServiceProvider).undo(last.item.id);
     ref.invalidate(trashSummaryProvider);
-    if (mounted) setState(() => _i--);
+    if (mounted) {
+      setState(() {
+        _i--;
+        _swept--;
+        if (last.action == 1) {
+          _trashedN--;
+          _trashedBytes -= last.item.sizeBytes;
+        }
+      });
+    }
+  }
+
+  Future<void> _finishSession() async {
+    final r = await ref.read(sessionServiceProvider).finish(
+          started: _started,
+          goal: widget.goal,
+          swept: _swept,
+          trashed: _trashedN,
+          bytes: _trashedBytes,
+          streakBefore: widget.before!,
+          monthKey: widget.plan!.startMonth,
+          percentBefore: widget.targetPercent,
+        );
+    if (!mounted) return;
+    ref.invalidate(sessionOverviewProvider);
+    await Navigator.of(context).pushReplacement(MaterialPageRoute<void>(builder: (_) => SessionDoneScreen(result: r)));
   }
 
   void _dismissHint() {
@@ -267,8 +339,8 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> with TickerProviderSt
                   ),
                   Expanded(
                     child: Column(children: [
-                      Text(widget.month != null ? monthTitle(widget.month!) : (widget.win != null ? quickWinTitle(widget.win!) : sourceTitle(widget.source)), maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
-                      Text(q == null ? '' : l10n.swipeOf(math.min(_i + 1, q.length), q.length), style: const TextStyle(fontSize: 12, color: SweeepColors.textMuted, fontWeight: FontWeight.w600)),
+                      Text(widget.month != null ? monthTitle(widget.month!) : (_inSession ? l10n.sessTitle : (widget.win != null ? quickWinTitle(widget.win!) : sourceTitle(widget.source))), maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+                      Text(q == null ? '' : (_inSession ? l10n.sessProgress(math.min(_swept, widget.goal), math.min(widget.goal, q.length)) : l10n.swipeOf(math.min(_i + 1, q.length), q.length)), style: const TextStyle(fontSize: 12, color: SweeepColors.textMuted, fontWeight: FontWeight.w600)),
                     ]),
                   ),
                   if (categoryOfSwipe(widget.source) != null && !widget.embedded)

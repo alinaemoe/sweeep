@@ -1364,6 +1364,264 @@ abstract class AppLocalizations {
   /// **'Identical files, the oldest copy stays'**
   String get qwDupsSub;
 
+  /// No description provided for @sessTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cleanup Session'**
+  String get sessTitle;
+
+  /// No description provided for @sessSub.
+  ///
+  /// In en, this message translates to:
+  /// **'A short run through your oldest photos.\nNo pressure, stop any time.'**
+  String get sessSub;
+
+  /// No description provided for @sessDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{1 day} other{{n} days}}'**
+  String sessDays(int n);
+
+  /// No description provided for @sessPhotosAbout.
+  ///
+  /// In en, this message translates to:
+  /// **'photos · about {m} min'**
+  String sessPhotosAbout(int m);
+
+  /// No description provided for @sessWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'This week'**
+  String get sessWeek;
+
+  /// No description provided for @sessBest.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{best streak 1 day} other{best streak {n} days}}'**
+  String sessBest(int n);
+
+  /// No description provided for @sessFreeze.
+  ///
+  /// In en, this message translates to:
+  /// **'1 freeze'**
+  String get sessFreeze;
+
+  /// No description provided for @sessFreezeSub.
+  ///
+  /// In en, this message translates to:
+  /// **'covers one missed day, so a busy week does not break the streak'**
+  String get sessFreezeSub;
+
+  /// No description provided for @sessFreezeUsed.
+  ///
+  /// In en, this message translates to:
+  /// **'This week\'s freeze is already used'**
+  String get sessFreezeUsed;
+
+  /// No description provided for @sessMonths.
+  ///
+  /// In en, this message translates to:
+  /// **'Months swept'**
+  String get sessMonths;
+
+  /// No description provided for @sessOldestFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'oldest first'**
+  String get sessOldestFirst;
+
+  /// No description provided for @sessStartsWith.
+  ///
+  /// In en, this message translates to:
+  /// **'Starts with {month} · lookalikes first, then the rest'**
+  String sessStartsWith(String month);
+
+  /// No description provided for @sessStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start · {photos}'**
+  String sessStart(String photos);
+
+  /// No description provided for @sessNothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything is swept'**
+  String get sessNothing;
+
+  /// No description provided for @sessEntryNoStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'Start your streak'**
+  String get sessEntryNoStreak;
+
+  /// No description provided for @sessEntrySub.
+  ///
+  /// In en, this message translates to:
+  /// **'A short run through your oldest photos'**
+  String get sessEntrySub;
+
+  /// No description provided for @sessProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} / {goal}'**
+  String sessProgress(int done, int goal);
+
+  /// No description provided for @remTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily reminder'**
+  String get remTitle;
+
+  /// No description provided for @remSub.
+  ///
+  /// In en, this message translates to:
+  /// **'A nudge on days you have not swept yet'**
+  String get remSub;
+
+  /// No description provided for @remTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get remTime;
+
+  /// No description provided for @remNeedPerm.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow notifications to get reminders'**
+  String get remNeedPerm;
+
+  /// No description provided for @remAllow.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow'**
+  String get remAllow;
+
+  /// No description provided for @remNotifTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Time for a quick sweep'**
+  String get remNotifTitle;
+
+  /// No description provided for @remNotifBody.
+  ///
+  /// In en, this message translates to:
+  /// **'A minute for your photos? Keep the streak going.'**
+  String get remNotifBody;
+
+  /// No description provided for @remChannel.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders'**
+  String get remChannel;
+
+  /// No description provided for @doneSwept.
+  ///
+  /// In en, this message translates to:
+  /// **'{photos} swept in {time}'**
+  String doneSwept(String photos, String time);
+
+  /// No description provided for @doneTimeMS.
+  ///
+  /// In en, this message translates to:
+  /// **'{m} min {s} s'**
+  String doneTimeMS(int m, int s);
+
+  /// No description provided for @doneTimeS.
+  ///
+  /// In en, this message translates to:
+  /// **'{s} s'**
+  String doneTimeS(int s);
+
+  /// No description provided for @doneInTrash.
+  ///
+  /// In en, this message translates to:
+  /// **'IN TRASH'**
+  String get doneInTrash;
+
+  /// No description provided for @doneInTrashSub.
+  ///
+  /// In en, this message translates to:
+  /// **'{unit} · {files}'**
+  String doneInTrashSub(String unit, String files);
+
+  /// No description provided for @doneKept.
+  ///
+  /// In en, this message translates to:
+  /// **'KEPT'**
+  String get doneKept;
+
+  /// No description provided for @donePhotosStay.
+  ///
+  /// In en, this message translates to:
+  /// **'photos stay'**
+  String get donePhotosStay;
+
+  /// No description provided for @doneStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} day streak'**
+  String doneStreak(int n);
+
+  /// No description provided for @doneStreakUp.
+  ///
+  /// In en, this message translates to:
+  /// **'one more than yesterday · best is {best}'**
+  String doneStreakUp(int best);
+
+  /// No description provided for @doneStreakNew.
+  ///
+  /// In en, this message translates to:
+  /// **'a fresh start · best is {best}'**
+  String doneStreakNew(int best);
+
+  /// No description provided for @doneStreakSame.
+  ///
+  /// In en, this message translates to:
+  /// **'already counted today · best is {best}'**
+  String doneStreakSame(int best);
+
+  /// No description provided for @doneMonthProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'{from}% to {to}%'**
+  String doneMonthProgress(int from, int to);
+
+  /// No description provided for @doneLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{photos} left in {month}. '**
+  String doneLeft(String photos, String month);
+
+  /// No description provided for @doneMoreSessions.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{About 1 more session and it is done} other{About {n} more sessions and it is done}}'**
+  String doneMoreSessions(int n);
+
+  /// No description provided for @doneMonthDone.
+  ///
+  /// In en, this message translates to:
+  /// **'{month} is fully swept!'**
+  String doneMonthDone(String month);
+
+  /// No description provided for @doneNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Photos are in the Sweeep trash for 30 days. Nothing leaves your phone until you empty it.'**
+  String get doneNote;
+
+  /// No description provided for @doneDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get doneDone;
+
+  /// No description provided for @doneAnother.
+  ///
+  /// In en, this message translates to:
+  /// **'Another {n}'**
+  String doneAnother(int n);
+
   /// No description provided for @toolsWater.
   ///
   /// In en, this message translates to:

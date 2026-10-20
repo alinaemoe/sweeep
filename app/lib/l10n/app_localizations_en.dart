@@ -911,6 +911,255 @@ class AppLocalizationsEn extends AppLocalizations {
   String get qwDupsSub => 'Identical files, the oldest copy stays';
 
   @override
+  String get sessTitle => 'Cleanup Session';
+
+  @override
+  String get sessSub =>
+      'A short run through your oldest photos.\nNo pressure, stop any time.';
+
+  @override
+  String sessDays(int n) {
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nString days',
+      one: '1 day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String sessPhotosAbout(int m) {
+    final intl.NumberFormat mNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String mString = mNumberFormat.format(m);
+
+    return 'photos · about $mString min';
+  }
+
+  @override
+  String get sessWeek => 'This week';
+
+  @override
+  String sessBest(int n) {
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'best streak $nString days',
+      one: 'best streak 1 day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get sessFreeze => '1 freeze';
+
+  @override
+  String get sessFreezeSub =>
+      'covers one missed day, so a busy week does not break the streak';
+
+  @override
+  String get sessFreezeUsed => 'This week\'s freeze is already used';
+
+  @override
+  String get sessMonths => 'Months swept';
+
+  @override
+  String get sessOldestFirst => 'oldest first';
+
+  @override
+  String sessStartsWith(String month) {
+    return 'Starts with $month · lookalikes first, then the rest';
+  }
+
+  @override
+  String sessStart(String photos) {
+    return 'Start · $photos';
+  }
+
+  @override
+  String get sessNothing => 'Everything is swept';
+
+  @override
+  String get sessEntryNoStreak => 'Start your streak';
+
+  @override
+  String get sessEntrySub => 'A short run through your oldest photos';
+
+  @override
+  String sessProgress(int done, int goal) {
+    final intl.NumberFormat doneNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String doneString = doneNumberFormat.format(done);
+    final intl.NumberFormat goalNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String goalString = goalNumberFormat.format(goal);
+
+    return '$doneString / $goalString';
+  }
+
+  @override
+  String get remTitle => 'Daily reminder';
+
+  @override
+  String get remSub => 'A nudge on days you have not swept yet';
+
+  @override
+  String get remTime => 'Time';
+
+  @override
+  String get remNeedPerm => 'Allow notifications to get reminders';
+
+  @override
+  String get remAllow => 'Allow';
+
+  @override
+  String get remNotifTitle => 'Time for a quick sweep';
+
+  @override
+  String get remNotifBody => 'A minute for your photos? Keep the streak going.';
+
+  @override
+  String get remChannel => 'Reminders';
+
+  @override
+  String doneSwept(String photos, String time) {
+    return '$photos swept in $time';
+  }
+
+  @override
+  String doneTimeMS(int m, int s) {
+    final intl.NumberFormat mNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String mString = mNumberFormat.format(m);
+    final intl.NumberFormat sNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String sString = sNumberFormat.format(s);
+
+    return '$mString min $sString s';
+  }
+
+  @override
+  String doneTimeS(int s) {
+    final intl.NumberFormat sNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String sString = sNumberFormat.format(s);
+
+    return '$sString s';
+  }
+
+  @override
+  String get doneInTrash => 'IN TRASH';
+
+  @override
+  String doneInTrashSub(String unit, String files) {
+    return '$unit · $files';
+  }
+
+  @override
+  String get doneKept => 'KEPT';
+
+  @override
+  String get donePhotosStay => 'photos stay';
+
+  @override
+  String doneStreak(int n) {
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    return '$nString day streak';
+  }
+
+  @override
+  String doneStreakUp(int best) {
+    final intl.NumberFormat bestNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String bestString = bestNumberFormat.format(best);
+
+    return 'one more than yesterday · best is $bestString';
+  }
+
+  @override
+  String doneStreakNew(int best) {
+    final intl.NumberFormat bestNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String bestString = bestNumberFormat.format(best);
+
+    return 'a fresh start · best is $bestString';
+  }
+
+  @override
+  String doneStreakSame(int best) {
+    final intl.NumberFormat bestNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String bestString = bestNumberFormat.format(best);
+
+    return 'already counted today · best is $bestString';
+  }
+
+  @override
+  String doneMonthProgress(int from, int to) {
+    final intl.NumberFormat fromNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String fromString = fromNumberFormat.format(from);
+    final intl.NumberFormat toNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String toString = toNumberFormat.format(to);
+
+    return '$fromString% to $toString%';
+  }
+
+  @override
+  String doneLeft(String photos, String month) {
+    return '$photos left in $month. ';
+  }
+
+  @override
+  String doneMoreSessions(int n) {
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'About $nString more sessions and it is done',
+      one: 'About 1 more session and it is done',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String doneMonthDone(String month) {
+    return '$month is fully swept!';
+  }
+
+  @override
+  String get doneNote =>
+      'Photos are in the Sweeep trash for 30 days. Nothing leaves your phone until you empty it.';
+
+  @override
+  String get doneDone => 'Done';
+
+  @override
+  String doneAnother(int n) {
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    return 'Another $nString';
+  }
+
+  @override
   String get toolsWater => 'Water';
 
   @override

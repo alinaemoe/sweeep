@@ -9,5 +9,6 @@ class MainActivity : FlutterActivity() {
         flutterEngine.plugins.add(MediaPlugin())
         flutterEngine.plugins.add(TonePlugin())
         flutterEngine.plugins.add(ScanServicePlugin())
+        flutterEngine.plugins.add(ReminderPlugin())
     }
 }

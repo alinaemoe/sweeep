@@ -930,6 +930,261 @@ class AppLocalizationsRu extends AppLocalizations {
   String get qwDupsSub => 'Одинаковые файлы, старая копия остаётся';
 
   @override
+  String get sessTitle => 'Сессия уборки';
+
+  @override
+  String get sessSub =>
+      'Короткий заход по старым фото.\nБез спешки, бросай когда хочешь.';
+
+  @override
+  String sessDays(int n) {
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nString дня',
+      many: '$nString дней',
+      few: '$nString дня',
+      one: '$nString день',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String sessPhotosAbout(int m) {
+    final intl.NumberFormat mNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String mString = mNumberFormat.format(m);
+
+    return 'фото · около $mString мин';
+  }
+
+  @override
+  String get sessWeek => 'Эта неделя';
+
+  @override
+  String sessBest(int n) {
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'рекорд $nString дня',
+      many: 'рекорд $nString дней',
+      few: 'рекорд $nString дня',
+      one: 'рекорд $nString день',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get sessFreeze => '1 заморозка';
+
+  @override
+  String get sessFreezeSub =>
+      'закроет один пропуск, так что занятая неделя серию не сломает';
+
+  @override
+  String get sessFreezeUsed => 'Заморозка этой недели уже потрачена';
+
+  @override
+  String get sessMonths => 'Разобранные месяцы';
+
+  @override
+  String get sessOldestFirst => 'сначала старые';
+
+  @override
+  String sessStartsWith(String month) {
+    return 'Начнём с месяца $month: сначала похожие, потом остальные';
+  }
+
+  @override
+  String sessStart(String photos) {
+    return 'Поехали · $photos';
+  }
+
+  @override
+  String get sessNothing => 'Всё разобрано';
+
+  @override
+  String get sessEntryNoStreak => 'Начни серию';
+
+  @override
+  String get sessEntrySub => 'Короткий заход по старым фото';
+
+  @override
+  String sessProgress(int done, int goal) {
+    final intl.NumberFormat doneNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String doneString = doneNumberFormat.format(done);
+    final intl.NumberFormat goalNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String goalString = goalNumberFormat.format(goal);
+
+    return '$doneString / $goalString';
+  }
+
+  @override
+  String get remTitle => 'Напоминание';
+
+  @override
+  String get remSub => 'Пинок в дни, когда ты ещё не разбирал';
+
+  @override
+  String get remTime => 'Время';
+
+  @override
+  String get remNeedPerm => 'Разреши уведомления, чтобы напоминания приходили';
+
+  @override
+  String get remAllow => 'Разрешить';
+
+  @override
+  String get remNotifTitle => 'Пора немного прибраться';
+
+  @override
+  String get remNotifBody => 'Минутка на фото? Не теряй серию.';
+
+  @override
+  String get remChannel => 'Напоминания';
+
+  @override
+  String doneSwept(String photos, String time) {
+    return 'Разобрано: $photos, за $time';
+  }
+
+  @override
+  String doneTimeMS(int m, int s) {
+    final intl.NumberFormat mNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String mString = mNumberFormat.format(m);
+    final intl.NumberFormat sNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String sString = sNumberFormat.format(s);
+
+    return '$mString мин $sString с';
+  }
+
+  @override
+  String doneTimeS(int s) {
+    final intl.NumberFormat sNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String sString = sNumberFormat.format(s);
+
+    return '$sString с';
+  }
+
+  @override
+  String get doneInTrash => 'В КОРЗИНЕ';
+
+  @override
+  String doneInTrashSub(String unit, String files) {
+    return '$unit · $files';
+  }
+
+  @override
+  String get doneKept => 'ОСТАВЛЕНО';
+
+  @override
+  String get donePhotosStay => 'фото остаются';
+
+  @override
+  String doneStreak(int n) {
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    return 'Серия $nString дн.';
+  }
+
+  @override
+  String doneStreakUp(int best) {
+    final intl.NumberFormat bestNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String bestString = bestNumberFormat.format(best);
+
+    return 'на день больше, чем вчера · рекорд $bestString';
+  }
+
+  @override
+  String doneStreakNew(int best) {
+    final intl.NumberFormat bestNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String bestString = bestNumberFormat.format(best);
+
+    return 'новое начало · рекорд $bestString';
+  }
+
+  @override
+  String doneStreakSame(int best) {
+    final intl.NumberFormat bestNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String bestString = bestNumberFormat.format(best);
+
+    return 'сегодня уже засчитано · рекорд $bestString';
+  }
+
+  @override
+  String doneMonthProgress(int from, int to) {
+    final intl.NumberFormat fromNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String fromString = fromNumberFormat.format(from);
+    final intl.NumberFormat toNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String toString = toNumberFormat.format(to);
+
+    return 'с $fromString% до $toString%';
+  }
+
+  @override
+  String doneLeft(String photos, String month) {
+    return 'В месяце $month осталось: $photos. ';
+  }
+
+  @override
+  String doneMoreSessions(int n) {
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Ещё примерно $nString таких захода, и месяц готов',
+      many: 'Ещё примерно $nString таких заходов, и месяц готов',
+      few: 'Ещё примерно $nString таких захода, и месяц готов',
+      one: 'Ещё примерно $nString такой заход, и месяц готов',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String doneMonthDone(String month) {
+    return '$month разобран целиком!';
+  }
+
+  @override
+  String get doneNote =>
+      'Фото лежат в корзине Sweeep 30 дней. С телефона ничего не уйдёт, пока не очистишь корзину.';
+
+  @override
+  String get doneDone => 'Готово';
+
+  @override
+  String doneAnother(int n) {
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    return 'Ещё $nString';
+  }
+
+  @override
   String get toolsWater => 'Вода';
 
   @override

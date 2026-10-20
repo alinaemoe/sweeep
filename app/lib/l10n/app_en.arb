@@ -723,6 +723,216 @@
   "qwRecsSub": "Over a minute, saved months ago",
   "qwDups": "Exact duplicates",
   "qwDupsSub": "Identical files, the oldest copy stays",
+  "sessTitle": "Cleanup Session",
+  "sessSub": "A short run through your oldest photos.\nNo pressure, stop any time.",
+  "sessDays": "{n, plural, =1{1 day} other{{n} days}}",
+  "@sessDays": {
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "sessPhotosAbout": "photos · about {m} min",
+  "@sessPhotosAbout": {
+    "placeholders": {
+      "m": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "sessWeek": "This week",
+  "sessBest": "{n, plural, =1{best streak 1 day} other{best streak {n} days}}",
+  "@sessBest": {
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "sessFreeze": "1 freeze",
+  "sessFreezeSub": "covers one missed day, so a busy week does not break the streak",
+  "sessFreezeUsed": "This week's freeze is already used",
+  "sessMonths": "Months swept",
+  "sessOldestFirst": "oldest first",
+  "sessStartsWith": "Starts with {month} · lookalikes first, then the rest",
+  "@sessStartsWith": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "sessStart": "Start · {photos}",
+  "@sessStart": {
+    "placeholders": {
+      "photos": {
+        "type": "String"
+      }
+    }
+  },
+  "sessNothing": "Everything is swept",
+  "sessEntryNoStreak": "Start your streak",
+  "sessEntrySub": "A short run through your oldest photos",
+  "sessProgress": "{done} / {goal}",
+  "@sessProgress": {
+    "placeholders": {
+      "done": {
+        "type": "int",
+        "format": "decimalPattern"
+      },
+      "goal": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "remTitle": "Daily reminder",
+  "remSub": "A nudge on days you have not swept yet",
+  "remTime": "Time",
+  "remNeedPerm": "Allow notifications to get reminders",
+  "remAllow": "Allow",
+  "remNotifTitle": "Time for a quick sweep",
+  "remNotifBody": "A minute for your photos? Keep the streak going.",
+  "remChannel": "Reminders",
+  "doneSwept": "{photos} swept in {time}",
+  "@doneSwept": {
+    "placeholders": {
+      "photos": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "doneTimeMS": "{m} min {s} s",
+  "@doneTimeMS": {
+    "placeholders": {
+      "m": {
+        "type": "int",
+        "format": "decimalPattern"
+      },
+      "s": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "doneTimeS": "{s} s",
+  "@doneTimeS": {
+    "placeholders": {
+      "s": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "doneInTrash": "IN TRASH",
+  "doneInTrashSub": "{unit} · {files}",
+  "@doneInTrashSub": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      },
+      "files": {
+        "type": "String"
+      }
+    }
+  },
+  "doneKept": "KEPT",
+  "donePhotosStay": "photos stay",
+  "doneStreak": "{n} day streak",
+  "@doneStreak": {
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "doneStreakUp": "one more than yesterday · best is {best}",
+  "@doneStreakUp": {
+    "placeholders": {
+      "best": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "doneStreakNew": "a fresh start · best is {best}",
+  "@doneStreakNew": {
+    "placeholders": {
+      "best": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "doneStreakSame": "already counted today · best is {best}",
+  "@doneStreakSame": {
+    "placeholders": {
+      "best": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "doneMonthProgress": "{from}% to {to}%",
+  "@doneMonthProgress": {
+    "placeholders": {
+      "from": {
+        "type": "int",
+        "format": "decimalPattern"
+      },
+      "to": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "doneLeft": "{photos} left in {month}. ",
+  "@doneLeft": {
+    "placeholders": {
+      "photos": {
+        "type": "String"
+      },
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "doneMoreSessions": "{n, plural, =1{About 1 more session and it is done} other{About {n} more sessions and it is done}}",
+  "@doneMoreSessions": {
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "doneMonthDone": "{month} is fully swept!",
+  "@doneMonthDone": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "doneNote": "Photos are in the Sweeep trash for 30 days. Nothing leaves your phone until you empty it.",
+  "doneDone": "Done",
+  "doneAnother": "Another {n}",
+  "@doneAnother": {
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
   "toolsWater": "Water",
   "toolsDust": "Dust",
   "toolsSound": "Sound test",

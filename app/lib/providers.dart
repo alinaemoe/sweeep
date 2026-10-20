@@ -13,6 +13,7 @@ import 'index/group_service.dart';
 import 'index/home_service.dart';
 import 'index/index_service.dart';
 import 'index/review_service.dart';
+import 'index/session_service.dart';
 import 'index/storage_service.dart';
 import 'l10n/l10n.dart';
 import 'platform/media_source.dart';
@@ -53,6 +54,14 @@ final homeProvider = FutureProvider<HomeData>((ref) => ref.watch(homeServiceProv
 
 /// Storage map numbers. Recomputed each time the screen opens.
 final storageProvider = FutureProvider.autoDispose<StorageData>((ref) => StorageService(ref.watch(databaseProvider)).load());
+
+final sessionServiceProvider = Provider<SessionService>((ref) => SessionService(ref.watch(databaseProvider)));
+
+/// Streak, week and month progress for the Cleanup session screen.
+final sessionOverviewProvider = FutureProvider.autoDispose<SessionOverview>((ref) => ref.watch(sessionServiceProvider).overview());
+
+/// Just the streak, for the entry card on the Timeline.
+final streakProvider = FutureProvider.autoDispose<StreakInfo>((ref) => ref.watch(sessionServiceProvider).streak());
 
 final reviewServiceProvider = Provider<ReviewService>((ref) => ReviewService(ref.watch(databaseProvider)));
 

@@ -6,6 +6,7 @@ import '../../core/mode_switch.dart';
 import '../../core/theme.dart';
 import '../../l10n/l10n.dart';
 import '../../providers.dart';
+import '../session/reminder_sheet.dart';
 import '../home/home_screen.dart';
 import '../swipe/timeline_screen.dart';
 import '../tools/tools_screen.dart';
@@ -23,6 +24,13 @@ class AppShell extends ConsumerStatefulWidget {
 
 class _AppShellState extends ConsumerState<AppShell> {
   int _tab = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    // put the daily reminder back (new language, new boot, new alarm)
+    applyReminder(ref.read(sessionServiceProvider));
+  }
 
   void _select(int i) {
     if (i == _tab) return;
