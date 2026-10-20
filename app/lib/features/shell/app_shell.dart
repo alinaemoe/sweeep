@@ -92,11 +92,11 @@ class SweeepNavBar extends StatelessWidget {
   final int index;
   final ValueChanged<int> onChanged;
 
-  static List<(IconData, String)> get _items => [
-        (Icons.auto_awesome_rounded, l10n.navClean),
-        (Icons.crop_portrait_rounded, l10n.navSwipe),
-        (Icons.volume_up_outlined, l10n.navTools),
-        (Icons.delete_outline_rounded, l10n.navTrash),
+  static List<(Widget Function(Color), String)> get _items => [
+        ((c) => Icon(Icons.auto_awesome_rounded, size: 22, color: c), l10n.navClean),
+        ((c) => _SwipeStackIcon(color: c), l10n.navSwipe),
+        ((c) => Icon(Icons.volume_up_outlined, size: 22, color: c), l10n.navTools),
+        ((c) => Icon(Icons.delete_outline_rounded, size: 22, color: c), l10n.navTrash),
       ];
 
   @override
@@ -122,7 +122,7 @@ class SweeepNavBar extends StatelessWidget {
 
 class _NavItem extends StatelessWidget {
   const _NavItem({required this.icon, required this.label, required this.selected, required this.onTap});
-  final IconData icon;
+  final Widget Function(Color) icon;
   final String label;
   final bool selected;
   final VoidCallback onTap;
@@ -149,7 +149,7 @@ class _NavItem extends StatelessWidget {
                 TweenAnimationBuilder<Color?>(
                   tween: ColorTween(end: selected ? SweeepColors.brand : SweeepColors.textMutedSmall),
                   duration: const Duration(milliseconds: 260),
-                  builder: (_, c, __) => Icon(icon, size: 22, color: c),
+                  builder: (_, c, __) => icon(c ?? SweeepColors.textMutedSmall),
                 ),
                 Flexible(
                   child: AnimatedSize(
@@ -169,4 +169,38 @@ class _NavItem extends StatelessWidget {
           ),
         ),
       );
+}
+
+/// Two cards, one peeking out from behind the other: the Swipe tab.
+class _SwipeStackIcon extends StatelessWidget {
+  const _SwipeStackIcon({required this.color});
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) => SizedBox(width: 22, height: 22, child: CustomPaint(painter: _StackPainter(color)));
+}
+
+class _StackPainter extends CustomPainter {
+  const _StackPainter(this.color);
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final stroke = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.8
+      ..strokeJoin = StrokeJoin.round;
+    final front = RRect.fromRectAndRadius(const Rect.fromLTWH(2.5, 6.5, 11.5, 14), const Radius.circular(3));
+    final back = RRect.fromRectAndRadius(const Rect.fromLTWH(8, 2, 11.5, 14), const Radius.circular(3));
+    // the front card hides the part of the back card that is behind it
+    canvas.save();
+    canvas.clipPath(Path.combine(PathOperation.difference, Path()..addRect(Offset.zero & size), Path()..addRRect(front.inflate(.9))));
+    canvas.drawRRect(back, stroke..color = color.withValues(alpha: .7));
+    canvas.restore();
+    canvas.drawRRect(front, stroke..color = color);
+  }
+
+  @override
+  bool shouldRepaint(_StackPainter old) => old.color != color;
 }

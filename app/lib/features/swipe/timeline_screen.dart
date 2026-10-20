@@ -64,29 +64,30 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
                       bottom: false,
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(20, 12, 20, 22),
-                        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                            Text(l10n.navSwipe, style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w800, letterSpacing: -1, height: 1)),
-                            Semantics(
-                              button: true,
-                              label: _newestFirst ? l10n.tlSemSort : l10n.tlSemSortOld,
-                              child: GestureDetector(
-                                behavior: HitTestBehavior.opaque,
-                                onTap: () => setState(() => _newestFirst = !_newestFirst),
-                                child: Container(
-                                  height: 44,
-                                  alignment: Alignment.center,
-                                  padding: const EdgeInsets.symmetric(horizontal: 14),
-                                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(22), border: Border.all(color: Colors.white.withValues(alpha: .12))),
-                                  child: Text(_newestFirst ? l10n.tlNewestFirst : l10n.tlOldestFirst, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700)),
-                                ),
+                        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                          Expanded(
+                            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                              Text(l10n.tlHeadline, style: const TextStyle(fontSize: 30, height: 1.1, fontWeight: FontWeight.w800, letterSpacing: -1)),
+                              const SizedBox(height: 6),
+                              Text(l10n.tlSummary(l10n.photosCount(total), _num(swept)), style: const TextStyle(fontSize: 14, color: SweeepColors.textMutedSmall, fontWeight: FontWeight.w600)),
+                            ]),
+                          ),
+                          const SizedBox(width: 12),
+                          Semantics(
+                            button: true,
+                            label: _newestFirst ? l10n.tlSemSort : l10n.tlSemSortOld,
+                            child: GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onTap: () => setState(() => _newestFirst = !_newestFirst),
+                              child: Container(
+                                height: 44,
+                                alignment: Alignment.center,
+                                padding: const EdgeInsets.symmetric(horizontal: 14),
+                                decoration: BoxDecoration(borderRadius: BorderRadius.circular(22), border: Border.all(color: Colors.white.withValues(alpha: .12))),
+                                child: Text(_newestFirst ? l10n.tlNewestFirst : l10n.tlOldestFirst, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700)),
                               ),
                             ),
-                          ]),
-                          const SizedBox(height: 14),
-                          Text(l10n.tlHeadline, style: const TextStyle(fontSize: 30, height: 1.1, fontWeight: FontWeight.w800, letterSpacing: -1)),
-                          const SizedBox(height: 6),
-                          Text(l10n.tlSummary(l10n.photosCount(total), _num(swept)), style: const TextStyle(fontSize: 14, color: SweeepColors.textMutedSmall, fontWeight: FontWeight.w600)),
+                          ),
                         ]),
                       ),
                     );
