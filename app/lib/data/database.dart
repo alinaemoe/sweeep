@@ -2,6 +2,8 @@ import 'package:drift/drift.dart';
 
 part 'database.g.dart';
 
+/// Month / newest-first queries (Timeline, Swipe queue, categories) range-scan this.
+@TableIndex(name: 'idx_assets_type_created', columns: {#mediaType, #createdAtMs})
 /// One row per media item known to the index. `id` is the platform asset id
 /// (PHAsset.localIdentifier / MediaStore id). Never the file path.
 class Assets extends Table {
@@ -91,10 +93,13 @@ class SweeepDatabase extends _$SweeepDatabase {
   SweeepDatabase(super.e);
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
+        onUpgrade: (m, from, to) async {
+          if (from < 2) await m.createIndex(idxAssetsTypeCreated);
+        },
         beforeOpen: (details) async {
           await customStatement('PRAGMA foreign_keys = ON');
         },

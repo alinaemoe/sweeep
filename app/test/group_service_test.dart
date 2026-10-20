@@ -176,4 +176,27 @@ void main() {
     expect(after['pqr'], isNot(before['pq']));
     expect((await db.select(db.groups).get()).length, 2); // old p+q group is gone
   });
+
+  test('limit and totals agree with the full list, and ignore trashed groups', () async {
+    // three similar pairs with different savings (size of the extra copy)
+    for (final (i, size) in [(1, 10), (2, 30), (3, 20)]) {
+      await addAsset('b$i', size: 100, created: i * 100000, phash: i, lap: 9);
+      await addAsset('c$i', size: size, created: i * 100000 + 1, phash: i, lap: 1);
+    }
+    final s = svc(FakeMedia({}));
+    await s.rebuild();
+
+    final all = await s.groups(GroupKind.similar);
+    expect(all.map((g) => g.savingsBytes), [30, 20, 10]);
+    final top = await s.groups(GroupKind.similar, limit: 2);
+    expect(top.map((g) => g.id), all.take(2).map((g) => g.id));
+    var totals = await s.groupTotals(GroupKind.similar);
+    expect((totals.count, totals.savings), (3, 60));
+
+    await s.trash(all.first.others); // first group drops to one live member
+    totals = await s.groupTotals(GroupKind.similar);
+    expect((totals.count, totals.savings), (2, 30));
+    expect((await s.groups(GroupKind.similar, limit: 5)).length, 2);
+    expect((await s.groupTotals(GroupKind.duplicate)).count, 0);
+  });
 }

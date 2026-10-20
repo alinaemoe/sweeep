@@ -83,16 +83,19 @@ class ReviewService {
         SUM(CASE WHEN a.id IN (SELECT asset_id FROM decisions) OR a.id IN (SELECT asset_id FROM trash_items) THEN 1 ELSE 0 END) AS swept
       FROM assets a WHERE a.media_type = 0 GROUP BY m ORDER BY m DESC
     ''').get();
-    final tileRows = await db.customSelect('''
-      SELECT id, t, m FROM (
-        SELECT a.id AS id, a.created_at_ms AS t, $_monthExpr AS m,
-          ROW_NUMBER() OVER (PARTITION BY $_monthExpr ORDER BY a.created_at_ms DESC) AS rn
-        FROM assets a WHERE a.media_type = 0
-      ) WHERE rn <= 6 ORDER BY m DESC, t DESC
-    ''').get();
+    // preview tiles: the newest few photos of each month, found with a range
+    // scan on (media_type, created_at_ms) instead of a window function
     final tiles = <String, List<({String id, int t})>>{};
-    for (final r in tileRows) {
-      tiles.putIfAbsent(r.read<String>('m'), () => []).add((id: r.read<String>('id'), t: r.read<int>('t')));
+    for (final r in rows) {
+      final key = r.read<String>('m');
+      final y = int.parse(key.substring(0, 4)), mo = int.parse(key.substring(5));
+      final from = DateTime(y, mo).millisecondsSinceEpoch;
+      final to = DateTime(y, mo + 1).millisecondsSinceEpoch;
+      final t = await db.customSelect(
+        'SELECT id, created_at_ms AS t FROM assets WHERE media_type = 0 AND created_at_ms >= ? AND created_at_ms < ? ORDER BY created_at_ms DESC LIMIT 6',
+        variables: [Variable.withInt(from), Variable.withInt(to)],
+      ).get();
+      tiles[key] = [for (final x in t) (id: x.read<String>('id'), t: x.read<int>('t'))];
     }
     return [
       for (final r in rows)

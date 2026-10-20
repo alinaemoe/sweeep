@@ -181,11 +181,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderStat
     }
     return [
       if (d.duplicates.isNotEmpty) ...[
-        _SectionHeader('Duplicates', '${_n(d.duplicates.length)} · ${formatBytes(d.duplicateBytes)}', 'See all', () => _push(const GroupsScreen(kind: GroupKind.duplicate))),
+        _SectionHeader('Duplicates', '${_n(d.duplicateCount)} · ${formatBytes(d.duplicateBytes)}', 'See all', () => _push(const GroupsScreen(kind: GroupKind.duplicate))),
         _GroupCarousel(groups: d.duplicates, big: true, onOpen: (i) => _push(GroupPager(kind: GroupKind.duplicate, initialIndex: i))),
       ],
       if (d.similar.isNotEmpty) ...[
-        _SectionHeader('Similar photos', '${_n(d.similar.length)} · ${formatBytes(d.similarBytes)}', 'See all', () => _push(const GroupsScreen(kind: GroupKind.similar))),
+        _SectionHeader('Similar photos', '${_n(d.similarCount)} · ${formatBytes(d.similarBytes)}', 'See all', () => _push(const GroupsScreen(kind: GroupKind.similar))),
         _GroupCarousel(groups: d.similar, big: false, onOpen: (i) => _push(GroupPager(kind: GroupKind.similar, initialIndex: i))),
       ],
       if (d.screenshots.count > 0) ...[

@@ -27,7 +27,11 @@ class HomeData {
     required this.libraryBytes,
     required this.libraryCount,
     required this.duplicates,
+    required this.duplicateCount,
+    required this.duplicateBytes,
     required this.similar,
+    required this.similarCount,
+    required this.similarBytes,
     required this.screenshots,
     required this.videos,
     required this.blurry,
@@ -36,15 +40,18 @@ class HomeData {
 
   final int libraryBytes;
   final int libraryCount;
+  /// The first groups of each kind (biggest saving first), enough for the
+  /// carousels; the counts and bytes cover all of them.
   final List<GroupView> duplicates;
+  final int duplicateCount;
+  final int duplicateBytes;
   final List<GroupView> similar;
+  final int similarCount;
+  final int similarBytes;
   final HomeCategory screenshots;
   final HomeCategory videos;
   final HomeCategory blurry;
   final HomeCategory chat;
-
-  int get duplicateBytes => duplicates.fold(0, (s, g) => s + g.savingsBytes);
-  int get similarBytes => similar.fold(0, (s, g) => s + g.savingsBytes);
 
   /// What "Free up" would reclaim: duplicates + all-but-best of similar groups.
   int get reclaimableBytes => duplicateBytes + similarBytes;
@@ -67,13 +74,22 @@ class HomeService {
 
   static const previewCount = 14;
 
+  /// Groups handed to the Home carousels.
+  static const groupPreview = 30;
+
   Future<HomeData> load() async {
     final lib = await db.customSelect('SELECT COUNT(*) AS n, COALESCE(SUM(size_bytes), 0) AS b FROM assets').getSingle();
+    final dup = await groups.groupTotals(GroupKind.duplicate);
+    final sim = await groups.groupTotals(GroupKind.similar);
     return HomeData(
       libraryCount: lib.read<int>('n'),
       libraryBytes: lib.read<int>('b'),
-      duplicates: await groups.groups(GroupKind.duplicate),
-      similar: await groups.groups(GroupKind.similar),
+      duplicates: await groups.groups(GroupKind.duplicate, limit: groupPreview),
+      duplicateCount: dup.count,
+      duplicateBytes: dup.savings,
+      similar: await groups.groups(GroupKind.similar, limit: groupPreview),
+      similarCount: sim.count,
+      similarBytes: sim.savings,
       screenshots: await _category('a.is_screenshot = 1 AND a.media_type = 0', 'a.created_at_ms DESC'),
       videos: await _category('a.media_type = 1', 'a.size_bytes DESC', withDuration: true),
       blurry: await _blurry(),

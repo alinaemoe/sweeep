@@ -197,9 +197,37 @@ class GroupService {
     );
   }
 
+  /// A group is live while its best photo is not in the app trash and at
+  /// least two of its members are not either. First `?` is the kind.
+  static const _liveGroup = '''g.kind = ? AND g.best_asset_id IS NOT NULL
+        AND g.best_asset_id NOT IN (SELECT asset_id FROM trash_items)
+        AND (SELECT COUNT(*) FROM group_members m WHERE m.group_id = g.id
+             AND m.asset_id NOT IN (SELECT asset_id FROM trash_items)) > 1''';
+
+  /// How many live groups of [kind] there are and what they would free.
+  Future<({int count, int savings})> groupTotals(GroupKind kind) async {
+    final r = await db.customSelect(
+      'SELECT COUNT(*) AS n, COALESCE(SUM(g.savings_bytes), 0) AS s FROM groups g WHERE $_liveGroup',
+      variables: [Variable.withInt(kind.index)],
+    ).getSingle();
+    return (count: r.read<int>('n'), savings: r.read<int>('s'));
+  }
+
   /// Groups of [kind], biggest saving first. Members already in the app
   /// trash are dropped; groups left with fewer than 2 live members vanish.
-  Future<List<GroupView>> groups(GroupKind kind) async {
+  ///
+  /// [limit] keeps only the first N groups (same order), so Home does not
+  /// hydrate thousands of groups it will never show.
+  Future<List<GroupView>> groups(GroupKind kind, {int? limit}) async {
+    List<int>? only;
+    if (limit != null) {
+      final ids = await db.customSelect(
+        'SELECT g.id AS id FROM groups g WHERE $_liveGroup ORDER BY g.savings_bytes DESC, g.id LIMIT ?',
+        variables: [Variable.withInt(kind.index), Variable.withInt(limit)],
+      ).get();
+      if (ids.isEmpty) return const [];
+      only = [for (final r in ids) r.read<int>('id')];
+    }
     final rows = await db.customSelect('''
       SELECT g.id AS gid, g.best_asset_id AS best, g.savings_bytes AS savings,
              a.id AS aid, a.size_bytes AS size, a.created_at_ms AS t, a.width AS w, a.height AS h
@@ -207,6 +235,7 @@ class GroupService {
       JOIN group_members m ON m.group_id = g.id
       JOIN assets a ON a.id = m.asset_id
       WHERE g.kind = ? AND a.id NOT IN (SELECT asset_id FROM trash_items)
+        ${only == null ? '' : 'AND g.id IN (${only.join(',')})'}
       ORDER BY g.savings_bytes DESC, g.id, a.created_at_ms
     ''', variables: [Variable.withInt(kind.index)]).get();
 

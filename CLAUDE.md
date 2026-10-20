@@ -26,7 +26,7 @@ Phase 0 skeleton; Phase 1 permissions/enumeration/delta index/gray thumbs; 1b Ru
 1. (done) Home feed, Swipe, Trash, system delete via createDeleteRequest + CLEAAAN overlay.
 4. (done) Categories; Tools tab = Water/Dust/Sound test tone generator (TonePlugin.kt AudioTrack).
 5. (done) Foreground service `ScanService` keeps a scan alive in the background (swiping the app from recents still stops it; checkpoints resume next launch), all Android ABIs, groups diffed instead of rebuilt, thumbnail cache is autoDispose. Still open: iOS (Swift) untested; "limited access" permission path untested.
-6. Benchmarks on 50k/100k photos (full pipeline on a device or emulator with synthetic library: scan time, rescan time, peak memory, fps, cold start; targets in SPECIFICATION section 10).
+6. Benchmarks: Dart/SQLite side done (`BENCH=1 flutter test test/bench`, results in docs/benchmarks.md; Home/Timeline/queue fast at 100k). Still open: phone-side peak memory, fps and cold start with 50k+ photos, v1->v2 DB upgrade check on the phone (schema is 2 now, index on assets).
 7. RU/EN localization. Russian strings: short and casual, no officialese ("Удалить", not "Выполнить удаление"; "Фото не уходят с телефона", not "Данные не покидают устройство"). English stays the source language.
 8. Postponed: Email/App Cleaner; monetization/paywall decision.
 Also: add a Phase 2 status line to docs/SPECIFICATION.md (only README has it).
