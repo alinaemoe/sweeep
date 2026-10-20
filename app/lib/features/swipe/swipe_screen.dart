@@ -246,14 +246,18 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> with TickerProviderSt
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
                 child: Row(children: [
-                  if (widget.embedded)
-                    const SizedBox(width: 44, height: 44)
-                  else
-                    IconButton(
+                  SizedBox(
+                    width: categoryOfSwipe(widget.source) != null && !widget.embedded ? 72 : 44,
+                    child: widget.embedded
+                        ? const SizedBox(height: 44)
+                        : Align(
+                            alignment: Alignment.centerLeft,
+                            child: IconButton(
                     onPressed: () => Navigator.of(context).pop(),
                     tooltip: l10n.back,
                     icon: const Icon(Icons.chevron_left_rounded),
                     style: IconButton.styleFrom(backgroundColor: SweeepColors.card, foregroundColor: SweeepColors.text, fixedSize: const Size(44, 44), side: const BorderSide(color: SweeepColors.cardBorder)),
+                  )),
                   ),
                   Expanded(
                     child: Column(children: [
@@ -261,35 +265,22 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> with TickerProviderSt
                       Text(q == null ? '' : l10n.swipeOf(math.min(_i + 1, q.length), q.length), style: const TextStyle(fontSize: 12, color: SweeepColors.textMuted, fontWeight: FontWeight.w600)),
                     ]),
                   ),
-                  IconButton(
-                    onPressed: _history.isEmpty ? null : _undo,
-                    tooltip: l10n.undo,
-                    icon: const Icon(Icons.undo_rounded, size: 20),
-                    style: IconButton.styleFrom(backgroundColor: SweeepColors.card, foregroundColor: SweeepColors.text, disabledForegroundColor: SweeepColors.trackUsed, fixedSize: const Size(44, 44), side: const BorderSide(color: SweeepColors.cardBorder)),
-                  ),
-                ]),
-              ),
-              SizedBox(
-                height: 64,
-                child: Stack(children: [
-                  Align(alignment: Alignment.bottomCenter, child: _Word(dx: _dx, wave: _wave, color: accent)),
                   if (categoryOfSwipe(widget.source) != null && !widget.embedded)
-                    Positioned(
-                      right: 14,
-                      bottom: 6,
-                      child: ModeSwitch<int>(
-                        value: 1,
-                        options: [
-                          ModeOption(value: 0, label: l10n.modeGrid, icon: gridModeIcon),
-                          ModeOption(value: 1, label: l10n.modeSwipe, icon: swipeModeIcon),
-                        ],
-                        onChanged: (_) => Navigator.of(context).pushReplacement(MaterialPageRoute<void>(
-                          builder: (_) => CategoryScreen(kind: categoryOfSwipe(widget.source)!, initialSource: widget.chatSource),
-                        )),
-                      ),
-                    ),
+                    ModeSwitch<int>(
+                      value: 1,
+                      options: [
+                        ModeOption(value: 0, label: l10n.modeGrid, icon: gridModeIcon),
+                        ModeOption(value: 1, label: l10n.modeSwipe, icon: swipeModeIcon),
+                      ],
+                      onChanged: (_) => Navigator.of(context).pushReplacement(MaterialPageRoute<void>(
+                        builder: (_) => CategoryScreen(kind: categoryOfSwipe(widget.source)!, initialSource: widget.chatSource),
+                      )),
+                    )
+                  else
+                    const SizedBox(width: 44, height: 44),
                 ]),
               ),
+              SizedBox(height: 64, child: Align(alignment: Alignment.bottomCenter, child: _Word(dx: _dx, wave: _wave, color: accent))),
               const SizedBox(height: 12),
               Expanded(
                 child: q == null
@@ -322,7 +313,14 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> with TickerProviderSt
                         fixedSize: const Size(60, 60),
                       ),
                     ),
-                    const SizedBox(width: 18),
+                    const SizedBox(width: 14),
+                    IconButton(
+                      onPressed: _history.isEmpty ? null : _undo,
+                      tooltip: l10n.undo,
+                      icon: const Icon(Icons.undo_rounded, size: 20),
+                      style: IconButton.styleFrom(backgroundColor: SweeepColors.card, foregroundColor: SweeepColors.text, disabledForegroundColor: SweeepColors.trackUsed, fixedSize: const Size(44, 44), side: const BorderSide(color: SweeepColors.cardBorder)),
+                    ),
+                    const SizedBox(width: 14),
                     DecoratedBox(
                       decoration: BoxDecoration(shape: BoxShape.circle, boxShadow: neonGlow(SweeepColors.keep, strength: .8)),
                       child: IconButton(
