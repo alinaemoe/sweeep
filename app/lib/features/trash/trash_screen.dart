@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/jelly.dart';
 import '../../core/theme.dart';
+import '../../l10n/l10n.dart';
 import '../../core/widgets.dart';
 import '../../index/review_service.dart';
 import '../../providers.dart';
@@ -67,7 +68,7 @@ class _TrashScreenState extends ConsumerState<TrashScreen> with SingleTickerProv
       } else if (r.cancelled) {
         ScaffoldMessenger.of(context)
           ..hideCurrentSnackBar()
-          ..showSnackBar(const SnackBar(content: Text('Nothing was deleted.')));
+          ..showSnackBar(SnackBar(content: Text(l10n.trashNothingDeleted)));
       }
     } finally {
       if (mounted) setState(() => _deleting = false);
@@ -80,12 +81,12 @@ class _TrashScreenState extends ConsumerState<TrashScreen> with SingleTickerProv
       builder: (ctx) => AlertDialog(
         backgroundColor: SweeepColors.card,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
-        title: const Text('Delete everything?', style: TextStyle(fontWeight: FontWeight.w800)),
-        content: Text('${filesLabel(items.length)} (${formatBytes(items.fold<int>(0, (s, e) => s + e.sizeBytes))}) will be deleted from your phone. Android may ask once more.',
+        title: Text(l10n.trashDeleteTitle, style: const TextStyle(fontWeight: FontWeight.w800)),
+        content: Text(l10n.trashDeleteBody(filesLabel(items.length), formatBytes(items.fold<int>(0, (s, e) => s + e.sizeBytes))),
             style: const TextStyle(color: SweeepColors.textMutedSmall, height: 1.4)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
-          TextButton(onPressed: () => Navigator.pop(ctx, true), style: TextButton.styleFrom(foregroundColor: SweeepColors.trash), child: const Text('Delete all', style: TextStyle(fontWeight: FontWeight.w800))),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l10n.cancel)),
+          TextButton(onPressed: () => Navigator.pop(ctx, true), style: TextButton.styleFrom(foregroundColor: SweeepColors.trash), child: Text(l10n.deleteAll, style: const TextStyle(fontWeight: FontWeight.w800))),
         ],
       ),
     );
@@ -116,7 +117,7 @@ class _TrashScreenState extends ConsumerState<TrashScreen> with SingleTickerProv
                 else
                   IconButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    tooltip: 'Back',
+                    tooltip: l10n.back,
                     icon: const Icon(Icons.chevron_left_rounded),
                     style: IconButton.styleFrom(backgroundColor: SweeepColors.card, foregroundColor: SweeepColors.text, fixedSize: const Size(44, 44), side: const BorderSide(color: SweeepColors.cardBorder)),
                   ),
@@ -124,12 +125,12 @@ class _TrashScreenState extends ConsumerState<TrashScreen> with SingleTickerProv
                   TextButton(
                     onPressed: items.isEmpty || _deleting ? null : () => _emptyAll(items),
                     style: TextButton.styleFrom(foregroundColor: SweeepColors.trash, minimumSize: const Size(48, 44)),
-                    child: const Text('Empty all', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+                    child: Text(l10n.emptyAll, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
                   ),
                   TextButton(
                     onPressed: items.isEmpty ? null : () => setState(() => allSelected ? _selected.clear() : _selected.addAll(items.map((e) => e.id))),
                     style: TextButton.styleFrom(foregroundColor: SweeepColors.brand, minimumSize: const Size(48, 44)),
-                    child: Text(allSelected ? 'Clear' : 'Select all', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+                    child: Text(allSelected ? l10n.clear : l10n.selectAll, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
                   ),
                 ]),
               ]),
@@ -137,13 +138,13 @@ class _TrashScreenState extends ConsumerState<TrashScreen> with SingleTickerProv
             SizedBox(height: 76, child: Align(alignment: Alignment.bottomCenter, child: _CleanWord(controller: _wave))),
             const SizedBox(height: 10),
             Text(
-              items.isEmpty ? 'Trash is empty' : '${filesLabel(items.length)} · ${formatBytes(total)} will be freed',
+              items.isEmpty ? l10n.trashEmpty : l10n.trashWillFree(filesLabel(items.length), formatBytes(total)),
               style: const TextStyle(fontSize: 14, color: SweeepColors.textMuted, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 14),
             Expanded(
               child: items.isEmpty
-                  ? Center(child: Text(async.isLoading ? '' : 'Swiped-away photos land here.', style: const TextStyle(color: SweeepColors.textMutedSmall, fontSize: 15)))
+                  ? Center(child: Text(async.isLoading ? '' : l10n.trashLandHere, style: const TextStyle(color: SweeepColors.textMutedSmall, fontSize: 15)))
                   : GridView.builder(
                       padding: EdgeInsets.fromLTRB(20, 4, 20, (widget.embedded ? 100 : 24) + (_selected.isEmpty ? 0 : 130)),
                       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, mainAxisSpacing: 8, crossAxisSpacing: 8),
@@ -168,7 +169,7 @@ class _TrashScreenState extends ConsumerState<TrashScreen> with SingleTickerProv
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(color: SweeepColors.card.withValues(alpha: .96), borderRadius: BorderRadius.circular(28), border: Border.all(color: Colors.white.withValues(alpha: .08))),
                 child: Column(mainAxisSize: MainAxisSize.min, children: [
-                  Text('${_selected.length} selected · ${formatBytes(selBytes)} · recoverable until you empty',
+                  Text(l10n.trashSelected(_selected.length, formatBytes(selBytes)),
                       textAlign: TextAlign.center, style: const TextStyle(fontSize: 12, color: SweeepColors.textMuted, fontWeight: FontWeight.w600)),
                   const SizedBox(height: 10),
                   Row(children: [
@@ -176,7 +177,7 @@ class _TrashScreenState extends ConsumerState<TrashScreen> with SingleTickerProv
                       child: OutlinedButton(
                         onPressed: _restore,
                         style: OutlinedButton.styleFrom(foregroundColor: SweeepColors.brand, side: const BorderSide(color: SweeepColors.brand), minimumSize: const Size(0, 52), shape: const StadiumBorder()),
-                        child: Text('Restore ${_selected.length}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+                        child: Text(l10n.restoreN(_selected.length), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -184,7 +185,7 @@ class _TrashScreenState extends ConsumerState<TrashScreen> with SingleTickerProv
                       child: FilledButton(
                         onPressed: _deleting ? null : _deleteForever,
                         style: FilledButton.styleFrom(backgroundColor: SweeepColors.trash, foregroundColor: SweeepColors.onAccent, minimumSize: const Size(0, 52), shape: const StadiumBorder()),
-                        child: const FittedBox(fit: BoxFit.scaleDown, child: Text('Delete forever', maxLines: 1, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800))),
+                        child: FittedBox(fit: BoxFit.scaleDown, child: Text(l10n.deleteForever, maxLines: 1, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800))),
                       ),
                     ),
                   ]),
@@ -223,9 +224,9 @@ class _FreedOverlayState extends State<_FreedOverlay> with SingleTickerProviderS
           child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
             _CleanWord(controller: _c, color: SweeepColors.trash, size: 64, periodMs: 1500),
             const SizedBox(height: 16),
-            Text('${formatBytes(widget.outcome.bytes)} freed', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
+            Text(l10n.freedTitle(formatBytes(widget.outcome.bytes)), style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
             const SizedBox(height: 4),
-            Text('${filesLabel(widget.outcome.deleted)} deleted', style: const TextStyle(fontSize: 14, color: SweeepColors.textMuted, fontWeight: FontWeight.w600)),
+            Text(l10n.freedSub(filesLabel(widget.outcome.deleted)), style: const TextStyle(fontSize: 14, color: SweeepColors.textMuted, fontWeight: FontWeight.w600)),
           ]),
         ),
       );
@@ -257,7 +258,7 @@ class _Cell extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                 decoration: BoxDecoration(color: SweeepColors.background.withValues(alpha: .7), borderRadius: BorderRadius.circular(9)),
-                child: Text(days == 0 ? 'today' : '${days}d', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: expiring ? SweeepColors.trash : SweeepColors.text)),
+                child: Text(days == 0 ? l10n.daysToday : l10n.daysLeft(days), style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: expiring ? SweeepColors.trash : SweeepColors.text)),
               ),
             ),
             if (entry.isVideo && entry.durationMs != null)

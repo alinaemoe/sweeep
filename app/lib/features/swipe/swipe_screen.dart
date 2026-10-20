@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/jelly.dart';
 import '../../core/theme.dart';
+import '../../l10n/l10n.dart';
 import '../../core/widgets.dart';
 import '../../index/review_service.dart';
 import '../../providers.dart';
@@ -13,12 +14,10 @@ import '../groups/group_widgets.dart';
 import '../trash/trash_screen.dart';
 
 String sourceTitle(SwipeSource s) => switch (s) {
-      SwipeSource.all => 'All photos',
-      SwipeSource.screenshots => 'Screenshots',
-      SwipeSource.blurry => 'Blurry & dark',
+      SwipeSource.all => l10n.srcAll,
+      SwipeSource.screenshots => l10n.secScreenshots,
+      SwipeSource.blurry => l10n.secBlurry,
     };
-
-const _months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 /// Tinder-style review: drag left = trash, right = keep. The SWIIIIPE word
 /// stretches with the drag, CLEAAAN waves after a trash.
@@ -240,19 +239,19 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> with TickerProviderSt
                   else
                     IconButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    tooltip: 'Back',
+                    tooltip: l10n.back,
                     icon: const Icon(Icons.chevron_left_rounded),
                     style: IconButton.styleFrom(backgroundColor: SweeepColors.card, foregroundColor: SweeepColors.text, fixedSize: const Size(44, 44), side: const BorderSide(color: SweeepColors.cardBorder)),
                   ),
                   Expanded(
                     child: Column(children: [
                       Text(widget.month != null ? monthTitle(widget.month!) : sourceTitle(widget.source), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
-                      Text(q == null ? '' : '${math.min(_i + 1, q.length)} of ${q.length}', style: const TextStyle(fontSize: 12, color: SweeepColors.textMuted, fontWeight: FontWeight.w600)),
+                      Text(q == null ? '' : l10n.swipeOf(math.min(_i + 1, q.length), q.length), style: const TextStyle(fontSize: 12, color: SweeepColors.textMuted, fontWeight: FontWeight.w600)),
                     ]),
                   ),
                   IconButton(
                     onPressed: _history.isEmpty ? null : _undo,
-                    tooltip: 'Undo',
+                    tooltip: l10n.undo,
                     icon: const Icon(Icons.undo_rounded, size: 20),
                     style: IconButton.styleFrom(backgroundColor: SweeepColors.card, foregroundColor: SweeepColors.text, disabledForegroundColor: SweeepColors.trackUsed, fixedSize: const Size(44, 44), side: const BorderSide(color: SweeepColors.cardBorder)),
                   ),
@@ -282,7 +281,7 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> with TickerProviderSt
                   child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                     IconButton(
                       onPressed: () => _decide(true),
-                      tooltip: 'Move to trash',
+                      tooltip: l10n.tipTrash,
                       icon: const Icon(Icons.close_rounded, size: 28),
                       style: IconButton.styleFrom(
                         foregroundColor: SweeepColors.trash,
@@ -296,7 +295,7 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> with TickerProviderSt
                       decoration: BoxDecoration(shape: BoxShape.circle, boxShadow: neonGlow(SweeepColors.keep, strength: .8)),
                       child: IconButton(
                         onPressed: () => _decide(false),
-                        tooltip: 'Keep',
+                        tooltip: l10n.tipKeep,
                         icon: const Icon(Icons.check_rounded, size: 28),
                         style: IconButton.styleFrom(foregroundColor: SweeepColors.onAccent, backgroundColor: SweeepColors.keep, fixedSize: const Size(60, 60)),
                       ),
@@ -403,9 +402,9 @@ class _Deck extends StatelessWidget {
                     decoration: BoxDecoration(borderRadius: BorderRadius.circular(30), boxShadow: const [BoxShadow(color: Color(0x73000000), blurRadius: 40, offset: Offset(0, 20))]),
                     child: _Photo(id: item.id, tint: dx < 0 ? SweeepColors.trash.withValues(alpha: math.min(.35, -dx / 300)) : SweeepColors.keep.withValues(alpha: math.min(.3, dx / 300))),
                   ),
-                  Positioned(left: 0, right: 0, top: 26, child: Center(child: Opacity(opacity: later ? (-dy / 90).clamp(0.0, 1.0) : 0, child: const _Stamp('LATER', SweeepColors.brand)))),
-                    Positioned(right: 22, top: 26, child: Opacity(opacity: trashA, child: Transform.rotate(angle: 10 * math.pi / 180, child: const _Stamp('TO TRASH', SweeepColors.trash)))),
-                  Positioned(left: 22, top: 26, child: Opacity(opacity: keepA, child: Transform.rotate(angle: -10 * math.pi / 180, child: const _Stamp('KEEP', SweeepColors.keep)))),
+                  Positioned(left: 0, right: 0, top: 26, child: Center(child: Opacity(opacity: later ? (-dy / 90).clamp(0.0, 1.0) : 0, child: _Stamp(l10n.stampLater, SweeepColors.brand)))),
+                    Positioned(right: 22, top: 26, child: Opacity(opacity: trashA, child: Transform.rotate(angle: 10 * math.pi / 180, child: _Stamp(l10n.stampTrash, SweeepColors.trash)))),
+                  Positioned(left: 22, top: 26, child: Opacity(opacity: keepA, child: Transform.rotate(angle: -10 * math.pi / 180, child: _Stamp(l10n.stampKeep, SweeepColors.keep)))),
                   Positioned(
                     left: 14,
                     right: 14,
@@ -414,7 +413,7 @@ class _Deck extends StatelessWidget {
                       height: 48,
                       padding: const EdgeInsets.symmetric(horizontal: 18),
                       child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                        Text('${d.day} ${_months[d.month - 1]} ${d.year}', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700)),
+                        Text(fmtDate(d), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700)),
                         Text(formatBytes(item.sizeBytes), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: SweeepColors.textMuted)),
                       ]),
                     ),
@@ -486,7 +485,7 @@ class _TrashBar extends StatelessWidget {
             child: Column(mainAxisSize: MainAxisSize.min, children: [
               Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                 Text.rich(TextSpan(children: [
-                  TextSpan(text: 'In trash: ${filesLabel(count)} ', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800)),
+                  TextSpan(text: l10n.swipeInTrash(filesLabel(count)), style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800)),
                   TextSpan(text: '(${formatBytes(bytes)})', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: SweeepColors.textMuted)),
                 ])),
                 const Icon(Icons.keyboard_arrow_up_rounded, color: SweeepColors.textMuted),
@@ -512,16 +511,16 @@ class _Done extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(32),
           child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Text(empty ? 'Nothing to review' : 'All reviewed', style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w800)),
+            Text(empty ? l10n.swipeDoneNothing : l10n.swipeDoneAll, style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w800)),
             const SizedBox(height: 8),
-            const Text('You can restore anything from the trash.', textAlign: TextAlign.center, style: TextStyle(color: SweeepColors.textMutedSmall, fontSize: 15)),
+            Text(l10n.swipeDoneHint, textAlign: TextAlign.center, style: const TextStyle(color: SweeepColors.textMutedSmall, fontSize: 15)),
             const SizedBox(height: 24),
             DecoratedBox(
               decoration: BoxDecoration(borderRadius: BorderRadius.circular(26), boxShadow: neonGlow(SweeepColors.brand)),
               child: FilledButton(
               onPressed: onBack,
               style: FilledButton.styleFrom(backgroundColor: SweeepColors.brand, foregroundColor: SweeepColors.onAccent, minimumSize: const Size(160, 52), shape: const StadiumBorder()),
-              child: const Text('Back', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+              child: Text(l10n.back, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
             ),
             ),
           ]),
@@ -567,15 +566,15 @@ class _HintState extends State<_Hint> with SingleTickerProviderStateMixin {
                 final color = pos.dx < -.2 ? SweeepColors.trash : (pos.dx > .2 ? SweeepColors.keep : (pos.dy < -.2 ? SweeepColors.brand : SweeepColors.text));
                 return Center(
                   child: Column(mainAxisSize: MainAxisSize.min, children: [
-                    const Text('Swipe to sort', style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800, letterSpacing: -.5)),
+                    Text(l10n.hintTitle, style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w800, letterSpacing: -.5)),
                     const SizedBox(height: 28),
                     SizedBox(
                       width: 260,
                       height: 220,
                       child: Stack(alignment: Alignment.center, children: [
-                        const Positioned(left: 0, child: _Tip(Icons.arrow_back_rounded, 'Trash', SweeepColors.trash)),
-                        const Positioned(right: 0, child: _Tip(Icons.arrow_forward_rounded, 'Keep', SweeepColors.keep)),
-                        const Positioned(top: 0, child: _Tip(Icons.arrow_upward_rounded, 'Later', SweeepColors.brand)),
+                        Positioned(left: 0, child: _Tip(Icons.arrow_back_rounded, l10n.hintTrash, SweeepColors.trash)),
+                        Positioned(right: 0, child: _Tip(Icons.arrow_forward_rounded, l10n.hintKeep, SweeepColors.keep)),
+                        Positioned(top: 0, child: _Tip(Icons.arrow_upward_rounded, l10n.hintLater, SweeepColors.brand)),
                         Transform.translate(
                           offset: Offset(pos.dx * 60, 24 + pos.dy * 50),
                           child: Container(
@@ -588,7 +587,7 @@ class _HintState extends State<_Hint> with SingleTickerProviderStateMixin {
                       ]),
                     ),
                     const SizedBox(height: 20),
-                    const Text('Tap anywhere to start', style: TextStyle(fontSize: 14, color: SweeepColors.textMuted, fontWeight: FontWeight.w600)),
+                    Text(l10n.hintTap, style: const TextStyle(fontSize: 14, color: SweeepColors.textMuted, fontWeight: FontWeight.w600)),
                   ]),
                 );
               },

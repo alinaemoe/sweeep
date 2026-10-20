@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../core/theme.dart';
+import '../../l10n/l10n.dart';
 import '../../core/widgets.dart';
 import 'tone_service.dart';
 
@@ -105,15 +106,15 @@ class _ToolsScreenState extends State<ToolsScreen> with SingleTickerProviderStat
 
   String get _status {
     if (_tool == _Tool.sound) {
-      if (_sweep) return 'Sweep · 20 Hz to 20 kHz';
+      if (_sweep) return l10n.toolsSweepStatus;
       return switch (_side) {
-        1 => 'Left speaker only',
-        2 => 'Right speaker only',
-        _ => 'Steady tone',
+        1 => l10n.toolsLeftOnly,
+        2 => l10n.toolsRightOnly,
+        _ => l10n.toolsSteady,
       };
     }
-    final tail = _playing ? '00:${_left.toString().padLeft(2, '0')} left' : '00:$_runSeconds';
-    return 'Pulsing tone · $tail';
+    final tail = _playing ? l10n.toolsTimeLeft('00:${_left.toString().padLeft(2, '0')}') : '00:$_runSeconds';
+    return l10n.toolsPulsing(tail);
   }
 
   @override
@@ -130,7 +131,7 @@ class _ToolsScreenState extends State<ToolsScreen> with SingleTickerProviderStat
         child: ListView(
           padding: EdgeInsets.fromLTRB(20, 12, 20, bottom),
           children: [
-            const SizedBox(height: 40, child: Align(alignment: Alignment.centerLeft, child: Text('Tools', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800, letterSpacing: -1)))),
+            SizedBox(height: 40, child: Align(alignment: Alignment.centerLeft, child: Text(l10n.navTools, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w800, letterSpacing: -1)))),
             const SizedBox(height: 14),
             _Segments(tool: _tool, onChanged: _pick),
             const SizedBox(height: 14),
@@ -141,15 +142,15 @@ class _ToolsScreenState extends State<ToolsScreen> with SingleTickerProviderStat
                 Row(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.baseline, textBaseline: TextBaseline.alphabetic, children: [
                   Text(_sweep && _tool == _Tool.sound ? '···' : f.round().toString(), style: const TextStyle(fontSize: 72, height: 1, fontWeight: FontWeight.w800, letterSpacing: -3)),
                   const SizedBox(width: 6),
-                  const Text('Hz', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: SweeepColors.brand)),
+                  Text(l10n.unitHz, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: SweeepColors.brand)),
                 ]),
                 const SizedBox(height: 14),
                 _Bars(controller: _bars, active: _playing),
                 const SizedBox(height: 14),
                 if (!(_tool == _Tool.sound && _sweep)) ...[
                   Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                    Text('${lo.round()} Hz', style: const TextStyle(fontSize: 12, color: SweeepColors.textMuted, fontWeight: FontWeight.w600)),
-                    Text(hi >= 1000 ? '${(hi / 1000).round()} kHz' : '${hi.round()} Hz', style: const TextStyle(fontSize: 12, color: SweeepColors.textMuted, fontWeight: FontWeight.w600)),
+                    Text(l10n.hz('${lo.round()}'), style: const TextStyle(fontSize: 12, color: SweeepColors.textMuted, fontWeight: FontWeight.w600)),
+                    Text(hi >= 1000 ? l10n.khz('${(hi / 1000).round()}') : l10n.hz('${hi.round()}'), style: const TextStyle(fontSize: 12, color: SweeepColors.textMuted, fontWeight: FontWeight.w600)),
                   ]),
                   SliderTheme(
                     data: SliderTheme.of(context).copyWith(
@@ -161,7 +162,7 @@ class _ToolsScreenState extends State<ToolsScreen> with SingleTickerProviderStat
                       thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10),
                     ),
                     child: Semantics(
-                      label: 'Frequency',
+                      label: l10n.toolsFrequency,
                       child: Slider(min: lo, max: hi, value: f, onChanged: _setFreq),
                     ),
                   ),
@@ -192,10 +193,10 @@ class _ToolsScreenState extends State<ToolsScreen> with SingleTickerProviderStat
             ],
             const SizedBox(height: 14),
             _MainButton(
-              label: _playing ? 'Stop' : switch (_tool) {
-                _Tool.water => 'Eject water',
-                _Tool.dust => 'Shake out dust',
-                _Tool.sound => 'Play tone',
+              label: _playing ? l10n.toolsStop : switch (_tool) {
+                _Tool.water => l10n.toolsEject,
+                _Tool.dust => l10n.toolsShake,
+                _Tool.sound => l10n.toolsPlay,
               },
               playing: _playing,
               onPressed: _playing ? _stop : _start,
@@ -214,7 +215,7 @@ class _Segments extends StatelessWidget {
   final _Tool tool;
   final ValueChanged<_Tool> onChanged;
 
-  static const _labels = {_Tool.water: 'Water', _Tool.dust: 'Dust', _Tool.sound: 'Sound test'};
+  static Map<_Tool, String> get _labels => {_Tool.water: l10n.toolsWater, _Tool.dust: l10n.toolsDust, _Tool.sound: l10n.toolsSound};
 
   @override
   Widget build(BuildContext context) => Container(
@@ -285,12 +286,12 @@ class _SoundPresets extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Wrap(spacing: 8, runSpacing: 8, children: [
-        _Chip('Both', side == 0, () => onSide(0)),
-        _Chip('Left', side == 1, () => onSide(1)),
-        _Chip('Right', side == 2, () => onSide(2)),
-        _Chip('Bass 60 Hz', false, () => onPreset(60)),
-        _Chip('Treble 8 kHz', false, () => onPreset(8000)),
-        _Chip('Sweep', sweep, () => onSweep(!sweep)),
+        _Chip(l10n.toolsBoth, side == 0, () => onSide(0)),
+        _Chip(l10n.toolsLeft, side == 1, () => onSide(1)),
+        _Chip(l10n.toolsRight, side == 2, () => onSide(2)),
+        _Chip(l10n.toolsBass, false, () => onPreset(60)),
+        _Chip(l10n.toolsTreble, false, () => onPreset(8000)),
+        _Chip(l10n.toolsSweep, sweep, () => onSweep(!sweep)),
       ]);
 }
 
@@ -356,10 +357,10 @@ class _Warning extends StatelessWidget {
           borderRadius: BorderRadius.circular(18),
           border: Border.all(color: SweeepColors.trash.withValues(alpha: .35)),
         ),
-        child: const Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Padding(padding: EdgeInsets.only(top: 1), child: Icon(Icons.warning_amber_rounded, size: 20, color: SweeepColors.trash)),
-          SizedBox(width: 10),
-          Expanded(child: Text("Start at low volume and keep the phone away from your ear. Results aren't guaranteed.", style: TextStyle(fontSize: 13, height: 1.4, fontWeight: FontWeight.w500))),
+        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          const Padding(padding: EdgeInsets.only(top: 1), child: Icon(Icons.warning_amber_rounded, size: 20, color: SweeepColors.trash)),
+          const SizedBox(width: 10),
+          Expanded(child: Text(l10n.toolsWarning, style: const TextStyle(fontSize: 13, height: 1.4, fontWeight: FontWeight.w500))),
         ]),
       );
 }

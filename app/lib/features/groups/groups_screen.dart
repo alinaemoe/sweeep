@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/theme.dart';
+import '../../l10n/l10n.dart';
 import '../../core/widgets.dart';
 import '../../index/group_service.dart';
 import '../../providers.dart';
@@ -58,7 +59,7 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
     setState(_picked.clear);
     ScaffoldMessenger.of(context)
       ..clearSnackBars()
-      ..showSnackBar(SnackBar(content: Text('${filesLabel(list.length)} moved to trash')));
+      ..showSnackBar(SnackBar(content: Text(l10n.movedToTrash(filesLabel(list.length)))));
   }
 
   @override
@@ -89,7 +90,7 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
                       IconButton.filledTonal(
                         onPressed: () => Navigator.of(context).pop(),
                         icon: const Icon(Icons.arrow_back_rounded),
-                        tooltip: 'Back',
+                        tooltip: l10n.back,
                         style: IconButton.styleFrom(backgroundColor: SweeepColors.card, foregroundColor: SweeepColors.text, minimumSize: const Size(44, 44)),
                       ),
                       if (groups.isNotEmpty)
@@ -99,7 +100,7 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
                             allPicked ? _picked.clear() : _picked.addAll(ids);
                           }),
                           style: TextButton.styleFrom(foregroundColor: SweeepColors.brand, minimumSize: const Size(44, 44), padding: const EdgeInsets.symmetric(horizontal: 12)),
-                          child: Text(allPicked ? 'Clear' : 'Select all', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+                          child: Text(allPicked ? l10n.clear : l10n.selectAll, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
                         ),
                     ]),
                   ),
@@ -110,23 +111,23 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Text(
-                      '${groups.length} groups · ${formatBytes(total)} to free'
-                      '${trash != null && trash.count > 0 ? ' · ${trash.count} in trash (${formatBytes(trash.bytes)})' : ''}',
+                      l10n.groupsSummary(l10n.groupsCount(groups.length), formatBytes(total)) +
+                          (trash != null && trash.count > 0 ? l10n.groupsInTrash(trash.count, formatBytes(trash.bytes)) : ''),
                       style: const TextStyle(fontSize: 14, color: SweeepColors.textMutedSmall, fontWeight: FontWeight.w600),
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
                     child: Wrap(spacing: 8, children: [
-                      _SortChip('Biggest saving', _sort == _Sort.saving, () => setState(() => _sort = _Sort.saving)),
-                      _SortChip('Newest', _sort == _Sort.newest, () => setState(() => _sort = _Sort.newest)),
-                      _SortChip('Copies', _sort == _Sort.copies, () => setState(() => _sort = _Sort.copies)),
+                      _SortChip(l10n.sortSaving, _sort == _Sort.saving, () => setState(() => _sort = _Sort.saving)),
+                      _SortChip(l10n.sortNewest, _sort == _Sort.newest, () => setState(() => _sort = _Sort.newest)),
+                      _SortChip(l10n.sortCopies, _sort == _Sort.copies, () => setState(() => _sort = _Sort.copies)),
                     ]),
                   ),
                   const SizedBox(height: 4),
                   Expanded(
                     child: groups.isEmpty
-                        ? const Center(child: Text('Nothing left here.', style: TextStyle(color: SweeepColors.textMutedSmall, fontSize: 16)))
+                        ? Center(child: Text(l10n.nothingLeft, style: const TextStyle(color: SweeepColors.textMutedSmall, fontSize: 16)))
                         : GridView.builder(
                             padding: EdgeInsets.fromLTRB(24, 14, 24, picked.isEmpty ? 24 : 140),
                             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, mainAxisSpacing: 20, crossAxisSpacing: 22, childAspectRatio: .85),
@@ -135,7 +136,7 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
                               final g = groups[i];
                               final on = _picked.contains(g.id);
                               return Pressable(
-                                label: '${kindTitle(kind)} group, ${g.members.length} files, ${on ? 'selected' : 'not selected'}',
+                                label: l10n.groupSemantics(kindTitle(kind), g.members.length, on ? l10n.stateSelected : l10n.stateNotSelected),
                                 onTap: () {
                                   if (_picked.isNotEmpty) {
                                     _toggle(g.id);
@@ -187,13 +188,13 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
                     ),
                     child: Column(mainAxisSize: MainAxisSize.min, children: [
                       Text(
-                        '${picked.length} ${picked.length == 1 ? 'group' : 'groups'} selected · best photo of each is kept',
+                        l10n.groupsSelectedBar(l10n.groupsCount(picked.length)),
                         style: const TextStyle(fontSize: 12, color: SweeepColors.textMutedSmall, fontWeight: FontWeight.w600),
                       ),
                       const SizedBox(height: 8),
                       PillButton(
                         height: 52,
-                        label: 'Clean ${picked.length} ${picked.length == 1 ? 'group' : 'groups'} · save ${formatBytes(pickedSave)}',
+                        label: l10n.cleanGroups(l10n.groupsCount(picked.length), formatBytes(pickedSave)),
                         onPressed: picked.isEmpty ? null : () => _clean(groups),
                       ),
                     ]),
@@ -218,7 +219,7 @@ class _SortChip extends StatelessWidget {
   Widget build(BuildContext context) => Semantics(
         button: true,
         selected: on,
-        label: 'Sort: $label',
+        label: l10n.semSort(label),
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: onTap,

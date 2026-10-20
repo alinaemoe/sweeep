@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/theme.dart';
+import '../../l10n/l10n.dart';
 import '../../core/widgets.dart';
 import '../../index/group_service.dart';
 import '../../index/home_service.dart';
@@ -72,9 +73,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderStat
   }
 
   static String _labelOf(LibraryState s) {
-    if (s.syncing) return 'READING LIBRARY';
-    if (s.analyzing) return 'ANALYZING ${_n(s.alreadyHashed + s.analysisDone)} OF ${_n(s.alreadyHashed + s.analysisTotal)}';
-    return 'COMPARING FILES';
+    if (s.syncing) return l10n.scanReading;
+    if (s.analyzing) return l10n.scanAnalyzing(_n(s.alreadyHashed + s.analysisDone), _n(s.alreadyHashed + s.analysisTotal));
+    return l10n.scanComparing;
   }
 
   @override
@@ -171,62 +172,56 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderStat
   List<Widget> _feed(HomeData d) {
     final empty = d.chat.count == 0 && d.duplicates.isEmpty && d.similar.isEmpty && d.screenshots.count == 0 && d.videos.count == 0 && d.blurry.count == 0;
     if (empty) {
-      return const [
+      return [
         Padding(
-          padding: EdgeInsets.all(28),
-          child: Text('Nothing to clean yet. Pull in more photos or re-scan later.',
-              textAlign: TextAlign.center, style: TextStyle(color: SweeepColors.textMutedSmall, fontSize: 15, fontWeight: FontWeight.w600)),
+          padding: const EdgeInsets.all(28),
+          child: Text(l10n.homeNothing,
+              textAlign: TextAlign.center, style: const TextStyle(color: SweeepColors.textMutedSmall, fontSize: 15, fontWeight: FontWeight.w600)),
         ),
       ];
     }
     return [
       if (d.duplicates.isNotEmpty) ...[
-        _SectionHeader('Duplicates', '${_n(d.duplicateCount)} · ${formatBytes(d.duplicateBytes)}', 'See all', () => _push(const GroupsScreen(kind: GroupKind.duplicate))),
+        _SectionHeader(l10n.secDuplicates, '${_n(d.duplicateCount)} · ${formatBytes(d.duplicateBytes)}', l10n.seeAll, () => _push(const GroupsScreen(kind: GroupKind.duplicate))),
         _GroupCarousel(groups: d.duplicates, big: true, onOpen: (i) => _push(GroupPager(kind: GroupKind.duplicate, initialIndex: i))),
       ],
       if (d.similar.isNotEmpty) ...[
-        _SectionHeader('Similar photos', '${_n(d.similarCount)} · ${formatBytes(d.similarBytes)}', 'See all', () => _push(const GroupsScreen(kind: GroupKind.similar))),
+        _SectionHeader(l10n.secSimilar, '${_n(d.similarCount)} · ${formatBytes(d.similarBytes)}', l10n.seeAll, () => _push(const GroupsScreen(kind: GroupKind.similar))),
         _GroupCarousel(groups: d.similar, big: false, onOpen: (i) => _push(GroupPager(kind: GroupKind.similar, initialIndex: i))),
       ],
       if (d.screenshots.count > 0) ...[
-        _SectionHeader('Screenshots', '${_n(d.screenshots.count)} · ${formatBytes(d.screenshots.bytes)}', 'See all', () => _push(const CategoryScreen(kind: CategoryKind.screenshots))),
+        _SectionHeader(l10n.secScreenshots, '${_n(d.screenshots.count)} · ${formatBytes(d.screenshots.bytes)}', l10n.seeAll, () => _push(const CategoryScreen(kind: CategoryKind.screenshots))),
         _TileRow(height: 130, items: d.screenshots.items, builder: (it) => _Tile(item: it, width: 74, height: 130, radius: 14)),
       ],
       if (d.videos.count > 0) ...[
-        _SectionHeader('Videos', '${_n(d.videos.count)} · ${formatBytes(d.videos.bytes)}', 'See all', () => _push(const CategoryScreen(kind: CategoryKind.videos))),
+        _SectionHeader(l10n.secVideos, '${_n(d.videos.count)} · ${formatBytes(d.videos.bytes)}', l10n.seeAll, () => _push(const CategoryScreen(kind: CategoryKind.videos))),
         _TileRow(height: 96, items: d.videos.items, builder: (it) => _Tile(item: it, width: 140, height: 96, radius: 18, video: true)),
       ],
       if (d.chat.count > 0) ...[
-        _SectionHeader('Chat media', '${_n(d.chat.count)} · ${formatBytes(d.chat.bytes)}', 'See all', () => _push(const CategoryScreen(kind: CategoryKind.chat))),
+        _SectionHeader(l10n.secChat, '${_n(d.chat.count)} · ${formatBytes(d.chat.bytes)}', l10n.seeAll, () => _push(const CategoryScreen(kind: CategoryKind.chat))),
         _TileRow(height: 96, items: d.chat.items, builder: (it) => _Tile(item: it, width: 96, height: 96, radius: 18, video: it.durationMs != null)),
       ],
       if (d.blurry.count > 0) ...[
-        _SectionHeader('Blurry & dark', '${_n(d.blurry.count)} · ${formatBytes(d.blurry.bytes)}', 'Swipe', () => _push(const SwipeScreen(source: SwipeSource.blurry))),
+        _SectionHeader(l10n.secBlurry, '${_n(d.blurry.count)} · ${formatBytes(d.blurry.bytes)}', l10n.actionSwipe, () => _push(const SwipeScreen(source: SwipeSource.blurry))),
         _TileRow(height: 96, items: d.blurry.items, builder: (it) => _Tile(item: it, width: 96, height: 96, radius: 18)),
       ],
     ];
   }
 }
 
-String _n(int n) {
-  final s = n.toString();
-  final b = StringBuffer();
-  for (var i = 0; i < s.length; i++) {
-    if (i > 0 && (s.length - i) % 3 == 0) b.write(',');
-    b.write(s[i]);
-  }
-  return b.toString();
-}
+String _n(int n) => fmtNum(n);
+
+String _tagText(String tag) => tag == 'dark' ? l10n.tagDark : l10n.tagBlurry;
 
 ({String value, String unit}) _splitBytes(int bytes) {
-  const u = ['B', 'KB', 'MB', 'GB', 'TB'];
+  final u = l10n.byteUnits.split(',');
   var v = bytes.toDouble();
   var i = 0;
   while (v >= 1024 && i < u.length - 1) {
     v /= 1024;
     i++;
   }
-  return (value: v.toStringAsFixed(i < 3 ? 0 : 1), unit: u[i]);
+  return (value: fmtNum(v, digits: i < 3 ? 0 : 1), unit: u[i]);
 }
 
 class _SectionHeader extends StatelessWidget {
@@ -284,7 +279,9 @@ class _GroupCarousel extends StatelessWidget {
         separatorBuilder: (_, __) => SizedBox(width: big ? 22 : 18),
         itemBuilder: (context, i) => Pressable(
           onTap: () => onOpen(i),
-          label: '${groups[i].kind == GroupKind.duplicate ? 'Duplicate' : 'Similar'} group, ${groups[i].members.length} photos, saves ${formatBytes(groups[i].savingsBytes)}',
+          label: groups[i].kind == GroupKind.duplicate
+              ? l10n.semGroupDup(groups[i].members.length, formatBytes(groups[i].savingsBytes))
+              : l10n.semGroupSim(groups[i].members.length, formatBytes(groups[i].savingsBytes)),
           child: SizedBox(
             width: w,
             height: h,
@@ -387,7 +384,9 @@ class _Tile extends StatelessWidget {
           child: GlassPill(height: 20, padding: const EdgeInsets.symmetric(horizontal: 8), child: Text(text, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700))),
         );
     return Semantics(
-      label: video ? 'Video${item.durationMs != null ? ', ${_len(item.durationMs!)}' : ''}, ${formatBytes(item.sizeBytes)}' : '${item.tag ?? 'Photo'}, ${formatBytes(item.sizeBytes)}',
+      label: video
+          ? (item.durationMs != null ? l10n.semVideoLen(_len(item.durationMs!), formatBytes(item.sizeBytes)) : l10n.semVideo(formatBytes(item.sizeBytes)))
+          : (item.tag != null ? l10n.semTagged(_tagText(item.tag!), formatBytes(item.sizeBytes)) : l10n.semPhoto(formatBytes(item.sizeBytes))),
       child: SizedBox(
       width: width,
       height: height,
@@ -409,7 +408,7 @@ class _Tile extends StatelessWidget {
               if (item.durationMs != null) badge(_len(item.durationMs!), left: true),
               badge(formatBytes(item.sizeBytes)),
             ],
-            if (item.tag != null) badge(item.tag!, left: true),
+            if (item.tag != null) badge(_tagText(item.tag!), left: true),
           ]),
         ),
       ),
@@ -492,7 +491,7 @@ class _Header extends StatelessWidget {
             const SweeepWordmark(),
             IconButton(
               onPressed: onSettings,
-              tooltip: 'Library details',
+              tooltip: l10n.tipLibraryDetails,
               icon: const Icon(Icons.settings_outlined, size: 20),
               style: IconButton.styleFrom(
                 backgroundColor: SweeepColors.card,
@@ -548,7 +547,7 @@ class _Header extends StatelessWidget {
                       child: Padding(
                         padding: const EdgeInsets.only(top: 6),
                         child: Text(
-                          busy ? scanLabel : (data == null ? '' : 'RECLAIMABLE OF ${_fmtSize(lib)}'),
+                          busy ? scanLabel : (data == null ? '' : l10n.ovalReclaimableOf(_fmtSize(lib))),
                           style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 2, color: SweeepColors.textMutedSmall),
                         ),
                       ),
@@ -564,7 +563,7 @@ class _Header extends StatelessWidget {
             top: 20,
             child: Opacity(
               opacity: math.max(0, t * 3 - 2),
-              child: Text(busy ? 'SCANNING' : 'RECLAIMABLE', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, letterSpacing: 1.5, color: SweeepColors.textMutedSmall)),
+              child: Text(busy ? l10n.ovalScanning : l10n.ovalReclaimable, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, letterSpacing: 1.5, color: SweeepColors.textMutedSmall)),
             ),
           ),
           Positioned(
@@ -585,7 +584,7 @@ class _Header extends StatelessWidget {
               ),
               child: FittedBox(
                 fit: BoxFit.scaleDown,
-                child: Text(reclaim == 0 ? (busy ? 'Scanning…' : 'All clean') : 'Free up ${reclaimBig.value} ${reclaimBig.unit}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+                child: Text(reclaim == 0 ? (busy ? l10n.ctaScanning : l10n.ctaAllClean) : l10n.ctaFreeUp('${reclaimBig.value} ${reclaimBig.unit}'), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
               ),
             ),
             ),

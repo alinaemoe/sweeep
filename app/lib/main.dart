@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 import 'core/intro.dart';
 import 'core/perf_log.dart';
 import 'core/theme.dart';
 import 'features/shell/app_shell.dart';
+import 'l10n/l10n.dart';
 import 'features/onboarding/onboarding_screen.dart';
 import 'platform/messages.g.dart' show PermissionState;
 import 'providers.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting(); // month and day names for every supported language
   startPerfLog();
   // a phone-first cleaner: portrait only, like the design
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
@@ -35,15 +39,29 @@ class _SweeepAppState extends State<SweeepApp> {
       title: 'Sweeep',
       debugShowCheckedModeBanner: false,
       theme: SweeepTheme.dark(),
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: AppLocalizations.supportedLocales,
       home: const _Gate(),
       // The intro plays over the app, which is already loading underneath.
-      builder: (context, child) => Stack(
-        fit: StackFit.expand,
-        children: [
-          Offstage(offstage: _intro && !_reveal, child: child ?? const SizedBox.shrink()),
-          if (_intro) SweeepIntro(onReveal: () => setState(() => _reveal = true), onDone: () => setState(() => _intro = false)),
-        ],
-      ),
+      builder: (context, child) {
+        bindL10n(context);
+        return Stack(
+          fit: StackFit.expand,
+          children: [
+            // a language change rebuilds the whole tree so every text picks it up
+            KeyedSubtree(
+              key: ValueKey(AppLocalizations.of(context).localeName),
+              child: Offstage(offstage: _intro && !_reveal, child: child ?? const SizedBox.shrink()),
+            ),
+            if (_intro) SweeepIntro(onReveal: () => setState(() => _reveal = true), onDone: () => setState(() => _intro = false)),
+          ],
+        );
+      },
     );
   }
 }

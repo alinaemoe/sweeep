@@ -13,6 +13,7 @@ import 'index/group_service.dart';
 import 'index/home_service.dart';
 import 'index/index_service.dart';
 import 'index/review_service.dart';
+import 'l10n/l10n.dart';
 import 'platform/media_source.dart';
 import 'platform/messages.g.dart' show PermissionState;
 import 'platform/scan_foreground.dart';
@@ -246,7 +247,7 @@ class LibraryController extends Notifier<LibraryState> {
       final sw = Stopwatch()..start();
       await svc.run(onProgress: (done, tot) {
         state = state.copyWith(analysisDone: done, analysisTotal: tot);
-        _foreground.update(done, tot, 'Hashing photos · $done of $tot');
+        _foreground.update(done, tot, l10n.notifHashing(fmtNum(done), fmtNum(tot)));
       });
       final ms = sw.elapsedMilliseconds;
       final hs = await svc.stats();
@@ -267,7 +268,7 @@ class LibraryController extends Notifier<LibraryState> {
       state = state.copyWith(verifying: true, verifyDone: 0, verifyTotal: 0);
       await groups.hashExactCandidates(onProgress: (d, t) {
         state = state.copyWith(verifyDone: d, verifyTotal: t);
-        _foreground.update(d, t, 'Checking duplicates · $d of $t');
+        _foreground.update(d, t, l10n.notifChecking(fmtNum(d), fmtNum(t)));
       });
       final built = await groups.rebuild();
       ref.invalidate(groupsProvider);

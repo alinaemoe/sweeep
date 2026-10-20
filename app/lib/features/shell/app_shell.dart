@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/theme.dart';
+import '../../l10n/l10n.dart';
 import '../../providers.dart';
 import '../home/home_screen.dart';
 import '../swipe/timeline_screen.dart';
@@ -91,12 +92,12 @@ class SweeepNavBar extends StatelessWidget {
   final int index;
   final ValueChanged<int> onChanged;
 
-  static const _items = [
-    (Icons.auto_awesome_rounded, 'Clean'),
-    (Icons.crop_portrait_rounded, 'Swipe'),
-    (Icons.volume_up_outlined, 'Tools'),
-    (Icons.delete_outline_rounded, 'Trash'),
-  ];
+  static List<(IconData, String)> get _items => [
+        (Icons.auto_awesome_rounded, l10n.navClean),
+        (Icons.crop_portrait_rounded, l10n.navSwipe),
+        (Icons.volume_up_outlined, l10n.navTools),
+        (Icons.delete_outline_rounded, l10n.navTrash),
+      ];
 
   @override
   Widget build(BuildContext context) => RepaintBoundary(

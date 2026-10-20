@@ -25,6 +25,7 @@ abstract final class SweeepTheme {
   static ThemeData dark() {
     final base = ThemeData(
       fontFamily: 'PlusJakartaSans',
+      fontFamilyFallback: const ['Manrope'], // Cyrillic
       brightness: Brightness.dark,
       useMaterial3: true,
       scaffoldBackgroundColor: SweeepColors.background,

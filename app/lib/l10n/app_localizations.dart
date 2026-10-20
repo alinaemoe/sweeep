@@ -1,0 +1,1099 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:intl/intl.dart' as intl;
+
+import 'app_localizations_en.dart';
+import 'app_localizations_ru.dart';
+
+// ignore_for_file: type=lint
+
+/// Callers can lookup localized strings with an instance of AppLocalizations
+/// returned by `AppLocalizations.of(context)`.
+///
+/// Applications need to include `AppLocalizations.delegate()` in their app's
+/// `localizationDelegates` list, and the locales they support in the app's
+/// `supportedLocales` list. For example:
+///
+/// ```dart
+/// import 'l10n/app_localizations.dart';
+///
+/// return MaterialApp(
+///   localizationsDelegates: AppLocalizations.localizationsDelegates,
+///   supportedLocales: AppLocalizations.supportedLocales,
+///   home: MyApplicationHome(),
+/// );
+/// ```
+///
+/// ## Update pubspec.yaml
+///
+/// Please make sure to update your pubspec.yaml to include the following
+/// packages:
+///
+/// ```yaml
+/// dependencies:
+///   # Internationalization support.
+///   flutter_localizations:
+///     sdk: flutter
+///   intl: any # Use the pinned version from flutter_localizations
+///
+///   # Rest of dependencies
+/// ```
+///
+/// ## iOS Applications
+///
+/// iOS applications define key application metadata, including supported
+/// locales, in an Info.plist file that is built into the application bundle.
+/// To configure the locales supported by your app, you’ll need to edit this
+/// file.
+///
+/// First, open your project’s ios/Runner.xcworkspace Xcode workspace file.
+/// Then, in the Project Navigator, open the Info.plist file under the Runner
+/// project’s Runner folder.
+///
+/// Next, select the Information Property List item, select Add Item from the
+/// Editor menu, then select Localizations from the pop-up menu.
+///
+/// Select and expand the newly-created Localizations item then, for each
+/// locale your application supports, add a new item and select the locale
+/// you wish to add from the pop-up menu in the Value field. This list should
+/// be consistent with the languages listed in the AppLocalizations.supportedLocales
+/// property.
+abstract class AppLocalizations {
+  AppLocalizations(String locale)
+      : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+
+  final String localeName;
+
+  static AppLocalizations of(BuildContext context) {
+    return Localizations.of<AppLocalizations>(context, AppLocalizations)!;
+  }
+
+  static const LocalizationsDelegate<AppLocalizations> delegate =
+      _AppLocalizationsDelegate();
+
+  /// A list of this localizations delegate along with the default localizations
+  /// delegates.
+  ///
+  /// Returns a list of localizations delegates containing this delegate along with
+  /// GlobalMaterialLocalizations.delegate, GlobalCupertinoLocalizations.delegate,
+  /// and GlobalWidgetsLocalizations.delegate.
+  ///
+  /// Additional delegates can be added by appending to this list in
+  /// MaterialApp. This list does not have to be used at all if a custom list
+  /// of delegates is preferred or required.
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
+      <LocalizationsDelegate<dynamic>>[
+    delegate,
+    GlobalMaterialLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate,
+  ];
+
+  /// A list of this localizations delegate's supported locales.
+  static const List<Locale> supportedLocales = <Locale>[
+    Locale('en'),
+    Locale('ru')
+  ];
+
+  /// No description provided for @navClean.
+  ///
+  /// In en, this message translates to:
+  /// **'Clean'**
+  String get navClean;
+
+  /// No description provided for @navSwipe.
+  ///
+  /// In en, this message translates to:
+  /// **'Swipe'**
+  String get navSwipe;
+
+  /// No description provided for @navTools.
+  ///
+  /// In en, this message translates to:
+  /// **'Tools'**
+  String get navTools;
+
+  /// No description provided for @navTrash.
+  ///
+  /// In en, this message translates to:
+  /// **'Trash'**
+  String get navTrash;
+
+  /// No description provided for @back.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get back;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @undo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get undo;
+
+  /// No description provided for @selectAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Select all'**
+  String get selectAll;
+
+  /// No description provided for @clear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get clear;
+
+  /// No description provided for @seeAll.
+  ///
+  /// In en, this message translates to:
+  /// **'See all'**
+  String get seeAll;
+
+  /// No description provided for @actionSwipe.
+  ///
+  /// In en, this message translates to:
+  /// **'Swipe'**
+  String get actionSwipe;
+
+  /// No description provided for @skip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get skip;
+
+  /// No description provided for @filesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{1 file} other{{n} files}}'**
+  String filesCount(int n);
+
+  /// No description provided for @photosCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{1 photo} other{{n} photos}}'**
+  String photosCount(int n);
+
+  /// No description provided for @groupsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{1 group} other{{n} groups}}'**
+  String groupsCount(int n);
+
+  /// No description provided for @byteUnits.
+  ///
+  /// In en, this message translates to:
+  /// **'B,KB,MB,GB,TB'**
+  String get byteUnits;
+
+  /// No description provided for @hz.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} Hz'**
+  String hz(String n);
+
+  /// No description provided for @unitHz.
+  ///
+  /// In en, this message translates to:
+  /// **'Hz'**
+  String get unitHz;
+
+  /// No description provided for @khz.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} kHz'**
+  String khz(String n);
+
+  /// No description provided for @onbTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your photos\nnever leave\nyour phone.'**
+  String get onbTitle;
+
+  /// No description provided for @onbPoint1.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything is analyzed on this device.'**
+  String get onbPoint1;
+
+  /// No description provided for @onbPoint2.
+  ///
+  /// In en, this message translates to:
+  /// **'No uploads, no accounts, no ads.'**
+  String get onbPoint2;
+
+  /// No description provided for @onbPoint3.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing is deleted until you confirm.'**
+  String get onbPoint3;
+
+  /// No description provided for @onbDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Access is off. Allow photos and videos for Sweeep in Settings › Apps › Sweeep › Permissions, then come back.'**
+  String get onbDenied;
+
+  /// No description provided for @onbCheckAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Check again'**
+  String get onbCheckAgain;
+
+  /// No description provided for @onbAllow.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow photo access'**
+  String get onbAllow;
+
+  /// No description provided for @secDuplicates.
+  ///
+  /// In en, this message translates to:
+  /// **'Duplicates'**
+  String get secDuplicates;
+
+  /// No description provided for @secSimilar.
+  ///
+  /// In en, this message translates to:
+  /// **'Similar photos'**
+  String get secSimilar;
+
+  /// No description provided for @secScreenshots.
+  ///
+  /// In en, this message translates to:
+  /// **'Screenshots'**
+  String get secScreenshots;
+
+  /// No description provided for @secVideos.
+  ///
+  /// In en, this message translates to:
+  /// **'Videos'**
+  String get secVideos;
+
+  /// No description provided for @secChat.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat media'**
+  String get secChat;
+
+  /// No description provided for @secBlurry.
+  ///
+  /// In en, this message translates to:
+  /// **'Blurry & dark'**
+  String get secBlurry;
+
+  /// No description provided for @srcAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All photos'**
+  String get srcAll;
+
+  /// No description provided for @tagBlurry.
+  ///
+  /// In en, this message translates to:
+  /// **'blurry'**
+  String get tagBlurry;
+
+  /// No description provided for @tagDark.
+  ///
+  /// In en, this message translates to:
+  /// **'dark'**
+  String get tagDark;
+
+  /// No description provided for @scanReading.
+  ///
+  /// In en, this message translates to:
+  /// **'READING LIBRARY'**
+  String get scanReading;
+
+  /// No description provided for @scanAnalyzing.
+  ///
+  /// In en, this message translates to:
+  /// **'ANALYZING {done} OF {total}'**
+  String scanAnalyzing(String done, String total);
+
+  /// No description provided for @scanComparing.
+  ///
+  /// In en, this message translates to:
+  /// **'COMPARING FILES'**
+  String get scanComparing;
+
+  /// No description provided for @homeNothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to clean yet. Pull in more photos or re-scan later.'**
+  String get homeNothing;
+
+  /// No description provided for @ovalReclaimableOf.
+  ///
+  /// In en, this message translates to:
+  /// **'RECLAIMABLE OF {size}'**
+  String ovalReclaimableOf(String size);
+
+  /// No description provided for @ovalScanning.
+  ///
+  /// In en, this message translates to:
+  /// **'SCANNING'**
+  String get ovalScanning;
+
+  /// No description provided for @ovalReclaimable.
+  ///
+  /// In en, this message translates to:
+  /// **'RECLAIMABLE'**
+  String get ovalReclaimable;
+
+  /// No description provided for @ctaScanning.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanning…'**
+  String get ctaScanning;
+
+  /// No description provided for @ctaAllClean.
+  ///
+  /// In en, this message translates to:
+  /// **'All clean'**
+  String get ctaAllClean;
+
+  /// No description provided for @ctaFreeUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Free up {size}'**
+  String ctaFreeUp(String size);
+
+  /// No description provided for @tipLibraryDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Library details'**
+  String get tipLibraryDetails;
+
+  /// No description provided for @semGroupDup.
+  ///
+  /// In en, this message translates to:
+  /// **'Duplicate group, {count} photos, saves {size}'**
+  String semGroupDup(int count, String size);
+
+  /// No description provided for @semGroupSim.
+  ///
+  /// In en, this message translates to:
+  /// **'Similar group, {count} photos, saves {size}'**
+  String semGroupSim(int count, String size);
+
+  /// No description provided for @semVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Video, {size}'**
+  String semVideo(String size);
+
+  /// No description provided for @semVideoLen.
+  ///
+  /// In en, this message translates to:
+  /// **'Video, {length}, {size}'**
+  String semVideoLen(String length, String size);
+
+  /// No description provided for @semPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo, {size}'**
+  String semPhoto(String size);
+
+  /// No description provided for @semTagged.
+  ///
+  /// In en, this message translates to:
+  /// **'{tag}, {size}'**
+  String semTagged(String tag, String size);
+
+  /// No description provided for @swipeOf.
+  ///
+  /// In en, this message translates to:
+  /// **'{i} of {n}'**
+  String swipeOf(int i, int n);
+
+  /// No description provided for @tipTrash.
+  ///
+  /// In en, this message translates to:
+  /// **'Move to trash'**
+  String get tipTrash;
+
+  /// No description provided for @tipKeep.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep'**
+  String get tipKeep;
+
+  /// No description provided for @stampLater.
+  ///
+  /// In en, this message translates to:
+  /// **'LATER'**
+  String get stampLater;
+
+  /// No description provided for @stampTrash.
+  ///
+  /// In en, this message translates to:
+  /// **'TO TRASH'**
+  String get stampTrash;
+
+  /// No description provided for @stampKeep.
+  ///
+  /// In en, this message translates to:
+  /// **'KEEP'**
+  String get stampKeep;
+
+  /// No description provided for @swipeInTrash.
+  ///
+  /// In en, this message translates to:
+  /// **'In trash: {files} '**
+  String swipeInTrash(String files);
+
+  /// No description provided for @swipeDoneNothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to review'**
+  String get swipeDoneNothing;
+
+  /// No description provided for @swipeDoneAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All reviewed'**
+  String get swipeDoneAll;
+
+  /// No description provided for @swipeDoneHint.
+  ///
+  /// In en, this message translates to:
+  /// **'You can restore anything from the trash.'**
+  String get swipeDoneHint;
+
+  /// No description provided for @hintTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Swipe to sort'**
+  String get hintTitle;
+
+  /// No description provided for @hintTrash.
+  ///
+  /// In en, this message translates to:
+  /// **'Trash'**
+  String get hintTrash;
+
+  /// No description provided for @hintKeep.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep'**
+  String get hintKeep;
+
+  /// No description provided for @hintLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get hintLater;
+
+  /// No description provided for @hintTap.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap anywhere to start'**
+  String get hintTap;
+
+  /// No description provided for @tlNewestFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Newest first'**
+  String get tlNewestFirst;
+
+  /// No description provided for @tlOldestFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Oldest first'**
+  String get tlOldestFirst;
+
+  /// No description provided for @tlHeadline.
+  ///
+  /// In en, this message translates to:
+  /// **'Swipe through\nevery month'**
+  String get tlHeadline;
+
+  /// No description provided for @tlSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{photos} · {swept} swept so far'**
+  String tlSummary(String photos, String swept);
+
+  /// No description provided for @tlNoPhotos.
+  ///
+  /// In en, this message translates to:
+  /// **'No photos yet.'**
+  String get tlNoPhotos;
+
+  /// No description provided for @tlContinueMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue · {month}'**
+  String tlContinueMonth(String month);
+
+  /// No description provided for @tlMonthLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{photos} · {status}'**
+  String tlMonthLine(String photos, String status);
+
+  /// No description provided for @tlAllSwept.
+  ///
+  /// In en, this message translates to:
+  /// **'all swept'**
+  String get tlAllSwept;
+
+  /// No description provided for @tlNSwept.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} swept'**
+  String tlNSwept(String n);
+
+  /// No description provided for @tlNotStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'not started'**
+  String get tlNotStarted;
+
+  /// No description provided for @tlDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get tlDone;
+
+  /// No description provided for @tlContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get tlContinue;
+
+  /// No description provided for @tlMore.
+  ///
+  /// In en, this message translates to:
+  /// **'more'**
+  String get tlMore;
+
+  /// No description provided for @tlSemMore.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} more photos'**
+  String tlSemMore(String n);
+
+  /// No description provided for @tlSemPhotoFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo from {date}'**
+  String tlSemPhotoFrom(String date);
+
+  /// No description provided for @tlSemReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Review again {month}'**
+  String tlSemReview(String month);
+
+  /// No description provided for @tlSemContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue {month}'**
+  String tlSemContinue(String month);
+
+  /// No description provided for @tlSemSwipe.
+  ///
+  /// In en, this message translates to:
+  /// **'Swipe {month}'**
+  String tlSemSwipe(String month);
+
+  /// No description provided for @tlSemSort.
+  ///
+  /// In en, this message translates to:
+  /// **'Newest first. Tap to show oldest first'**
+  String get tlSemSort;
+
+  /// No description provided for @tlSemSortOld.
+  ///
+  /// In en, this message translates to:
+  /// **'Oldest first. Tap to show newest first'**
+  String get tlSemSortOld;
+
+  /// No description provided for @trashNothingDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing was deleted.'**
+  String get trashNothingDeleted;
+
+  /// No description provided for @trashDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete everything?'**
+  String get trashDeleteTitle;
+
+  /// No description provided for @trashDeleteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{files} ({size}) will be deleted from your phone. Android may ask once more.'**
+  String trashDeleteBody(String files, String size);
+
+  /// No description provided for @deleteAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete all'**
+  String get deleteAll;
+
+  /// No description provided for @emptyAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Empty all'**
+  String get emptyAll;
+
+  /// No description provided for @trashEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Trash is empty'**
+  String get trashEmpty;
+
+  /// No description provided for @trashWillFree.
+  ///
+  /// In en, this message translates to:
+  /// **'{files} · {size} will be freed'**
+  String trashWillFree(String files, String size);
+
+  /// No description provided for @trashLandHere.
+  ///
+  /// In en, this message translates to:
+  /// **'Swiped-away photos land here.'**
+  String get trashLandHere;
+
+  /// No description provided for @trashSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} selected · {size} · recoverable until you empty'**
+  String trashSelected(int n, String size);
+
+  /// No description provided for @restoreN.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore {n}'**
+  String restoreN(int n);
+
+  /// No description provided for @deleteForever.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete forever'**
+  String get deleteForever;
+
+  /// No description provided for @freedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{size} freed'**
+  String freedTitle(String size);
+
+  /// No description provided for @freedSub.
+  ///
+  /// In en, this message translates to:
+  /// **'{files} deleted'**
+  String freedSub(String files);
+
+  /// No description provided for @daysToday.
+  ///
+  /// In en, this message translates to:
+  /// **'today'**
+  String get daysToday;
+
+  /// No description provided for @daysLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{n}d'**
+  String daysLeft(int n);
+
+  /// No description provided for @movedToTrash.
+  ///
+  /// In en, this message translates to:
+  /// **'{files} moved to trash'**
+  String movedToTrash(String files);
+
+  /// No description provided for @sortNewest.
+  ///
+  /// In en, this message translates to:
+  /// **'Newest'**
+  String get sortNewest;
+
+  /// No description provided for @sortLargest.
+  ///
+  /// In en, this message translates to:
+  /// **'Largest'**
+  String get sortLargest;
+
+  /// No description provided for @allApps.
+  ///
+  /// In en, this message translates to:
+  /// **'All apps'**
+  String get allApps;
+
+  /// No description provided for @nothingHere.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing here.'**
+  String get nothingHere;
+
+  /// No description provided for @catSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} selected · {size} · recoverable from the trash'**
+  String catSelected(int n, String size);
+
+  /// No description provided for @moveNToTrash.
+  ///
+  /// In en, this message translates to:
+  /// **'Move {n} to trash'**
+  String moveNToTrash(int n);
+
+  /// No description provided for @groupsSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{groups} · {size} to free'**
+  String groupsSummary(String groups, String size);
+
+  /// No description provided for @groupsInTrash.
+  ///
+  /// In en, this message translates to:
+  /// **' · {count} in trash ({size})'**
+  String groupsInTrash(int count, String size);
+
+  /// No description provided for @sortSaving.
+  ///
+  /// In en, this message translates to:
+  /// **'Biggest saving'**
+  String get sortSaving;
+
+  /// No description provided for @sortCopies.
+  ///
+  /// In en, this message translates to:
+  /// **'Copies'**
+  String get sortCopies;
+
+  /// No description provided for @nothingLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing left here.'**
+  String get nothingLeft;
+
+  /// No description provided for @groupsSelectedBar.
+  ///
+  /// In en, this message translates to:
+  /// **'{groups} selected · best photo of each is kept'**
+  String groupsSelectedBar(String groups);
+
+  /// No description provided for @cleanGroups.
+  ///
+  /// In en, this message translates to:
+  /// **'Clean {groups} · save {size}'**
+  String cleanGroups(String groups, String size);
+
+  /// No description provided for @groupSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'{kind} group, {count} files, {state}'**
+  String groupSemantics(String kind, int count, String state);
+
+  /// No description provided for @stateSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'selected'**
+  String get stateSelected;
+
+  /// No description provided for @stateNotSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'not selected'**
+  String get stateNotSelected;
+
+  /// No description provided for @semSort.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort: {label}'**
+  String semSort(String label);
+
+  /// No description provided for @groupSave.
+  ///
+  /// In en, this message translates to:
+  /// **'save {size}'**
+  String groupSave(String size);
+
+  /// No description provided for @pagerGroupOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Group {i} of {n}'**
+  String pagerGroupOf(int i, int n);
+
+  /// No description provided for @pagerNothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to review.'**
+  String get pagerNothing;
+
+  /// No description provided for @tipAllGroups.
+  ///
+  /// In en, this message translates to:
+  /// **'All groups'**
+  String get tipAllGroups;
+
+  /// No description provided for @pagerKeepAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep all · next'**
+  String get pagerKeepAll;
+
+  /// No description provided for @pagerTrashN.
+  ///
+  /// In en, this message translates to:
+  /// **'Trash {n} · save {size}'**
+  String pagerTrashN(int n, String size);
+
+  /// No description provided for @whyOldest.
+  ///
+  /// In en, this message translates to:
+  /// **'Oldest copy'**
+  String get whyOldest;
+
+  /// No description provided for @whySharpest.
+  ///
+  /// In en, this message translates to:
+  /// **'Sharpest'**
+  String get whySharpest;
+
+  /// No description provided for @pillBestPick.
+  ///
+  /// In en, this message translates to:
+  /// **'BEST PICK'**
+  String get pillBestPick;
+
+  /// No description provided for @pillBest.
+  ///
+  /// In en, this message translates to:
+  /// **'BEST'**
+  String get pillBest;
+
+  /// No description provided for @pillKeep.
+  ///
+  /// In en, this message translates to:
+  /// **'KEEP'**
+  String get pillKeep;
+
+  /// No description provided for @pillTrash.
+  ///
+  /// In en, this message translates to:
+  /// **'TRASH'**
+  String get pillTrash;
+
+  /// No description provided for @semKeptCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep this copy. Tap to trash it'**
+  String get semKeptCopy;
+
+  /// No description provided for @semTrashCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Trash this copy. Tap to keep it'**
+  String get semTrashCopy;
+
+  /// No description provided for @pagerTip.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a copy to flip it · swipe for the next group'**
+  String get pagerTip;
+
+  /// No description provided for @notifTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sweeep is scanning'**
+  String get notifTitle;
+
+  /// No description provided for @notifChannel.
+  ///
+  /// In en, this message translates to:
+  /// **'Library scan'**
+  String get notifChannel;
+
+  /// No description provided for @notifStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanning your library'**
+  String get notifStart;
+
+  /// No description provided for @notifHashing.
+  ///
+  /// In en, this message translates to:
+  /// **'Hashing photos · {done} of {total}'**
+  String notifHashing(String done, String total);
+
+  /// No description provided for @notifChecking.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking duplicates · {done} of {total}'**
+  String notifChecking(String done, String total);
+
+  /// No description provided for @toolsWater.
+  ///
+  /// In en, this message translates to:
+  /// **'Water'**
+  String get toolsWater;
+
+  /// No description provided for @toolsDust.
+  ///
+  /// In en, this message translates to:
+  /// **'Dust'**
+  String get toolsDust;
+
+  /// No description provided for @toolsSound.
+  ///
+  /// In en, this message translates to:
+  /// **'Sound test'**
+  String get toolsSound;
+
+  /// No description provided for @toolsSweepStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Sweep · 20 Hz to 20 kHz'**
+  String get toolsSweepStatus;
+
+  /// No description provided for @toolsLeftOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Left speaker only'**
+  String get toolsLeftOnly;
+
+  /// No description provided for @toolsRightOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Right speaker only'**
+  String get toolsRightOnly;
+
+  /// No description provided for @toolsSteady.
+  ///
+  /// In en, this message translates to:
+  /// **'Steady tone'**
+  String get toolsSteady;
+
+  /// No description provided for @toolsPulsing.
+  ///
+  /// In en, this message translates to:
+  /// **'Pulsing tone · {tail}'**
+  String toolsPulsing(String tail);
+
+  /// No description provided for @toolsTimeLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{time} left'**
+  String toolsTimeLeft(String time);
+
+  /// No description provided for @toolsFrequency.
+  ///
+  /// In en, this message translates to:
+  /// **'Frequency'**
+  String get toolsFrequency;
+
+  /// No description provided for @toolsEject.
+  ///
+  /// In en, this message translates to:
+  /// **'Eject water'**
+  String get toolsEject;
+
+  /// No description provided for @toolsShake.
+  ///
+  /// In en, this message translates to:
+  /// **'Shake out dust'**
+  String get toolsShake;
+
+  /// No description provided for @toolsPlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Play tone'**
+  String get toolsPlay;
+
+  /// No description provided for @toolsStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop'**
+  String get toolsStop;
+
+  /// No description provided for @toolsBoth.
+  ///
+  /// In en, this message translates to:
+  /// **'Both'**
+  String get toolsBoth;
+
+  /// No description provided for @toolsLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Left'**
+  String get toolsLeft;
+
+  /// No description provided for @toolsRight.
+  ///
+  /// In en, this message translates to:
+  /// **'Right'**
+  String get toolsRight;
+
+  /// No description provided for @toolsBass.
+  ///
+  /// In en, this message translates to:
+  /// **'Bass 60 Hz'**
+  String get toolsBass;
+
+  /// No description provided for @toolsTreble.
+  ///
+  /// In en, this message translates to:
+  /// **'Treble 8 kHz'**
+  String get toolsTreble;
+
+  /// No description provided for @toolsSweep.
+  ///
+  /// In en, this message translates to:
+  /// **'Sweep'**
+  String get toolsSweep;
+
+  /// No description provided for @toolsWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Start at low volume and keep the phone away from your ear. Results aren\'t guaranteed.'**
+  String get toolsWarning;
+}
+
+class _AppLocalizationsDelegate
+    extends LocalizationsDelegate<AppLocalizations> {
+  const _AppLocalizationsDelegate();
+
+  @override
+  Future<AppLocalizations> load(Locale locale) {
+    return SynchronousFuture<AppLocalizations>(lookupAppLocalizations(locale));
+  }
+
+  @override
+  bool isSupported(Locale locale) =>
+      <String>['en', 'ru'].contains(locale.languageCode);
+
+  @override
+  bool shouldReload(_AppLocalizationsDelegate old) => false;
+}
+
+AppLocalizations lookupAppLocalizations(Locale locale) {
+  // Lookup logic when only language code is specified.
+  switch (locale.languageCode) {
+    case 'en':
+      return AppLocalizationsEn();
+    case 'ru':
+      return AppLocalizationsRu();
+  }
+
+  throw FlutterError(
+      'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+      'an issue with the localizations generation tool. Please file an issue '
+      'on GitHub with a reproducible sample app and the gen-l10n configuration '
+      'that was used.');
+}

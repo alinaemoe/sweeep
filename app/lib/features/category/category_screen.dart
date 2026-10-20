@@ -3,15 +3,16 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/theme.dart';
+import '../../l10n/l10n.dart';
 import '../../index/review_service.dart';
 import '../../providers.dart';
 import '../groups/group_widgets.dart';
 import '../swipe/swipe_screen.dart';
 
 String categoryTitle(CategoryKind k) => switch (k) {
-      CategoryKind.videos => 'Videos',
-      CategoryKind.screenshots => 'Screenshots',
-      CategoryKind.chat => 'Chat media',
+      CategoryKind.videos => l10n.secVideos,
+      CategoryKind.screenshots => l10n.secScreenshots,
+      CategoryKind.chat => l10n.secChat,
     };
 
 String _sourceName(String s) => s.isEmpty ? s : s[0].toUpperCase() + s.substring(1);
@@ -69,9 +70,9 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(SnackBar(
-        content: Text('${items.length} moved to trash'),
+        content: Text(l10n.movedToTrash(filesLabel(items.length))),
         action: SnackBarAction(
-          label: 'Undo',
+          label: l10n.undo,
           textColor: SweeepColors.brand,
           onPressed: () async {
             await svc.restore(ids);
@@ -100,7 +101,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                 child: Row(children: [
                   IconButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    tooltip: 'Back',
+                    tooltip: l10n.back,
                     icon: const Icon(Icons.chevron_left_rounded),
                     style: IconButton.styleFrom(backgroundColor: SweeepColors.card, foregroundColor: SweeepColors.text, fixedSize: const Size(44, 44), side: const BorderSide(color: SweeepColors.cardBorder)),
                   ),
@@ -109,12 +110,12 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                     TextButton(
                       onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const SwipeScreen(source: SwipeSource.screenshots))).then((_) => _load()),
                       style: TextButton.styleFrom(foregroundColor: SweeepColors.brand, minimumSize: const Size(48, 44)),
-                      child: const Text('Swipe', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+                      child: Text(l10n.actionSwipe, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
                     ),
                   TextButton(
                     onPressed: items == null || items.isEmpty ? null : () => setState(() => allSelected ? _selected.clear() : _selected.addAll(items.map((e) => e.id))),
                     style: TextButton.styleFrom(foregroundColor: SweeepColors.brand, minimumSize: const Size(48, 44)),
-                    child: Text(allSelected ? 'Clear' : 'Select all', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+                    child: Text(allSelected ? l10n.clear : l10n.selectAll, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
                   ),
                 ]),
               ),
@@ -132,12 +133,12 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.fromLTRB(20, 10, 20, 6),
                   children: [
-                    _Chip('Newest', !_bySize, () => _sort(false)),
+                    _Chip(l10n.sortNewest, !_bySize, () => _sort(false)),
                     const SizedBox(width: 8),
-                    _Chip('Largest', _bySize, () => _sort(true)),
+                    _Chip(l10n.sortLargest, _bySize, () => _sort(true)),
                     if (widget.kind == CategoryKind.chat && _sources.length > 1) ...[
                       const SizedBox(width: 16),
-                      _Chip('All apps', _source == null, () => _filter(null)),
+                      _Chip(l10n.allApps, _source == null, () => _filter(null)),
                       for (final s in _sources) ...[const SizedBox(width: 8), _Chip(_sourceName(s), _source == s, () => _filter(s))],
                     ],
                   ],
@@ -147,7 +148,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                 child: items == null
                     ? const Center(child: CircularProgressIndicator(color: SweeepColors.brand))
                     : items.isEmpty
-                        ? const Center(child: Text('Nothing here.', style: TextStyle(color: SweeepColors.textMutedSmall, fontSize: 16)))
+                        ? Center(child: Text(l10n.nothingHere, style: const TextStyle(color: SweeepColors.textMutedSmall, fontSize: 16)))
                         : GridView.builder(
                             padding: EdgeInsets.fromLTRB(20, 6, 20, _selected.isEmpty ? 24 : 130),
                             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, mainAxisSpacing: 8, crossAxisSpacing: 8),
@@ -172,7 +173,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(color: SweeepColors.card.withValues(alpha: .96), borderRadius: BorderRadius.circular(28), border: Border.all(color: Colors.white.withValues(alpha: .08))),
                   child: Column(mainAxisSize: MainAxisSize.min, children: [
-                    Text('${_selected.length} selected · ${formatBytes(selBytes)} · recoverable from the trash',
+                    Text(l10n.catSelected(_selected.length, formatBytes(selBytes)),
                         textAlign: TextAlign.center, style: const TextStyle(fontSize: 12, color: SweeepColors.textMuted, fontWeight: FontWeight.w600)),
                     const SizedBox(height: 10),
                     SizedBox(
@@ -181,7 +182,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                       child: FilledButton(
                         onPressed: _trash,
                         style: FilledButton.styleFrom(backgroundColor: SweeepColors.trash, foregroundColor: SweeepColors.onAccent, shape: const StadiumBorder()),
-                        child: FittedBox(fit: BoxFit.scaleDown, child: Text('Move ${_selected.length} to trash', maxLines: 1, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800))),
+                        child: FittedBox(fit: BoxFit.scaleDown, child: Text(l10n.moveNToTrash(_selected.length), maxLines: 1, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800))),
                       ),
                     ),
                   ]),

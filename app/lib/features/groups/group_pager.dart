@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/theme.dart';
+import '../../l10n/l10n.dart';
 import '../../core/widgets.dart';
 import '../../index/group_service.dart';
 import '../../providers.dart';
@@ -87,7 +88,7 @@ class _GroupPagerState extends ConsumerState<GroupPager> {
     final groups = _groups;
     if (groups == null) return const Scaffold(body: Center(child: CircularProgressIndicator(color: SweeepColors.brand)));
     if (groups.isEmpty) {
-      return Scaffold(body: SafeArea(child: Center(child: Text('Nothing to review.', style: Theme.of(context).textTheme.titleMedium))));
+      return Scaffold(body: SafeArea(child: Center(child: Text(l10n.pagerNothing, style: Theme.of(context).textTheme.titleMedium))));
     }
     final current = groups[_page.clamp(0, groups.length - 1)];
     final toTrash = _toTrash(current);
@@ -104,17 +105,17 @@ class _GroupPagerState extends ConsumerState<GroupPager> {
                   IconButton.filledTonal(
                     onPressed: () => Navigator.of(context).pop(),
                     icon: const Icon(Icons.arrow_back_rounded),
-                    tooltip: 'Back',
+                    tooltip: l10n.back,
                     style: IconButton.styleFrom(backgroundColor: SweeepColors.card, foregroundColor: SweeepColors.text, minimumSize: const Size(44, 44)),
                   ),
                   Column(children: [
                     Text(kindTitle(widget.kind), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
-                    Text('Group ${_page + 1} of ${groups.length}', style: const TextStyle(fontSize: 12, color: SweeepColors.textMutedSmall, fontWeight: FontWeight.w600)),
+                    Text(l10n.pagerGroupOf(_page + 1, groups.length), style: const TextStyle(fontSize: 12, color: SweeepColors.textMutedSmall, fontWeight: FontWeight.w600)),
                   ]),
                   IconButton.filledTonal(
                     onPressed: () => Navigator.of(context).pushReplacement(MaterialPageRoute<void>(builder: (_) => GroupsScreen(kind: widget.kind))),
                     icon: const Icon(Icons.grid_view_rounded, size: 20),
-                    tooltip: 'All groups',
+                    tooltip: l10n.tipAllGroups,
                     style: IconButton.styleFrom(backgroundColor: SweeepColors.card, foregroundColor: SweeepColors.text, minimumSize: const Size(44, 44)),
                   ),
                 ],
@@ -127,9 +128,9 @@ class _GroupPagerState extends ConsumerState<GroupPager> {
                 child: LinearProgressIndicator(minHeight: 4, value: (_page + 1) / groups.length, color: SweeepColors.brand, backgroundColor: SweeepColors.trackDim),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(top: 12),
-              child: const _KeepWord(),
+            const Padding(
+              padding: EdgeInsets.only(top: 12),
+              child: _KeepWord(),
             ),
             Expanded(
               child: PageView.builder(
@@ -167,13 +168,13 @@ class _GroupPagerState extends ConsumerState<GroupPager> {
                       foregroundColor: SweeepColors.text,
                       side: BorderSide(color: Colors.white.withValues(alpha: .12)),
                     ),
-                    child: const Text('Skip', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
+                    child: Text(l10n.skip, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: PillButton(
                       height: 54,
-                      label: toTrash.isEmpty ? 'Keep all · next' : 'Trash ${toTrash.length} · save ${formatBytes(saving)}',
+                      label: toTrash.isEmpty ? l10n.pagerKeepAll : l10n.pagerTrashN(toTrash.length, formatBytes(saving)),
                       onPressed: () => _trash(current),
                     ),
                   ),
@@ -192,13 +193,13 @@ class _KeepWord extends StatelessWidget {
   const _KeepWord();
 
   @override
-  Widget build(BuildContext context) => Text.rich(
+  Widget build(BuildContext context) => const Text.rich(
         TextSpan(
-          style: const TextStyle(fontSize: 36, fontWeight: FontWeight.w800, letterSpacing: -1, height: 1),
+          style: TextStyle(fontSize: 36, fontWeight: FontWeight.w800, letterSpacing: -1, height: 1),
           children: [
-            const TextSpan(text: 'KEE'),
-            const TextSpan(text: 'EEP', style: TextStyle(color: SweeepColors.keep)),
-            const TextSpan(text: ' ONE'),
+            TextSpan(text: 'KEE'),
+            TextSpan(text: 'EEP', style: TextStyle(color: SweeepColors.keep)),
+            TextSpan(text: ' ONE'),
           ],
         ),
       );
@@ -236,7 +237,7 @@ class _GroupPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final best = group.best;
     final others = group.others;
-    final why = group.kind == GroupKind.duplicate ? 'Oldest copy' : 'Sharpest';
+    final why = group.kind == GroupKind.duplicate ? l10n.whyOldest : l10n.whySharpest;
     return Padding(
       padding: const EdgeInsets.fromLTRB(6, 12, 6, 8),
       child: Column(
@@ -254,7 +255,7 @@ class _GroupPage extends StatelessWidget {
                   fit: StackFit.expand,
                   children: [
                     ThumbImage(id: best.assetId, side: 720, fit: BoxFit.cover),
-                    const Positioned(left: 14, top: 14, child: LimePill('BEST PICK')),
+                    Positioned(left: 14, top: 14, child: LimePill(l10n.pillBestPick)),
                     Positioned(
                       left: 14,
                       right: 14,
@@ -289,7 +290,7 @@ class _GroupPage extends StatelessWidget {
                 final c = kept ? SweeepColors.keep : SweeepColors.trash;
                 return Semantics(
                   button: true,
-                  label: kept ? 'Keep this copy. Tap to trash it' : 'Trash this copy. Tap to keep it',
+                  label: kept ? l10n.semKeptCopy : l10n.semTrashCopy,
                   child: GestureDetector(
                     onTap: () => onToggle(m.assetId),
                     child: AspectRatio(
@@ -303,7 +304,7 @@ class _GroupPage extends StatelessWidget {
                             children: [
                               ThumbImage(id: m.assetId, side: 256),
                               if (!kept) Container(color: SweeepColors.trash.withValues(alpha: .18)),
-                              Positioned(left: 8, bottom: 8, child: LimePill(kept ? 'KEEP' : 'TRASH', color: c)),
+                              Positioned(left: 8, bottom: 8, child: LimePill(kept ? l10n.pillKeep : l10n.pillTrash, color: c)),
                               Positioned(
                                 right: 8,
                                 top: 8,
@@ -320,8 +321,8 @@ class _GroupPage extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 6),
-          const Text('Tap a copy to flip it · swipe for the next group',
-              style: TextStyle(fontSize: 12, color: SweeepColors.textMutedSmall, fontWeight: FontWeight.w600)),
+          Text(l10n.pagerTip,
+              style: const TextStyle(fontSize: 12, color: SweeepColors.textMutedSmall, fontWeight: FontWeight.w600)),
         ],
       ),
     );

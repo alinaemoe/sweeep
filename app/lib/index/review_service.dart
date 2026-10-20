@@ -1,16 +1,15 @@
 import 'package:drift/drift.dart' show Variable;
 
 import '../data/database.dart';
+import '../l10n/l10n.dart';
 import '../platform/media_source.dart';
 import 'group_service.dart';
 import 'home_service.dart';
 
 enum SwipeSource { all, screenshots, blurry }
 
-const _monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-
-/// '2026-10' -> 'October 2026'.
-String monthTitle(String key) => '${_monthNames[int.parse(key.substring(5)) - 1]} ${key.substring(0, 4)}';
+/// '2026-10' -> 'October 2026' / 'Октябрь 2026'.
+String monthTitle(String key) => fmtMonth(int.parse(key.substring(0, 4)), int.parse(key.substring(5)));
 
 /// One month of the library for the Timeline: how many photos, how many are
 /// already decided (kept or trashed) and the newest few as preview tiles.

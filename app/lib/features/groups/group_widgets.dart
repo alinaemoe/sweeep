@@ -3,20 +3,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/theme.dart';
 import '../../index/group_service.dart';
+import '../../l10n/l10n.dart';
 import '../../providers.dart';
 
 /// "1 file" / "3 files".
-String filesLabel(int n) => n == 1 ? '1 file' : '$n files';
+String filesLabel(int n) => l10n.filesCount(n);
 
 String formatBytes(int b) {
-  const u = ['B', 'KB', 'MB', 'GB', 'TB'];
+  final u = l10n.byteUnits.split(',');
   var v = b.toDouble();
   var i = 0;
   while (v >= 1024 && i < u.length - 1) {
     v /= 1024;
     i++;
   }
-  return '${v.toStringAsFixed(i < 2 ? 0 : 1)} ${u[i]}';
+  return '${fmtNum(v, digits: i < 2 ? 0 : 1)} ${u[i]}';
 }
 
 /// Real photo thumbnail (JPEG from the platform layer), cached by Riverpod.
@@ -130,7 +131,7 @@ class GroupStack extends StatelessWidget {
               fit: StackFit.expand,
               children: [
                 ThumbImage(id: group.bestId, side: thumbSide),
-                if (showBest) const Positioned(left: 10, top: 10, child: LimePill('BEST')),
+                if (showBest) Positioned(left: 10, top: 10, child: LimePill(l10n.pillBest)),
                 Positioned(
                   left: 8,
                   right: 8,
@@ -142,7 +143,7 @@ class GroupStack extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text('×${group.members.length}', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
-                        Text('save ${formatBytes(group.savingsBytes)}', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: SweeepColors.textMutedSmall)),
+                        Text(l10n.groupSave(formatBytes(group.savingsBytes)), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: SweeepColors.textMutedSmall)),
                       ],
                     ),
                   ),
@@ -156,7 +157,7 @@ class GroupStack extends StatelessWidget {
   }
 }
 
-String kindTitle(GroupKind k) => k == GroupKind.duplicate ? 'Duplicates' : 'Similar photos';
+String kindTitle(GroupKind k) => k == GroupKind.duplicate ? l10n.secDuplicates : l10n.secSimilar;
 
 /// Wraps a tappable card with a small press-down scale, so taps feel physical.
 class Pressable extends StatefulWidget {

@@ -32,8 +32,9 @@ class ScanService : Service() {
                 val done = intent?.getIntExtra(EXTRA_DONE, 0) ?: 0
                 val total = intent?.getIntExtra(EXTRA_TOTAL, 0) ?: 0
                 val text = intent?.getStringExtra(EXTRA_TEXT) ?: "Scanning your library"
-                ensureChannel()
-                val n = notification(done, total, text)
+                val title = intent?.getStringExtra(EXTRA_TITLE) ?: "Sweeep is scanning"
+                ensureChannel(intent?.getStringExtra(EXTRA_CHANNEL) ?: "Library scan")
+                val n = notification(done, total, title, text)
                 if (Build.VERSION.SDK_INT >= 29) {
                     startForeground(NOTIFICATION_ID, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC)
                 } else {
@@ -62,15 +63,14 @@ class ScanService : Service() {
         wake = null
     }
 
-    private fun ensureChannel() {
+    // re-creating a channel with the same id only renames it, so a language change is picked up
+    private fun ensureChannel(name: String) {
         if (Build.VERSION.SDK_INT < 26) return
-        val nm = getSystemService(NotificationManager::class.java)
-        if (nm.getNotificationChannel(CHANNEL) == null) {
-            nm.createNotificationChannel(NotificationChannel(CHANNEL, "Library scan", NotificationManager.IMPORTANCE_LOW))
-        }
+        getSystemService(NotificationManager::class.java)
+            .createNotificationChannel(NotificationChannel(CHANNEL, name, NotificationManager.IMPORTANCE_LOW))
     }
 
-    private fun notification(done: Int, total: Int, text: String): Notification {
+    private fun notification(done: Int, total: Int, title: String, text: String): Notification {
         val open = PendingIntent.getActivity(
             this, 0,
             Intent(this, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP),
@@ -78,7 +78,7 @@ class ScanService : Service() {
         )
         return NotificationCompat.Builder(this, CHANNEL)
             .setSmallIcon(R.drawable.ic_stat_scan)
-            .setContentTitle("Sweeep is scanning")
+            .setContentTitle(title)
             .setContentText(text)
             .setOngoing(true)
             .setOnlyAlertOnce(true)
@@ -93,6 +93,8 @@ class ScanService : Service() {
         const val EXTRA_DONE = "done"
         const val EXTRA_TOTAL = "total"
         const val EXTRA_TEXT = "text"
+        const val EXTRA_TITLE = "title"
+        const val EXTRA_CHANNEL = "channel"
         private const val CHANNEL = "scan"
         private const val NOTIFICATION_ID = 4711
     }

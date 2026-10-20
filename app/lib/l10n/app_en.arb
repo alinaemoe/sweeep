@@ -1,0 +1,563 @@
+{
+  "@@locale": "en",
+  "navClean": "Clean",
+  "navSwipe": "Swipe",
+  "navTools": "Tools",
+  "navTrash": "Trash",
+  "back": "Back",
+  "cancel": "Cancel",
+  "undo": "Undo",
+  "selectAll": "Select all",
+  "clear": "Clear",
+  "seeAll": "See all",
+  "actionSwipe": "Swipe",
+  "skip": "Skip",
+  "filesCount": "{n, plural, =1{1 file} other{{n} files}}",
+  "@filesCount": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "photosCount": "{n, plural, =1{1 photo} other{{n} photos}}",
+  "@photosCount": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "groupsCount": "{n, plural, =1{1 group} other{{n} groups}}",
+  "@groupsCount": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "byteUnits": "B,KB,MB,GB,TB",
+  "hz": "{n} Hz",
+  "@hz": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "unitHz": "Hz",
+  "khz": "{n} kHz",
+  "@khz": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "onbTitle": "Your photos\nnever leave\nyour phone.",
+  "onbPoint1": "Everything is analyzed on this device.",
+  "onbPoint2": "No uploads, no accounts, no ads.",
+  "onbPoint3": "Nothing is deleted until you confirm.",
+  "onbDenied": "Access is off. Allow photos and videos for Sweeep in Settings › Apps › Sweeep › Permissions, then come back.",
+  "onbCheckAgain": "Check again",
+  "onbAllow": "Allow photo access",
+  "secDuplicates": "Duplicates",
+  "secSimilar": "Similar photos",
+  "secScreenshots": "Screenshots",
+  "secVideos": "Videos",
+  "secChat": "Chat media",
+  "secBlurry": "Blurry & dark",
+  "srcAll": "All photos",
+  "tagBlurry": "blurry",
+  "tagDark": "dark",
+  "scanReading": "READING LIBRARY",
+  "scanAnalyzing": "ANALYZING {done} OF {total}",
+  "@scanAnalyzing": {
+    "placeholders": {
+      "done": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "scanComparing": "COMPARING FILES",
+  "homeNothing": "Nothing to clean yet. Pull in more photos or re-scan later.",
+  "ovalReclaimableOf": "RECLAIMABLE OF {size}",
+  "@ovalReclaimableOf": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "ovalScanning": "SCANNING",
+  "ovalReclaimable": "RECLAIMABLE",
+  "ctaScanning": "Scanning…",
+  "ctaAllClean": "All clean",
+  "ctaFreeUp": "Free up {size}",
+  "@ctaFreeUp": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "tipLibraryDetails": "Library details",
+  "semGroupDup": "Duplicate group, {count} photos, saves {size}",
+  "@semGroupDup": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "semGroupSim": "Similar group, {count} photos, saves {size}",
+  "@semGroupSim": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "semVideo": "Video, {size}",
+  "@semVideo": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "semVideoLen": "Video, {length}, {size}",
+  "@semVideoLen": {
+    "placeholders": {
+      "length": {
+        "type": "String"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "semPhoto": "Photo, {size}",
+  "@semPhoto": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "semTagged": "{tag}, {size}",
+  "@semTagged": {
+    "placeholders": {
+      "tag": {
+        "type": "String"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "swipeOf": "{i} of {n}",
+  "@swipeOf": {
+    "placeholders": {
+      "i": {
+        "type": "int"
+      },
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "tipTrash": "Move to trash",
+  "tipKeep": "Keep",
+  "stampLater": "LATER",
+  "stampTrash": "TO TRASH",
+  "stampKeep": "KEEP",
+  "swipeInTrash": "In trash: {files} ",
+  "@swipeInTrash": {
+    "placeholders": {
+      "files": {
+        "type": "String"
+      }
+    }
+  },
+  "swipeDoneNothing": "Nothing to review",
+  "swipeDoneAll": "All reviewed",
+  "swipeDoneHint": "You can restore anything from the trash.",
+  "hintTitle": "Swipe to sort",
+  "hintTrash": "Trash",
+  "hintKeep": "Keep",
+  "hintLater": "Later",
+  "hintTap": "Tap anywhere to start",
+  "tlNewestFirst": "Newest first",
+  "tlOldestFirst": "Oldest first",
+  "tlHeadline": "Swipe through\nevery month",
+  "tlSummary": "{photos} · {swept} swept so far",
+  "@tlSummary": {
+    "placeholders": {
+      "photos": {
+        "type": "String"
+      },
+      "swept": {
+        "type": "String"
+      }
+    }
+  },
+  "tlNoPhotos": "No photos yet.",
+  "tlContinueMonth": "Continue · {month}",
+  "@tlContinueMonth": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "tlMonthLine": "{photos} · {status}",
+  "@tlMonthLine": {
+    "placeholders": {
+      "photos": {
+        "type": "String"
+      },
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "tlAllSwept": "all swept",
+  "tlNSwept": "{n} swept",
+  "@tlNSwept": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "tlNotStarted": "not started",
+  "tlDone": "Done",
+  "tlContinue": "Continue",
+  "tlMore": "more",
+  "tlSemMore": "{n} more photos",
+  "@tlSemMore": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "tlSemPhotoFrom": "Photo from {date}",
+  "@tlSemPhotoFrom": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "tlSemReview": "Review again {month}",
+  "@tlSemReview": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "tlSemContinue": "Continue {month}",
+  "@tlSemContinue": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "tlSemSwipe": "Swipe {month}",
+  "@tlSemSwipe": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "tlSemSort": "Newest first. Tap to show oldest first",
+  "tlSemSortOld": "Oldest first. Tap to show newest first",
+  "trashNothingDeleted": "Nothing was deleted.",
+  "trashDeleteTitle": "Delete everything?",
+  "trashDeleteBody": "{files} ({size}) will be deleted from your phone. Android may ask once more.",
+  "@trashDeleteBody": {
+    "placeholders": {
+      "files": {
+        "type": "String"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteAll": "Delete all",
+  "emptyAll": "Empty all",
+  "trashEmpty": "Trash is empty",
+  "trashWillFree": "{files} · {size} will be freed",
+  "@trashWillFree": {
+    "placeholders": {
+      "files": {
+        "type": "String"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "trashLandHere": "Swiped-away photos land here.",
+  "trashSelected": "{n} selected · {size} · recoverable until you empty",
+  "@trashSelected": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "restoreN": "Restore {n}",
+  "@restoreN": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "deleteForever": "Delete forever",
+  "freedTitle": "{size} freed",
+  "@freedTitle": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "freedSub": "{files} deleted",
+  "@freedSub": {
+    "placeholders": {
+      "files": {
+        "type": "String"
+      }
+    }
+  },
+  "daysToday": "today",
+  "daysLeft": "{n}d",
+  "@daysLeft": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "movedToTrash": "{files} moved to trash",
+  "@movedToTrash": {
+    "placeholders": {
+      "files": {
+        "type": "String"
+      }
+    }
+  },
+  "sortNewest": "Newest",
+  "sortLargest": "Largest",
+  "allApps": "All apps",
+  "nothingHere": "Nothing here.",
+  "catSelected": "{n} selected · {size} · recoverable from the trash",
+  "@catSelected": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "moveNToTrash": "Move {n} to trash",
+  "@moveNToTrash": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "groupsSummary": "{groups} · {size} to free",
+  "@groupsSummary": {
+    "placeholders": {
+      "groups": {
+        "type": "String"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "groupsInTrash": " · {count} in trash ({size})",
+  "@groupsInTrash": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "sortSaving": "Biggest saving",
+  "sortCopies": "Copies",
+  "nothingLeft": "Nothing left here.",
+  "groupsSelectedBar": "{groups} selected · best photo of each is kept",
+  "@groupsSelectedBar": {
+    "placeholders": {
+      "groups": {
+        "type": "String"
+      }
+    }
+  },
+  "cleanGroups": "Clean {groups} · save {size}",
+  "@cleanGroups": {
+    "placeholders": {
+      "groups": {
+        "type": "String"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "groupSemantics": "{kind} group, {count} files, {state}",
+  "@groupSemantics": {
+    "placeholders": {
+      "kind": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      },
+      "state": {
+        "type": "String"
+      }
+    }
+  },
+  "stateSelected": "selected",
+  "stateNotSelected": "not selected",
+  "semSort": "Sort: {label}",
+  "@semSort": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "groupSave": "save {size}",
+  "@groupSave": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "pagerGroupOf": "Group {i} of {n}",
+  "@pagerGroupOf": {
+    "placeholders": {
+      "i": {
+        "type": "int"
+      },
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "pagerNothing": "Nothing to review.",
+  "tipAllGroups": "All groups",
+  "pagerKeepAll": "Keep all · next",
+  "pagerTrashN": "Trash {n} · save {size}",
+  "@pagerTrashN": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "whyOldest": "Oldest copy",
+  "whySharpest": "Sharpest",
+  "pillBestPick": "BEST PICK",
+  "pillBest": "BEST",
+  "pillKeep": "KEEP",
+  "pillTrash": "TRASH",
+  "semKeptCopy": "Keep this copy. Tap to trash it",
+  "semTrashCopy": "Trash this copy. Tap to keep it",
+  "pagerTip": "Tap a copy to flip it · swipe for the next group",
+  "notifTitle": "Sweeep is scanning",
+  "notifChannel": "Library scan",
+  "notifStart": "Scanning your library",
+  "notifHashing": "Hashing photos · {done} of {total}",
+  "@notifHashing": {
+    "placeholders": {
+      "done": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "notifChecking": "Checking duplicates · {done} of {total}",
+  "@notifChecking": {
+    "placeholders": {
+      "done": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "toolsWater": "Water",
+  "toolsDust": "Dust",
+  "toolsSound": "Sound test",
+  "toolsSweepStatus": "Sweep · 20 Hz to 20 kHz",
+  "toolsLeftOnly": "Left speaker only",
+  "toolsRightOnly": "Right speaker only",
+  "toolsSteady": "Steady tone",
+  "toolsPulsing": "Pulsing tone · {tail}",
+  "@toolsPulsing": {
+    "placeholders": {
+      "tail": {
+        "type": "String"
+      }
+    }
+  },
+  "toolsTimeLeft": "{time} left",
+  "@toolsTimeLeft": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "toolsFrequency": "Frequency",
+  "toolsEject": "Eject water",
+  "toolsShake": "Shake out dust",
+  "toolsPlay": "Play tone",
+  "toolsStop": "Stop",
+  "toolsBoth": "Both",
+  "toolsLeft": "Left",
+  "toolsRight": "Right",
+  "toolsBass": "Bass 60 Hz",
+  "toolsTreble": "Treble 8 kHz",
+  "toolsSweep": "Sweep",
+  "toolsWarning": "Start at low volume and keep the phone away from your ear. Results aren't guaranteed."
+}

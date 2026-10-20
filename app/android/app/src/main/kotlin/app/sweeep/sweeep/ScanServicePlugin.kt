@@ -45,6 +45,8 @@ class ScanServicePlugin : FlutterPlugin, ActivityAware, MethodChannel.MethodCall
                     .putExtra(ScanService.EXTRA_DONE, call.argument<Int>("done") ?: 0)
                     .putExtra(ScanService.EXTRA_TOTAL, call.argument<Int>("total") ?: 0)
                     .putExtra(ScanService.EXTRA_TEXT, call.argument<String>("text") ?: "Scanning your library")
+                    .putExtra(ScanService.EXTRA_TITLE, call.argument<String>("title") ?: "Sweeep is scanning")
+                    .putExtra(ScanService.EXTRA_CHANNEL, call.argument<String>("channel") ?: "Library scan")
                 try {
                     ContextCompat.startForegroundService(ctx, i)
                     result.success(true)

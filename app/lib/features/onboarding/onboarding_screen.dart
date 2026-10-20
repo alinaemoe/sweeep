@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/theme.dart';
+import '../../l10n/l10n.dart';
 import '../../core/widgets.dart';
 import '../../platform/messages.g.dart' show PermissionState;
 import '../../providers.dart';
@@ -40,23 +41,23 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             children: [
               const SweeepWordmark(size: 28),
               const Spacer(),
-              Text('Your photos\nnever leave\nyour phone.',
+              Text(l10n.onbTitle,
                   style: Theme.of(context).textTheme.displaySmall?.copyWith(fontWeight: FontWeight.w800, height: 1.05, letterSpacing: -0.8)),
               const SizedBox(height: 20),
-              const _Point('Everything is analyzed on this device.'),
-              const _Point('No uploads, no accounts, no ads.'),
-              const _Point('Nothing is deleted until you confirm.'),
+              _Point(l10n.onbPoint1),
+              _Point(l10n.onbPoint2),
+              _Point(l10n.onbPoint3),
               const Spacer(),
               if (denied)
-                const Padding(
-                  padding: EdgeInsets.only(bottom: 12),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
                   child: Text(
-                    'Access is off. Allow photos and videos for Sweeep in Settings › Apps › Sweeep › Permissions, then come back.',
-                    style: TextStyle(color: SweeepColors.trash, fontSize: 14, fontWeight: FontWeight.w600, height: 1.35),
+                    l10n.onbDenied,
+                    style: const TextStyle(color: SweeepColors.trash, fontSize: 14, fontWeight: FontWeight.w600, height: 1.35),
                   ),
                 ),
               PillButton(
-                label: denied ? 'Check again' : 'Allow photo access',
+                label: denied ? l10n.onbCheckAgain : l10n.onbAllow,
                 onPressed: _onPressed,
               ),
             ],

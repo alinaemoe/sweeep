@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:sweeep/data/database.dart';
 import 'package:sweeep/index/review_service.dart';
 import 'package:sweeep/platform/media_source.dart';
@@ -18,6 +19,7 @@ class _Media implements MediaSource {
 void main() {
   late SweeepDatabase db;
   late ReviewService svc;
+  setUpAll(initializeDateFormatting);
   setUp(() {
     db = SweeepDatabase(NativeDatabase.memory());
     svc = ReviewService(db);

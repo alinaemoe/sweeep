@@ -3,23 +3,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/theme.dart';
+import '../../l10n/l10n.dart';
 import '../../core/widgets.dart';
 import '../../index/review_service.dart';
 import '../../providers.dart';
 import '../groups/group_widgets.dart';
 import 'swipe_screen.dart';
 
-const _shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-String _num(int n) {
-  final s = n.toString();
-  final b = StringBuffer();
-  for (var i = 0; i < s.length; i++) {
-    if (i > 0 && (s.length - i) % 3 == 0) b.write(',');
-    b.write(s[i]);
-  }
-  return b.toString();
-}
+String _num(int n) => fmtNum(n);
 
 /// The Swipe tab: the whole library as a vertical feed of months (newest
 /// first), each with a horizontal strip of its photos. A month opens the
@@ -56,7 +47,7 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
           error: (e, _) => Center(child: Text('$e', style: const TextStyle(color: SweeepColors.trash))),
           data: (all) {
             if (all.isEmpty) {
-              return const Center(child: Text('No photos yet.', style: TextStyle(color: SweeepColors.textMutedSmall, fontSize: 16)));
+              return Center(child: Text(l10n.tlNoPhotos, style: const TextStyle(color: SweeepColors.textMutedSmall, fontSize: 16)));
             }
             final months = _newestFirst ? all : all.reversed.toList();
             final total = all.fold<int>(0, (s, m) => s + m.count);
@@ -75,10 +66,10 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
                         padding: const EdgeInsets.fromLTRB(20, 12, 20, 22),
                         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                            const Text('Swipe', style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800, letterSpacing: -1, height: 1)),
+                            Text(l10n.navSwipe, style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w800, letterSpacing: -1, height: 1)),
                             Semantics(
                               button: true,
-                              label: _newestFirst ? 'Newest first. Tap to show oldest first' : 'Oldest first. Tap to show newest first',
+                              label: _newestFirst ? l10n.tlSemSort : l10n.tlSemSortOld,
                               child: GestureDetector(
                                 behavior: HitTestBehavior.opaque,
                                 onTap: () => setState(() => _newestFirst = !_newestFirst),
@@ -87,15 +78,15 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
                                   alignment: Alignment.center,
                                   padding: const EdgeInsets.symmetric(horizontal: 14),
                                   decoration: BoxDecoration(borderRadius: BorderRadius.circular(22), border: Border.all(color: Colors.white.withValues(alpha: .12))),
-                                  child: Text(_newestFirst ? 'Newest first' : 'Oldest first', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700)),
+                                  child: Text(_newestFirst ? l10n.tlNewestFirst : l10n.tlOldestFirst, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700)),
                                 ),
                               ),
                             ),
                           ]),
                           const SizedBox(height: 14),
-                          const Text('Swipe through\nevery month', style: TextStyle(fontSize: 30, height: 1.1, fontWeight: FontWeight.w800, letterSpacing: -1)),
+                          Text(l10n.tlHeadline, style: const TextStyle(fontSize: 30, height: 1.1, fontWeight: FontWeight.w800, letterSpacing: -1)),
                           const SizedBox(height: 6),
-                          Text('${_num(total)} photos · ${_num(swept)} swept so far', style: const TextStyle(fontSize: 14, color: SweeepColors.textMutedSmall, fontWeight: FontWeight.w600)),
+                          Text(l10n.tlSummary(l10n.photosCount(total), _num(swept)), style: const TextStyle(fontSize: 14, color: SweeepColors.textMutedSmall, fontWeight: FontWeight.w600)),
                         ]),
                       ),
                     );
@@ -112,7 +103,7 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
                   left: 20,
                   right: 20,
                   bottom: bottom + 12 + 62 + 12,
-                  child: PillButton(label: 'Continue · ${next.title}', onPressed: () => _open(next.key)),
+                  child: PillButton(label: l10n.tlContinueMonth(next.title), onPressed: () => _open(next.key)),
                 ),
             ]);
           },
@@ -131,7 +122,7 @@ class _MonthSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final m = month;
     final started = m.swept > 0 && !m.done;
-    final status = m.done ? 'all swept' : (started ? '${m.swept} swept' : 'not started');
+    final status = m.done ? l10n.tlAllSwept : (started ? l10n.tlNSwept(_num(m.swept)) : l10n.tlNotStarted);
     final more = m.count - m.tiles.length;
     final barColor = m.done ? SweeepColors.keep : SweeepColors.brand;
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -142,13 +133,13 @@ class _MonthSection extends StatelessWidget {
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(m.title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, letterSpacing: -.5)),
               const SizedBox(height: 2),
-              Text('${_num(m.count)} ${m.count == 1 ? 'photo' : 'photos'} · $status', style: const TextStyle(fontSize: 13, color: SweeepColors.textMutedSmall, fontWeight: FontWeight.w600)),
+              Text(l10n.tlMonthLine(l10n.photosCount(m.count), status), style: const TextStyle(fontSize: 13, color: SweeepColors.textMutedSmall, fontWeight: FontWeight.w600)),
             ]),
           ),
           const SizedBox(width: 12),
           Semantics(
             button: true,
-            label: '${m.done ? 'Review again' : started ? 'Continue' : 'Swipe'} ${m.title}',
+            label: m.done ? l10n.tlSemReview(m.title) : (started ? l10n.tlSemContinue(m.title) : l10n.tlSemSwipe(m.title)),
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: onOpen,
@@ -162,7 +153,7 @@ class _MonthSection extends StatelessWidget {
                   border: !m.done && !started ? Border.all(color: SweeepColors.brand.withValues(alpha: .5)) : null,
                 ),
                 child: Text(
-                  m.done ? 'Done' : (started ? 'Continue' : 'Swipe'),
+                  m.done ? l10n.tlDone : (started ? l10n.tlContinue : l10n.actionSwipe),
                   style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: m.done ? SweeepColors.keep : (started ? SweeepColors.onAccent : SweeepColors.brand)),
                 ),
               ),
@@ -191,7 +182,7 @@ class _MonthSection extends StatelessWidget {
             final t = m.tiles[i];
             final d = DateTime.fromMillisecondsSinceEpoch(t.t);
             return Pressable(
-              label: 'Photo from ${d.day} ${_shortMonths[d.month - 1]}',
+              label: l10n.tlSemPhotoFrom(fmtDayMonth(d)),
               onTap: onOpen,
               child: Container(
                 width: 108,
@@ -203,7 +194,7 @@ class _MonthSection extends StatelessWidget {
                     ThumbImage(id: t.id, side: 256),
                     // finished months are muted
                     if (m.done) ColoredBox(color: SweeepColors.background.withValues(alpha: .5)),
-                    Positioned(left: 8, right: 8, bottom: 8, child: GlassPill(height: 26, padding: EdgeInsets.zero, child: Text('${d.day} ${_shortMonths[d.month - 1]}', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700)))),
+                    Positioned(left: 8, right: 8, bottom: 8, child: GlassPill(height: 26, padding: EdgeInsets.zero, child: Text(fmtDayMonth(d), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700)))),
                   ]),
                 ),
               ),
@@ -222,7 +213,7 @@ class _MoreTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Pressable(
-        label: '$count more photos',
+        label: l10n.tlSemMore(_num(count)),
         onTap: onTap,
         child: SizedBox(
           width: 108,
@@ -232,7 +223,7 @@ class _MoreTile extends StatelessWidget {
             child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
               Text('+${_num(count)}', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: SweeepColors.brand)),
               const SizedBox(height: 4),
-              const Text('more', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: SweeepColors.textMutedSmall)),
+              Text(l10n.tlMore, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: SweeepColors.textMutedSmall)),
             ]),
           ),
         ),
