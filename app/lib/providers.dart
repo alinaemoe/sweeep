@@ -15,6 +15,7 @@ import 'index/index_service.dart';
 import 'index/review_service.dart';
 import 'platform/media_source.dart';
 import 'platform/messages.g.dart' show PermissionState;
+import 'platform/scan_foreground.dart';
 
 final databaseProvider = Provider<SweeepDatabase>((ref) {
   final db = SweeepDatabase(driftDatabase(name: 'sweeep'));
@@ -187,11 +188,24 @@ class LibraryState {
 }
 
 class LibraryController extends Notifier<LibraryState> {
+  final _foreground = ScanForeground();
+
   @override
   LibraryState build() => const LibraryState();
 
+  /// Whole scan (index -> hash -> duplicates -> groups), kept alive in the
+  /// background by a foreground service for as long as it runs.
   Future<void> sync() async {
     if (state.syncing || state.analyzing || state.verifying) return;
+    await _foreground.start();
+    try {
+      await _sync();
+    } finally {
+      await _foreground.stop();
+    }
+  }
+
+  Future<void> _sync() async {
     state = state.copyWith(syncing: true, processed: 0);
     final index = ref.read(indexServiceProvider);
     final media = ref.read(mediaSourceProvider);
@@ -230,7 +244,10 @@ class LibraryController extends Notifier<LibraryState> {
       final total = state.stats?.total ?? pending;
       state = state.copyWith(analyzing: true, analysisDone: 0, analysisTotal: pending, alreadyHashed: total - pending);
       final sw = Stopwatch()..start();
-      await svc.run(onProgress: (done, tot) => state = state.copyWith(analysisDone: done, analysisTotal: tot));
+      await svc.run(onProgress: (done, tot) {
+        state = state.copyWith(analysisDone: done, analysisTotal: tot);
+        _foreground.update(done, tot, 'Hashing photos · $done of $tot');
+      });
       final ms = sw.elapsedMilliseconds;
       final hs = await svc.stats();
       final sim = await svc.similarSummary();
@@ -248,7 +265,10 @@ class LibraryController extends Notifier<LibraryState> {
     final groups = ref.read(groupServiceProvider);
     try {
       state = state.copyWith(verifying: true, verifyDone: 0, verifyTotal: 0);
-      await groups.hashExactCandidates(onProgress: (d, t) => state = state.copyWith(verifyDone: d, verifyTotal: t));
+      await groups.hashExactCandidates(onProgress: (d, t) {
+        state = state.copyWith(verifyDone: d, verifyTotal: t);
+        _foreground.update(d, t, 'Checking duplicates · $d of $t');
+      });
       final built = await groups.rebuild();
       ref.invalidate(groupsProvider);
       ref.invalidate(trashSummaryProvider);

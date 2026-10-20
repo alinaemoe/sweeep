@@ -6,7 +6,7 @@ Full spec: `docs/SPECIFICATION.md`. Dev instructions + per-phase status: `README
 ## Stack
 - Flutter 3.47.7 at `D:\tools\flutter` (NOT on PATH). Git Bash: `export PATH="/d/tools/flutter/bin:$PATH"; export CI=true`.
 - Riverpod 3.x, Drift (SQLite), Pigeon (Kotlin/Swift bridge), Plus Jakarta Sans bundled in assets/fonts (no google_fonts).
-- Rust core `core/` (sweeep_core) via dart:ffi: aHash/dHash/pHash, Laplacian blur, SHA-256, grouping. Android build: `bash scripts/build_core_android.sh` (arm64 only) -> jniLibs (git-ignored). `cd core && cargo test`.
+- Rust core `core/` (sweeep_core) via dart:ffi: aHash/dHash/pHash, Laplacian blur, SHA-256, grouping. Android build: `bash scripts/build_core_android.sh` (arm64-v8a, armeabi-v7a, x86_64, x86; needs `rustup target add` for each) -> jniLibs (git-ignored). `cd core && cargo test`.
 - Android: minSdk 26, NDK forced to 27.1.12297006 (empty broken 28.2 folder; hook in app/android/build.gradle.kts).
 - Dev phone: Samsung SM-S911B, adb serial RZCX92BMXPW, `$ANDROID_HOME/platform-tools/adb.exe`, screen 1080x2340 (screenshots shown at 923 wide: multiply coords by 1.17 for `input tap`). Build/install: `cd app && flutter build apk --debug`, `adb -s RZCX92BMXPW install -r build/app/outputs/flutter-apk/app-debug.apk`.
 - NEVER tap "Trash"/delete on the owner's real photos during tests.
@@ -25,6 +25,6 @@ Phase 0 skeleton; Phase 1 permissions/enumeration/delta index/gray thumbs; 1b Ru
 ## Planned next (in rough order)
 1. (done) Home feed, Swipe, Trash, system delete via createDeleteRequest + CLEAAAN overlay.
 4. (done) Categories; Tools tab = Water/Dust/Sound test tone generator (TonePlugin.kt AudioTrack).
-5. Foreground service (hashing stops if app is killed); arm64-only .so -> add other ABIs; iOS (Swift) untested; "limited access" permission path untested; groups rebuilt from scratch each run; thumbnail cache is unbounded (non-autoDispose family).
+5. (done) Foreground service `ScanService` keeps a scan alive in the background (swiping the app from recents still stops it; checkpoints resume next launch), all Android ABIs, groups diffed instead of rebuilt, thumbnail cache is autoDispose. Still open: iOS (Swift) untested; "limited access" permission path untested.
 6. Postponed: Email/App Cleaner; monetization/paywall decision.
 Also: add a Phase 2 status line to docs/SPECIFICATION.md (only README has it).

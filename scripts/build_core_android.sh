@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Builds the Rust core for Android and copies the .so into the Flutter app's jniLibs.
-# Requires: rustup target add aarch64-linux-android, ANDROID_HOME with an NDK.
+# Builds arm64-v8a, armeabi-v7a, x86_64 and x86 (emulators / old phones).
+# Requires: rustup target add aarch64-linux-android armv7-linux-androideabi x86_64-linux-android i686-linux-android, ANDROID_HOME with an NDK.
 # Usage: scripts/build_core_android.sh [ndk-version]   (default 27.1.12297006)
 set -euo pipefail
 
@@ -26,3 +27,6 @@ build() { # rust-triple android-abi clang-triple
 }
 
 build aarch64-linux-android arm64-v8a aarch64-linux-android
+build armv7-linux-androideabi armeabi-v7a armv7a-linux-androideabi
+build x86_64-linux-android x86_64 x86_64-linux-android
+build i686-linux-android x86 i686-linux-android

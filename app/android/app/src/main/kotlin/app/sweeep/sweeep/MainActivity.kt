@@ -8,5 +8,6 @@ class MainActivity : FlutterActivity() {
         super.configureFlutterEngine(flutterEngine)
         flutterEngine.plugins.add(MediaPlugin())
         flutterEngine.plugins.add(TonePlugin())
+        flutterEngine.plugins.add(ScanServicePlugin())
     }
 }
