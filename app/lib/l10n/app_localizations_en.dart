@@ -1160,6 +1160,15 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get limTitle => 'Sweeep only sees the photos you picked';
+
+  @override
+  String get limSub => 'Allow all to clean your whole library.';
+
+  @override
+  String get limAllow => 'Allow all';
+
+  @override
   String get toolsWater => 'Water';
 
   @override

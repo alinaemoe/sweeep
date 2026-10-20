@@ -1185,6 +1185,15 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get limTitle => 'Sweeep видит только выбранные фото';
+
+  @override
+  String get limSub => 'Разреши всё, чтобы чистить всю галерею.';
+
+  @override
+  String get limAllow => 'Разрешить всё';
+
+  @override
   String get toolsWater => 'Вода';
 
   @override

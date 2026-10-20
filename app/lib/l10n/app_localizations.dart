@@ -1622,6 +1622,24 @@ abstract class AppLocalizations {
   /// **'Another {n}'**
   String doneAnother(int n);
 
+  /// No description provided for @limTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sweeep only sees the photos you picked'**
+  String get limTitle;
+
+  /// No description provided for @limSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow all to clean your whole library.'**
+  String get limSub;
+
+  /// No description provided for @limAllow.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow all'**
+  String get limAllow;
+
   /// No description provided for @toolsWater.
   ///
   /// In en, this message translates to:

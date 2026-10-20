@@ -933,6 +933,9 @@
       }
     }
   },
+  "limTitle": "Sweeep only sees the photos you picked",
+  "limSub": "Allow all to clean your whole library.",
+  "limAllow": "Allow all",
   "toolsWater": "Water",
   "toolsDust": "Dust",
   "toolsSound": "Sound test",

@@ -9,6 +9,7 @@ import '../../l10n/l10n.dart';
 import '../../core/widgets.dart';
 import '../../index/group_service.dart';
 import '../../index/home_service.dart';
+import '../../platform/messages.g.dart' show PermissionState;
 import '../../providers.dart';
 import '../groups/group_pager.dart';
 import '../groups/group_widgets.dart';
@@ -28,7 +29,7 @@ class HomeScreen extends ConsumerStatefulWidget {
   ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderStateMixin {
+class _HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderStateMixin, WidgetsBindingObserver {
   static const _collapseAt = 160.0;
   final _scroll = ScrollController();
 
@@ -83,12 +84,36 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderStat
   void initState() {
     super.initState();
     _busy = true;
+    WidgetsBinding.instance.addObserver(this);
     _loop.repeat();
     Future.microtask(() => ref.read(libraryProvider.notifier).sync());
   }
 
+  // Back from the system settings or the photo picker: the access may have changed.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state != AppLifecycleState.resumed) return;
+    _refreshAccess();
+  }
+
+  Future<void> _refreshAccess() async {
+    final ctl = ref.read(permissionProvider.notifier);
+    final before = ref.read(permissionProvider);
+    await ctl.check();
+    final after = ref.read(permissionProvider);
+    // more photos became visible: index them
+    if (before == PermissionState.limited && after != PermissionState.denied) ref.read(libraryProvider.notifier).sync();
+  }
+
+  Future<void> _allowAll() async {
+    await ref.read(permissionProvider.notifier).request();
+    if (!mounted) return;
+    if (ref.read(permissionProvider) != PermissionState.denied) ref.read(libraryProvider.notifier).sync();
+  }
+
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _scroll.dispose();
     _settleTimer?.cancel();
     _loop.dispose();
@@ -128,6 +153,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderStat
               cacheExtent: 1400, // build and decode the lower carousels before they scroll in
               padding: EdgeInsets.fromLTRB(0, top + 64 + 260 - 6, 0, 120),
               children: [
+                if (ref.watch(permissionProvider) == PermissionState.limited) _LimitedBanner(onAllow: _allowAll),
                 if (data == null && home.hasError)
                   Padding(padding: const EdgeInsets.all(20), child: Text('${home.error}', style: const TextStyle(color: SweeepColors.trash)))
                 else if (data != null) ..._feed(data)
@@ -744,5 +770,39 @@ class _FeedSkeletonState extends State<_FeedSkeleton> with SingleTickerProviderS
             ]),
           );
         },
+      );
+}
+
+/// Shown while Android only lets Sweeep see the photos the user picked.
+class _LimitedBanner extends StatelessWidget {
+  const _LimitedBanner({required this.onAllow});
+  final VoidCallback onAllow;
+
+  @override
+  Widget build(BuildContext context) => Container(
+        margin: const EdgeInsets.fromLTRB(20, 22, 20, 14),
+        padding: const EdgeInsets.fromLTRB(16, 14, 12, 14),
+        decoration: BoxDecoration(color: SweeepColors.card, borderRadius: BorderRadius.circular(24), border: Border.all(color: SweeepColors.brand.withValues(alpha: .35))),
+        child: Row(children: [
+          Expanded(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(l10n.limTitle, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, height: 1.25)),
+              const SizedBox(height: 3),
+              Text(l10n.limSub, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: SweeepColors.textMutedSmall, height: 1.3)),
+            ]),
+          ),
+          const SizedBox(width: 10),
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: onAllow,
+            child: Container(
+              height: 44,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(color: SweeepColors.brand, borderRadius: BorderRadius.circular(22)),
+              child: Text(l10n.limAllow, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: SweeepColors.onAccent)),
+            ),
+          ),
+        ]),
       );
 }
