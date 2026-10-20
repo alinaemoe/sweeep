@@ -81,7 +81,7 @@ class _TrashScreenState extends ConsumerState<TrashScreen> with SingleTickerProv
         backgroundColor: SweeepColors.card,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
         title: const Text('Delete everything?', style: TextStyle(fontWeight: FontWeight.w800)),
-        content: Text('${filesLabel(items.length)} (${formatBytes(items.fold<int>(0, (s, e) => s + e.sizeBytes))}) will be deleted from your phone. Android asks once more before it happens.',
+        content: Text('${filesLabel(items.length)} (${formatBytes(items.fold<int>(0, (s, e) => s + e.sizeBytes))}) will be deleted from your phone. Android may ask once more.',
             style: const TextStyle(color: SweeepColors.textMutedSmall, height: 1.4)),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),

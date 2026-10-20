@@ -16,7 +16,7 @@ Obsidian + Lavender: bg #0F1015, card #181920, brand lavender #B8A6FF, lime #D4F
 Prototypes live in a private design-canvas artifact (8 boards): https://claude.ai/artifact/QbAi2ndjg5exNgcQUi35sq — read it with the Artifact tool (action "read") when building UI screens.
 
 ## Pipeline (implemented)
-MediaStore enumerate (keyset paging) -> delta index in Drift `assets` -> 128px gray thumbs -> hashes (checkpointed in `hashes`, `analysisVersion`) -> exact dups (SHA-256 only for same-size files) -> groups persisted -> review UI (Groups grid + GroupPager). Soft trash only (`trash_items`/`decisions`, 30 days); no system delete yet.
+MediaStore enumerate (keyset paging) -> delta index in Drift `assets` -> 128px gray thumbs -> hashes (checkpointed in `hashes`, `analysisVersion`) -> exact dups (SHA-256 only for same-size files) -> groups persisted -> review UI (Groups grid + GroupPager). Soft trash (`trash_items`/`decisions`, 30 days); real delete via createDeleteRequest in chunks of 1000 (one system dialog per chunk). Sideload-only switch `sweeep.directDelete=true` in app/android/gradle.properties adds MANAGE_EXTERNAL_STORAGE and deletes without the dialog; keep it false for Play.
 Similar grouping: pHash Hamming <= 6, 5 s time window, single-link components split by complete-linkage, max 8 per group (core/src/group.rs). Pager: similar groups default KEEP all; exact dups default trash extras.
 
 ## Done
