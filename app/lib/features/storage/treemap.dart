@@ -86,7 +86,8 @@ class Treemap extends StatelessWidget {
     final shown = tiles.take(slots).toList();
     // every block stays big enough to read and tap, even next to a huge one
     final sum = shown.fold<int>(0, (a, t) => a + t.bytes);
-    final floor = sum * .07;
+    // few blocks: give each small one a bit more; many blocks: a bit less
+    final floor = sum * (shown.length <= 6 ? .1 : .07);
     final rects = squarify([for (final t in shown) t.bytes < floor ? floor : t.bytes.toDouble()], width, height);
     return Stack(children: [
       for (var i = 0; i < slots; i++)
@@ -98,15 +99,16 @@ class Treemap extends StatelessWidget {
           top: i < rects.length ? rects[i].top : height / 2,
           width: i < rects.length ? rects[i].width : 0,
           height: i < rects.length ? rects[i].height : 0,
-          child: i < shown.length ? _Block(rank: i, tile: shown[i], area: rects[i].width * rects[i].height, width: rects[i].width, selected: i == selected, onTap: () => onPick(i)) : const SizedBox.shrink(),
+          child: i < shown.length ? _Block(rank: i, tile: shown[i], area: rects[i].width * rects[i].height, width: rects[i].width, height: rects[i].height, selected: i == selected, onTap: () => onPick(i)) : const SizedBox.shrink(),
         ),
     ]);
   }
 }
 
 class _Block extends StatelessWidget {
-  const _Block({required this.rank, required this.tile, required this.area, required this.width, required this.selected, required this.onTap});
+  const _Block({required this.rank, required this.tile, required this.area, required this.width, required this.height, required this.selected, required this.onTap});
   final double width;
+  final double height;
   final int rank;
   final TreemapTile tile;
   final double area;
@@ -119,7 +121,35 @@ class _Block extends StatelessWidget {
     final bg = big ? SweeepColors.brand : SweeepColors.brand.withValues(alpha: rank < 3 ? .34 : .15);
     final fg = big ? SweeepColors.onAccent : SweeepColors.text;
     final narrow = width < 112;
-    final sizeFs = area > 14000 ? 26.0 : (area > 6000 ? 18.0 : 14.0);
+    final small = narrow || height < 64;
+    final low = height < 64;
+    final sizeFs = low ? 13.0 : (area > 14000 ? 26.0 : (area > 6000 ? 18.0 : 14.0));
+    final labelText = Text(narrow ? tile.shortLabel : tile.label, maxLines: 1, style: TextStyle(fontSize: small ? 11.5 : 12, fontWeight: FontWeight.w800, letterSpacing: .2, color: fg));
+    final label = FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.centerLeft, child: labelText);
+    final size = FittedBox(
+      fit: BoxFit.scaleDown,
+      alignment: Alignment.centerLeft,
+      child: Text(formatBytes(tile.bytes), maxLines: 1, style: TextStyle(fontSize: sizeFs, fontWeight: FontWeight.w800, letterSpacing: -.5, height: 1, color: fg)),
+    );
+    final Widget content = low
+        // a low block: name over size, no bar
+        ? Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.start, children: [label, const SizedBox(height: 3), size])
+        : Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            label,
+            Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
+              size,
+              SizedBox(height: small ? 6 : 8),
+              Container(
+                height: 4,
+                alignment: Alignment.centerLeft,
+                decoration: BoxDecoration(color: SweeepColors.background.withValues(alpha: .28), borderRadius: BorderRadius.circular(2)),
+                child: FractionallySizedBox(
+                  widthFactor: tile.share.clamp(0, 1),
+                  child: Container(decoration: BoxDecoration(color: SweeepColors.trash, borderRadius: BorderRadius.circular(2))),
+                ),
+              ),
+            ]),
+          ]);
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: .7, end: 1),
       duration: Duration(milliseconds: 550 + rank * 60),
@@ -137,40 +167,13 @@ class _Block extends StatelessWidget {
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 300),
               clipBehavior: Clip.antiAlias,
-              padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 10),
+              padding: EdgeInsets.symmetric(horizontal: small ? 9 : 11, vertical: low ? 6 : 10),
               decoration: BoxDecoration(
                 color: bg,
                 borderRadius: BorderRadius.circular(18),
                 border: Border.all(color: selected ? SweeepColors.text : Colors.white.withValues(alpha: .08), width: selected ? 2 : 1),
               ),
-              child: LayoutBuilder(builder: (_, c) {
-                final label = Text(narrow ? tile.shortLabel : tile.label, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, letterSpacing: .2, color: fg));
-                final size = FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: Alignment.centerLeft,
-                  child: Text(formatBytes(tile.bytes), maxLines: 1, style: TextStyle(fontSize: sizeFs, fontWeight: FontWeight.w800, letterSpacing: -.5, height: 1, color: fg)),
-                );
-                // a low, wide block has no room for three lines: name and size side by side
-                if (c.maxHeight < 56) {
-                  return Row(children: [Expanded(child: label), const SizedBox(width: 8), Text(formatBytes(tile.bytes), style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: fg))]);
-                }
-                return Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                  label,
-                  Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
-                    size,
-                    const SizedBox(height: 8),
-                    Container(
-                      height: 4,
-                      alignment: Alignment.centerLeft,
-                      decoration: BoxDecoration(color: SweeepColors.background.withValues(alpha: .28), borderRadius: BorderRadius.circular(2)),
-                      child: FractionallySizedBox(
-                        widthFactor: tile.share.clamp(0, 1),
-                        child: Container(decoration: BoxDecoration(color: SweeepColors.trash, borderRadius: BorderRadius.circular(2))),
-                      ),
-                    ),
-                  ]),
-                ]);
-              }),
+              child: content,
             ),
           ),
         ),

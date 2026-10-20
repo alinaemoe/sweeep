@@ -40,6 +40,7 @@ String tileLabel(StorageCut cut, String key) {
         'downloads' => l10n.storSrcDownloads,
         'screenshots' => l10n.storTypeShots,
         'other' => l10n.storSrcOther,
+        'whatsapp' => 'WhatsApp',
         _ => key[0].toUpperCase() + key.substring(1),
       };
   }

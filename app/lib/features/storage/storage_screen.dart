@@ -332,6 +332,7 @@ class _WinCard extends StatelessWidget {
                   Text(filesLabel(stat.count), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: SweeepColors.textMutedSmall)),
                 ]),
               ),
+              const SizedBox(width: 12),
               Semantics(
                 button: true,
                 label: '${l10n.storClean}: ${quickWinTitle(stat.win)}',
