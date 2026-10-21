@@ -12,6 +12,7 @@ import 'index/analysis_service.dart';
 import 'index/group_service.dart';
 import 'index/home_service.dart';
 import 'index/index_service.dart';
+import 'index/month_wrap_service.dart';
 import 'index/review_service.dart';
 import 'index/session_service.dart';
 import 'index/storage_service.dart';
@@ -62,6 +63,8 @@ final sessionOverviewProvider = FutureProvider.autoDispose<SessionOverview>((ref
 
 /// Just the streak, for the entry card on the Timeline.
 final streakProvider = FutureProvider.autoDispose<StreakInfo>((ref) => ref.watch(sessionServiceProvider).streak());
+
+final monthWrapServiceProvider = Provider<MonthWrapService>((ref) => MonthWrapService(ref.watch(databaseProvider)));
 
 final reviewServiceProvider = Provider<ReviewService>((ref) => ReviewService(ref.watch(databaseProvider)));
 
@@ -209,23 +212,23 @@ class LibraryController extends Notifier<LibraryState> {
 
   /// Whole scan (index -> hash -> duplicates -> groups), kept alive in the
   /// background by a foreground service for as long as it runs.
-  Future<void> sync() async {
+  Future<void> sync({bool full = false}) async {
     if (state.syncing || state.analyzing || state.verifying) return;
     await _foreground.start();
     try {
-      await _sync();
+      await _sync(full: full);
     } finally {
       await _foreground.stop();
     }
   }
 
-  Future<void> _sync() async {
+  Future<void> _sync({bool full = false}) async {
     state = state.copyWith(syncing: true, processed: 0);
     final index = ref.read(indexServiceProvider);
     final media = ref.read(mediaSourceProvider);
     try {
       final sw = Stopwatch()..start();
-      final result = await index.sync(onProgress: (n) => state = state.copyWith(processed: n));
+      final result = await index.sync(onProgress: (n) => state = state.copyWith(processed: n), full: full);
       final syncMs = sw.elapsedMilliseconds;
       final stats = await index.stats();
       state = state.copyWith(result: result, stats: stats, syncMs: syncMs);

@@ -45,3 +45,9 @@ String fmtMonthAbbr(int year, int month) {
 
 /// M T W ... for the day [i] of a Monday-first week.
 String fmtWeekdayLetter(int i) => DateFormat('EEEEE', _loc).format(DateTime(2024, 1, 1 + i)).toUpperCase();
+
+/// June / Июнь (no year)
+String fmtMonthName(int year, int month) {
+  final s = DateFormat('LLLL', _loc).format(DateTime(year, month));
+  return s[0].toUpperCase() + s.substring(1);
+}

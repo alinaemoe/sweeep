@@ -10,5 +10,6 @@ class MainActivity : FlutterActivity() {
         flutterEngine.plugins.add(TonePlugin())
         flutterEngine.plugins.add(ScanServicePlugin())
         flutterEngine.plugins.add(ReminderPlugin())
+        flutterEngine.plugins.add(ImageSaverPlugin())
     }
 }

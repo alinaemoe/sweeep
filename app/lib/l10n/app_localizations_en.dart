@@ -1169,6 +1169,63 @@ class AppLocalizationsEn extends AppLocalizations {
   String get limAllow => 'Allow all';
 
   @override
+  String get wrapLabel => 'MONTH WRAP';
+
+  @override
+  String get wrapSwept => '100% SWEPT';
+
+  @override
+  String wrapLooked(String photos) {
+    return '$photos looked through';
+  }
+
+  @override
+  String wrapCleared(String unit) {
+    return '$unit cleared';
+  }
+
+  @override
+  String get wrapBest => 'YOUR BEST OF THE MONTH';
+
+  @override
+  String get wrapKept => 'kept';
+
+  @override
+  String get wrapTrashed => 'cleared';
+
+  @override
+  String wrapSessions(num n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'sessions',
+      one: 'session',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get wrapStreak => 'streak';
+
+  @override
+  String get wrapNote =>
+      'The image is made on your phone. Nothing is uploaded unless you choose to share it.';
+
+  @override
+  String get wrapSave => 'Save image';
+
+  @override
+  String wrapNext(String month) {
+    return 'Next: $month';
+  }
+
+  @override
+  String get wrapSaved => 'Saved to Pictures/Sweeep';
+
+  @override
+  String get wrapSaveFailed => 'Could not save the image';
+
+  @override
   String get toolsWater => 'Water';
 
   @override

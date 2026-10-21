@@ -10,6 +10,7 @@ import '../../providers.dart';
 import '../groups/group_widgets.dart';
 import 'swipe_screen.dart';
 import '../session/session_screen.dart';
+import '../wrap/month_wrap_screen.dart';
 
 String _num(int n) => fmtNum(n);
 
@@ -28,7 +29,9 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
 
   Future<void> _open(String month) async {
     HapticFeedback.selectionClick();
-    await Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => SwipeScreen(source: SwipeSource.all, month: month)));
+    // a finished month shows its wrap instead of an empty deck
+    final done = ref.read(timelineProvider).value?.where((m) => m.key == month).firstOrNull?.done ?? false;
+    await Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => done ? MonthWrapScreen(monthKey: month) : SwipeScreen(source: SwipeSource.all, month: month)));
     if (!mounted) return;
     ref.invalidate(timelineProvider);
     ref.invalidate(homeProvider);
@@ -79,7 +82,10 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
                           Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                           Expanded(
                             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                              Text(l10n.tlHeadline, style: const TextStyle(fontSize: 30, height: 1.1, fontWeight: FontWeight.w800, letterSpacing: -1)),
+                              GestureDetector(
+                                onLongPress: !wrapDemo || all.isEmpty ? null : () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => MonthWrapScreen(monthKey: all.first.key))),
+                                child: Text(l10n.tlHeadline, style: const TextStyle(fontSize: 30, height: 1.1, fontWeight: FontWeight.w800, letterSpacing: -1)),
+                              ),
                               const SizedBox(height: 6),
                               Text(l10n.tlSummary(l10n.photosCount(total), _num(swept)), style: const TextStyle(fontSize: 14, color: SweeepColors.textMutedSmall, fontWeight: FontWeight.w600)),
                             ]),

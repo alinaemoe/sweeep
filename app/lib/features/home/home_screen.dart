@@ -102,13 +102,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderStat
     await ctl.check();
     final after = ref.read(permissionProvider);
     // more photos became visible: index them
-    if (before == PermissionState.limited && after != PermissionState.denied) ref.read(libraryProvider.notifier).sync();
+    if (before == PermissionState.limited && after != PermissionState.denied) ref.read(libraryProvider.notifier).sync(full: true);
   }
 
   Future<void> _allowAll() async {
     await ref.read(permissionProvider.notifier).request();
     if (!mounted) return;
-    if (ref.read(permissionProvider) != PermissionState.denied) ref.read(libraryProvider.notifier).sync();
+    if (ref.read(permissionProvider) != PermissionState.denied) ref.read(libraryProvider.notifier).sync(full: true);
   }
 
   @override

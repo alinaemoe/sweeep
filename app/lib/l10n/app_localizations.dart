@@ -1640,6 +1640,90 @@ abstract class AppLocalizations {
   /// **'Allow all'**
   String get limAllow;
 
+  /// No description provided for @wrapLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'MONTH WRAP'**
+  String get wrapLabel;
+
+  /// No description provided for @wrapSwept.
+  ///
+  /// In en, this message translates to:
+  /// **'100% SWEPT'**
+  String get wrapSwept;
+
+  /// No description provided for @wrapLooked.
+  ///
+  /// In en, this message translates to:
+  /// **'{photos} looked through'**
+  String wrapLooked(String photos);
+
+  /// No description provided for @wrapCleared.
+  ///
+  /// In en, this message translates to:
+  /// **'{unit} cleared'**
+  String wrapCleared(String unit);
+
+  /// No description provided for @wrapBest.
+  ///
+  /// In en, this message translates to:
+  /// **'YOUR BEST OF THE MONTH'**
+  String get wrapBest;
+
+  /// No description provided for @wrapKept.
+  ///
+  /// In en, this message translates to:
+  /// **'kept'**
+  String get wrapKept;
+
+  /// No description provided for @wrapTrashed.
+  ///
+  /// In en, this message translates to:
+  /// **'cleared'**
+  String get wrapTrashed;
+
+  /// No description provided for @wrapSessions.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{session} other{sessions}}'**
+  String wrapSessions(num n);
+
+  /// No description provided for @wrapStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'streak'**
+  String get wrapStreak;
+
+  /// No description provided for @wrapNote.
+  ///
+  /// In en, this message translates to:
+  /// **'The image is made on your phone. Nothing is uploaded unless you choose to share it.'**
+  String get wrapNote;
+
+  /// No description provided for @wrapSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save image'**
+  String get wrapSave;
+
+  /// No description provided for @wrapNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next: {month}'**
+  String wrapNext(String month);
+
+  /// No description provided for @wrapSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved to Pictures/Sweeep'**
+  String get wrapSaved;
+
+  /// No description provided for @wrapSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save the image'**
+  String get wrapSaveFailed;
+
   /// No description provided for @toolsWater.
   ///
   /// In en, this message translates to:

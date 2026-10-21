@@ -936,6 +936,48 @@
   "limTitle": "Sweeep only sees the photos you picked",
   "limSub": "Allow all to clean your whole library.",
   "limAllow": "Allow all",
+  "wrapLabel": "MONTH WRAP",
+  "wrapSwept": "100% SWEPT",
+  "wrapLooked": "{photos} looked through",
+  "@wrapLooked": {
+    "placeholders": {
+      "photos": {
+        "type": "String"
+      }
+    }
+  },
+  "wrapCleared": "{unit} cleared",
+  "@wrapCleared": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "wrapBest": "YOUR BEST OF THE MONTH",
+  "wrapKept": "kept",
+  "wrapTrashed": "cleared",
+  "wrapSessions": "{n, plural, =1{session} other{sessions}}",
+  "@wrapSessions": {
+    "placeholders": {
+      "n": {
+        "type": "num"
+      }
+    }
+  },
+  "wrapStreak": "streak",
+  "wrapNote": "The image is made on your phone. Nothing is uploaded unless you choose to share it.",
+  "wrapSave": "Save image",
+  "wrapNext": "Next: {month}",
+  "@wrapNext": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "wrapSaved": "Saved to Pictures/Sweeep",
+  "wrapSaveFailed": "Could not save the image",
   "toolsWater": "Water",
   "toolsDust": "Dust",
   "toolsSound": "Sound test",

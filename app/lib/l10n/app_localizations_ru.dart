@@ -1194,6 +1194,65 @@ class AppLocalizationsRu extends AppLocalizations {
   String get limAllow => 'Разрешить всё';
 
   @override
+  String get wrapLabel => 'ИТОГИ МЕСЯЦА';
+
+  @override
+  String get wrapSwept => '100% РАЗОБРАНО';
+
+  @override
+  String wrapLooked(String photos) {
+    return 'просмотрено: $photos';
+  }
+
+  @override
+  String wrapCleared(String unit) {
+    return '$unit убрано';
+  }
+
+  @override
+  String get wrapBest => 'ЛУЧШЕЕ ЗА МЕСЯЦ';
+
+  @override
+  String get wrapKept => 'оставлено';
+
+  @override
+  String get wrapTrashed => 'убрано';
+
+  @override
+  String wrapSessions(num n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'сессии',
+      many: 'сессий',
+      few: 'сессии',
+      one: 'сессия',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get wrapStreak => 'серия';
+
+  @override
+  String get wrapNote =>
+      'Картинка делается на телефоне. Ничего не уходит в сеть, пока ты сам не поделишься.';
+
+  @override
+  String get wrapSave => 'Сохранить';
+
+  @override
+  String wrapNext(String month) {
+    return 'Дальше: $month';
+  }
+
+  @override
+  String get wrapSaved => 'Сохранено в Pictures/Sweeep';
+
+  @override
+  String get wrapSaveFailed => 'Не получилось сохранить';
+
+  @override
   String get toolsWater => 'Вода';
 
   @override

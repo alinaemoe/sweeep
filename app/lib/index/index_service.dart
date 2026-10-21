@@ -54,9 +54,12 @@ class IndexService {
     return row == null ? null : int.tryParse(row.value);
   }
 
-  Future<IndexResult> sync({void Function(int processed)? onProgress}) async {
+  /// [full] ignores the last sync time and enumerates everything again: needed
+  /// when the library suddenly shows more (Android lets the user widen a
+  /// limited photo access), because old photos were not "modified since" then.
+  Future<IndexResult> sync({void Function(int processed)? onProgress, bool full = false}) async {
     final started = _now();
-    final last = await _lastSync();
+    final last = full ? null : await _lastSync();
     final since = last == null ? null : (last - overlapMs).clamp(0, started);
 
     var upserted = 0;

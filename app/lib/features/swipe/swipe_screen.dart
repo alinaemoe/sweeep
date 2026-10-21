@@ -14,6 +14,7 @@ import '../../providers.dart';
 import '../../index/session_service.dart';
 import '../../index/storage_service.dart';
 import '../session/session_done_screen.dart';
+import '../wrap/month_wrap_screen.dart';
 import '../category/category_screen.dart';
 import '../storage/storage_labels.dart';
 import '../groups/group_widgets.dart';
@@ -186,10 +187,18 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> with TickerProviderSt
       HapticFeedback.lightImpact();
       if (trash) _wave.forward(from: 0);
       final done = _inSession && (_swept >= widget.goal || _i >= _queue!.length);
-      write.then((_) {
+      write.then((_) async {
         if (!mounted) return;
         ref.invalidate(trashSummaryProvider);
-        if (done) _finishSession();
+        // that was the last photo of a month: its wrap, once
+        final wrap = await ref.read(monthWrapServiceProvider).pendingFor(item.createdAtMs);
+        if (!mounted) return;
+        if (done) {
+          await _finishSession(wrapMonth: wrap);
+        } else if (wrap != null) {
+          ref.invalidate(timelineProvider);
+          Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => MonthWrapScreen(monthKey: wrap)));
+        }
       });
     });
   }
@@ -242,7 +251,7 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> with TickerProviderSt
     }
   }
 
-  Future<void> _finishSession() async {
+  Future<void> _finishSession({String? wrapMonth}) async {
     final r = await ref.read(sessionServiceProvider).finish(
           started: _started,
           goal: widget.goal,
@@ -255,7 +264,10 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> with TickerProviderSt
         );
     if (!mounted) return;
     ref.invalidate(sessionOverviewProvider);
-    await Navigator.of(context).pushReplacement(MaterialPageRoute<void>(builder: (_) => SessionDoneScreen(result: r)));
+    final nav = Navigator.of(context);
+    nav.pushReplacement(MaterialPageRoute<void>(builder: (_) => SessionDoneScreen(result: r)));
+    // a month finished in this session: its wrap opens over the summary
+    if (wrapMonth != null) nav.push(MaterialPageRoute<void>(builder: (_) => MonthWrapScreen(monthKey: wrapMonth)));
   }
 
   void _dismissHint() {
