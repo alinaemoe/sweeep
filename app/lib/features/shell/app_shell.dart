@@ -1,15 +1,18 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/mode_switch.dart';
+import '../../core/nav_icons.dart';
 import '../../core/theme.dart';
 import '../../l10n/l10n.dart';
 import '../../providers.dart';
 import '../session/reminder_sheet.dart';
 import '../home/home_screen.dart';
 import '../swipe/timeline_screen.dart';
-import '../tools/tools_screen.dart';
+import '../space/space_screen.dart';
 import '../trash/trash_screen.dart';
 
 /// The four tabs: Clean (Home), Swipe, Tools, Trash. Home stays alive in the
@@ -45,6 +48,8 @@ class _AppShellState extends ConsumerState<AppShell> {
 
   @override
   Widget build(BuildContext context) {
+    // the tab can also change from elsewhere (the Home oval opens Space)
+    ref.listen(shellTabProvider, (_, i) => _select(i));
     return Scaffold(
       body: Stack(children: [
         // Home stays alive; it fades in/out instead of popping, so returning
@@ -77,7 +82,7 @@ class _AppShellState extends ConsumerState<AppShell> {
               child: switch (_tab) {
                 0 => const SizedBox.shrink(),
                 1 => const TimelineScreen(),
-                2 => const ToolsScreen(),
+                2 => const SpaceScreen(),
                 _ => const TrashScreen(embedded: true),
               },
             ),
@@ -86,8 +91,8 @@ class _AppShellState extends ConsumerState<AppShell> {
         Positioned(
           left: 20,
           right: 20,
-          bottom: MediaQuery.paddingOf(context).bottom + 12,
-          child: SweeepNavBar(index: _tab, onChanged: _select),
+          bottom: 18,
+          child: SweeepNavBar(index: _tab, onChanged: (i) => ref.read(shellTabProvider.notifier).set(i)),
         ),
       ]),
     );
@@ -104,26 +109,31 @@ class SweeepNavBar extends StatelessWidget {
   static List<(Widget Function(Color), String)> get _items => [
         ((c) => Icon(Icons.auto_awesome_rounded, size: 22, color: c), l10n.navClean),
         ((c) => SwipeStackIcon(color: c), l10n.navSwipe),
-        ((c) => Icon(Icons.volume_up_outlined, size: 22, color: c), l10n.navTools),
+        ((c) => SpaceIcon(color: c), l10n.navSpace),
         ((c) => Icon(Icons.delete_outline_rounded, size: 22, color: c), l10n.navTrash),
       ];
 
   @override
   Widget build(BuildContext context) => RepaintBoundary(
-        child: Container(
-          height: 62,
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          decoration: BoxDecoration(
-            color: SweeepColors.card,
-            borderRadius: BorderRadius.circular(31),
-            border: Border.all(color: Colors.white.withValues(alpha: .08)),
-            boxShadow: const [BoxShadow(color: Color(0x66000000), blurRadius: 18, offset: Offset(0, 6))],
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              for (var i = 0; i < _items.length; i++) _NavItem(icon: _items[i].$1, label: _items[i].$2, selected: i == index, onTap: () => onChanged(i)),
-            ],
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(31),
+          child: BackdropFilter(
+            filter: ui.ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+            child: Container(
+              height: 62,
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              decoration: BoxDecoration(
+                color: SweeepColors.card.withValues(alpha: .88),
+                borderRadius: BorderRadius.circular(31),
+                border: Border.all(color: Colors.white.withValues(alpha: .08)),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  for (var i = 0; i < _items.length; i++) _NavItem(icon: _items[i].$1, label: _items[i].$2, selected: i == index, onTap: () => onChanged(i)),
+                ],
+              ),
+            ),
           ),
         ),
       );
@@ -156,9 +166,9 @@ class _NavItem extends StatelessWidget {
             child: ClipRect(
               child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                 TweenAnimationBuilder<Color?>(
-                  tween: ColorTween(end: selected ? SweeepColors.brand : SweeepColors.textMutedSmall),
+                  tween: ColorTween(end: selected ? SweeepColors.brand : const Color(0xFFA9AEBB)),
                   duration: const Duration(milliseconds: 260),
-                  builder: (_, c, __) => icon(c ?? SweeepColors.textMutedSmall),
+                  builder: (_, c, __) => icon(c ?? const Color(0xFFA9AEBB)),
                 ),
                 Flexible(
                   child: AnimatedSize(

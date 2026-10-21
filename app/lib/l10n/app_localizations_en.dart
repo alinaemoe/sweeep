@@ -1288,6 +1288,172 @@ class AppLocalizationsEn extends AppLocalizations {
   String get goalEntrySub => 'Pick a goal, Sweeep finds the safest files';
 
   @override
+  String get navSpace => 'Space';
+
+  @override
+  String get tipHub => 'Hub';
+
+  @override
+  String get hubTitle => 'Hub';
+
+  @override
+  String get hubVersion => 'Sweeep 1.0';
+
+  @override
+  String get proTag => 'SWEEEP PRO';
+
+  @override
+  String get proTitle => 'Every cleaner, no limits';
+
+  @override
+  String get proSub => 'Unlimited sessions, Quick wins and Shrink videos.';
+
+  @override
+  String get proButton => 'See plans';
+
+  @override
+  String get proSoon => 'Plans are coming soon';
+
+  @override
+  String get hubMore => 'MORE CLEANERS';
+
+  @override
+  String get cleanerEmail => 'Email';
+
+  @override
+  String get cleanerEmailSub => 'Newsletters and junk';
+
+  @override
+  String get cleanerApps => 'Apps';
+
+  @override
+  String get cleanerAppsSub => 'Unused and heavy';
+
+  @override
+  String get cleanerCache => 'Cache';
+
+  @override
+  String get cleanerCacheSub => 'Temporary files';
+
+  @override
+  String get soonBadge => 'SOON';
+
+  @override
+  String get soonWord => 'Soon';
+
+  @override
+  String get hubTools => 'TOOLS';
+
+  @override
+  String get hubWater => 'Eject water';
+
+  @override
+  String get hubWaterSub => 'Speaker tone, 165 to 200 Hz';
+
+  @override
+  String get hubDust => 'Clean dust';
+
+  @override
+  String get hubDustSub => 'Low pulsing tone for the grille';
+
+  @override
+  String get hubSound => 'Sound test';
+
+  @override
+  String get hubSoundSub => 'Left, right and sweep';
+
+  @override
+  String get hubInsights => 'INSIGHTS';
+
+  @override
+  String get hubWeek => 'Your week';
+
+  @override
+  String get hubWeekSub => 'Cleared space and streak';
+
+  @override
+  String get hubWidgets => 'Home screen widgets';
+
+  @override
+  String get hubWidgetsSub => 'Streak and daily goal';
+
+  @override
+  String get hubSettings => 'SETTINGS';
+
+  @override
+  String get hubLanguage => 'Language';
+
+  @override
+  String get langAuto => 'Auto';
+
+  @override
+  String hubRemindOn(String time) {
+    return 'Every day at $time';
+  }
+
+  @override
+  String get hubRemindOff => 'Off';
+
+  @override
+  String get hubAccess => 'Photo access';
+
+  @override
+  String get hubAccessAll => 'All photos and videos';
+
+  @override
+  String get hubAccessLimited => 'Selected photos only';
+
+  @override
+  String get hubAccessNone => 'No access';
+
+  @override
+  String get hubScan => 'Scan again';
+
+  @override
+  String hubScanSub(int n) {
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nString files indexed',
+      one: '1 file indexed',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get hubFoot1 =>
+      'Everything is analysed on this phone. Nothing is uploaded.';
+
+  @override
+  String get hubFoot2 => 'Hold the version number for the developer screen.';
+
+  @override
+  String get spaceTitle => 'Space';
+
+  @override
+  String spaceCanGo(String unit) {
+    return '$unit can go';
+  }
+
+  @override
+  String spaceFind(String size) {
+    return 'Find $size of safest files';
+  }
+
+  @override
+  String get spaceMap => 'Storage map';
+
+  @override
+  String get spaceOpen => 'Open';
+
+  @override
+  String get spaceShrink => 'Shrink videos';
+
+  @override
   String get toolsWater => 'Water';
 
   @override

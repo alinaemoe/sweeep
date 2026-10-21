@@ -70,6 +70,41 @@ final monthWrapServiceProvider = Provider<MonthWrapService>((ref) => MonthWrapSe
 /// The plan behind Free by goal, rebuilt each time the screen opens.
 final goalPlanProvider = FutureProvider.autoDispose<GoalPlan>((ref) => GoalService(ref.watch(databaseProvider)).load());
 
+/// Which tab of the app shell is showing (0 Clean, 1 Swipe, 2 Space, 3 Trash).
+class ShellTab extends Notifier<int> {
+  @override
+  int build() => 0;
+
+  void set(int i) => state = i;
+}
+
+final shellTabProvider = NotifierProvider<ShellTab, int>(ShellTab.new);
+
+/// 'auto' (the phone's language), 'en' or 'ru'. Kept in `scan_state`.
+class LanguageController extends Notifier<String> {
+  static const key = 'language';
+
+  @override
+  String build() {
+    Future.microtask(_load);
+    return 'auto';
+  }
+
+  Future<void> _load() async {
+    final db = ref.read(databaseProvider);
+    final row = await (db.select(db.scanState)..where((s) => s.key.equals(key))).getSingleOrNull();
+    if (row != null && const ['auto', 'en', 'ru'].contains(row.value)) state = row.value;
+  }
+
+  Future<void> set(String v) async {
+    state = v;
+    final db = ref.read(databaseProvider);
+    await db.into(db.scanState).insertOnConflictUpdate(ScanStateCompanion.insert(key: key, value: v));
+  }
+}
+
+final languageProvider = NotifierProvider<LanguageController, String>(LanguageController.new);
+
 final reviewServiceProvider = Provider<ReviewService>((ref) => ReviewService(ref.watch(databaseProvider)));
 
 /// Timeline of the library, month by month.

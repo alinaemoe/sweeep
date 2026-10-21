@@ -1017,6 +1017,84 @@
   "goalSubSimilar": "Best one stays, you decide",
   "goalEntryTitle": "I need space",
   "goalEntrySub": "Pick a goal, Sweeep finds the safest files",
+  "navSpace": "Space",
+  "tipHub": "Hub",
+  "hubTitle": "Hub",
+  "hubVersion": "Sweeep 1.0",
+  "proTag": "SWEEEP PRO",
+  "proTitle": "Every cleaner, no limits",
+  "proSub": "Unlimited sessions, Quick wins and Shrink videos.",
+  "proButton": "See plans",
+  "proSoon": "Plans are coming soon",
+  "hubMore": "MORE CLEANERS",
+  "cleanerEmail": "Email",
+  "cleanerEmailSub": "Newsletters and junk",
+  "cleanerApps": "Apps",
+  "cleanerAppsSub": "Unused and heavy",
+  "cleanerCache": "Cache",
+  "cleanerCacheSub": "Temporary files",
+  "soonBadge": "SOON",
+  "soonWord": "Soon",
+  "hubTools": "TOOLS",
+  "hubWater": "Eject water",
+  "hubWaterSub": "Speaker tone, 165 to 200 Hz",
+  "hubDust": "Clean dust",
+  "hubDustSub": "Low pulsing tone for the grille",
+  "hubSound": "Sound test",
+  "hubSoundSub": "Left, right and sweep",
+  "hubInsights": "INSIGHTS",
+  "hubWeek": "Your week",
+  "hubWeekSub": "Cleared space and streak",
+  "hubWidgets": "Home screen widgets",
+  "hubWidgetsSub": "Streak and daily goal",
+  "hubSettings": "SETTINGS",
+  "hubLanguage": "Language",
+  "langAuto": "Auto",
+  "hubRemindOn": "Every day at {time}",
+  "@hubRemindOn": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "hubRemindOff": "Off",
+  "hubAccess": "Photo access",
+  "hubAccessAll": "All photos and videos",
+  "hubAccessLimited": "Selected photos only",
+  "hubAccessNone": "No access",
+  "hubScan": "Scan again",
+  "hubScanSub": "{n, plural, =1{1 file indexed} other{{n} files indexed}}",
+  "@hubScanSub": {
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "hubFoot1": "Everything is analysed on this phone. Nothing is uploaded.",
+  "hubFoot2": "Hold the version number for the developer screen.",
+  "spaceTitle": "Space",
+  "spaceCanGo": "{unit} can go",
+  "@spaceCanGo": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "spaceFind": "Find {size} of safest files",
+  "@spaceFind": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "spaceMap": "Storage map",
+  "spaceOpen": "Open",
+  "spaceShrink": "Shrink videos",
   "toolsWater": "Water",
   "toolsDust": "Dust",
   "toolsSound": "Sound test",

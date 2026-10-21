@@ -22,21 +22,23 @@ Future<void> main() async {
   runApp(const ProviderScope(child: SweeepApp()));
 }
 
-class SweeepApp extends StatefulWidget {
+class SweeepApp extends ConsumerStatefulWidget {
   const SweeepApp({super.key});
 
   @override
-  State<SweeepApp> createState() => _SweeepAppState();
+  ConsumerState<SweeepApp> createState() => _SweeepAppState();
 }
 
-class _SweeepAppState extends State<SweeepApp> {
+class _SweeepAppState extends ConsumerState<SweeepApp> {
   bool _intro = true;
   bool _reveal = false; // until then the app is built but not painted (keeps the intro smooth)
 
   @override
   Widget build(BuildContext context) {
+    final lang = ref.watch(languageProvider);
     return MaterialApp(
       title: 'Sweeep',
+      locale: lang == 'auto' ? null : Locale(lang),
       debugShowCheckedModeBanner: false,
       theme: SweeepTheme.dark(),
       localizationsDelegates: const [

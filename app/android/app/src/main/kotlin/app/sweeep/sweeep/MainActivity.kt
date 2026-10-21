@@ -11,5 +11,6 @@ class MainActivity : FlutterActivity() {
         flutterEngine.plugins.add(ScanServicePlugin())
         flutterEngine.plugins.add(ReminderPlugin())
         flutterEngine.plugins.add(ImageSaverPlugin())
+        flutterEngine.plugins.add(SystemPlugin())
     }
 }

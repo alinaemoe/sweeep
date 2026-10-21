@@ -125,7 +125,7 @@ class SessionService {
   static const _goalKey = 'session_goal';
   static const reminderOnKey = 'reminder_on';
   static const reminderMinutesKey = 'reminder_minutes';
-  static const defaultReminderMinutes = 20 * 60;
+  static const defaultReminderMinutes = 19 * 60;
 
   Future<String?> _pref(String key) async => (await (db.select(db.scanState)..where((s) => s.key.equals(key))).getSingleOrNull())?.value;
 

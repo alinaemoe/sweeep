@@ -14,8 +14,8 @@ import '../../providers.dart';
 import '../groups/group_pager.dart';
 import '../groups/group_widgets.dart';
 import '../groups/groups_screen.dart';
-import '../storage/storage_screen.dart';
-import '../library/library_screen.dart';
+import '../../core/nav_icons.dart';
+import '../hub/hub_screen.dart';
 import '../category/category_screen.dart';
 import '../swipe/swipe_screen.dart';
 import '../../index/review_service.dart';
@@ -187,10 +187,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderStat
                 progress: _shown,
                 phase: _loop.value,
                 scanLabel: scanLabel,
-                onSettings: () => _push(const LibraryScreen()),
+                onSettings: () => _push(const HubScreen()),
                 onFree: data == null || data.reclaimableBytes == 0
                     ? null
-                    : () => _push(const StorageScreen()),
+                    : () => ref.read(shellTabProvider.notifier).set(2),
               );
             },
           ),
@@ -525,17 +525,7 @@ class _Header extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             const SweeepWordmark(),
-            IconButton(
-              onPressed: onSettings,
-              tooltip: l10n.tipLibraryDetails,
-              icon: const Icon(Icons.settings_outlined, size: 20),
-              style: IconButton.styleFrom(
-                backgroundColor: SweeepColors.card,
-                foregroundColor: SweeepColors.textMuted,
-                side: const BorderSide(color: SweeepColors.cardBorder),
-                fixedSize: const Size(40, 40),
-              ),
-            ),
+            HubButton(onTap: onSettings),
           ],
         ),
       ),

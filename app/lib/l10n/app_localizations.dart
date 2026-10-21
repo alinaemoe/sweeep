@@ -1832,6 +1832,300 @@ abstract class AppLocalizations {
   /// **'Pick a goal, Sweeep finds the safest files'**
   String get goalEntrySub;
 
+  /// No description provided for @navSpace.
+  ///
+  /// In en, this message translates to:
+  /// **'Space'**
+  String get navSpace;
+
+  /// No description provided for @tipHub.
+  ///
+  /// In en, this message translates to:
+  /// **'Hub'**
+  String get tipHub;
+
+  /// No description provided for @hubTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Hub'**
+  String get hubTitle;
+
+  /// No description provided for @hubVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Sweeep 1.0'**
+  String get hubVersion;
+
+  /// No description provided for @proTag.
+  ///
+  /// In en, this message translates to:
+  /// **'SWEEEP PRO'**
+  String get proTag;
+
+  /// No description provided for @proTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Every cleaner, no limits'**
+  String get proTitle;
+
+  /// No description provided for @proSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlimited sessions, Quick wins and Shrink videos.'**
+  String get proSub;
+
+  /// No description provided for @proButton.
+  ///
+  /// In en, this message translates to:
+  /// **'See plans'**
+  String get proButton;
+
+  /// No description provided for @proSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Plans are coming soon'**
+  String get proSoon;
+
+  /// No description provided for @hubMore.
+  ///
+  /// In en, this message translates to:
+  /// **'MORE CLEANERS'**
+  String get hubMore;
+
+  /// No description provided for @cleanerEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get cleanerEmail;
+
+  /// No description provided for @cleanerEmailSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Newsletters and junk'**
+  String get cleanerEmailSub;
+
+  /// No description provided for @cleanerApps.
+  ///
+  /// In en, this message translates to:
+  /// **'Apps'**
+  String get cleanerApps;
+
+  /// No description provided for @cleanerAppsSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Unused and heavy'**
+  String get cleanerAppsSub;
+
+  /// No description provided for @cleanerCache.
+  ///
+  /// In en, this message translates to:
+  /// **'Cache'**
+  String get cleanerCache;
+
+  /// No description provided for @cleanerCacheSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Temporary files'**
+  String get cleanerCacheSub;
+
+  /// No description provided for @soonBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'SOON'**
+  String get soonBadge;
+
+  /// No description provided for @soonWord.
+  ///
+  /// In en, this message translates to:
+  /// **'Soon'**
+  String get soonWord;
+
+  /// No description provided for @hubTools.
+  ///
+  /// In en, this message translates to:
+  /// **'TOOLS'**
+  String get hubTools;
+
+  /// No description provided for @hubWater.
+  ///
+  /// In en, this message translates to:
+  /// **'Eject water'**
+  String get hubWater;
+
+  /// No description provided for @hubWaterSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Speaker tone, 165 to 200 Hz'**
+  String get hubWaterSub;
+
+  /// No description provided for @hubDust.
+  ///
+  /// In en, this message translates to:
+  /// **'Clean dust'**
+  String get hubDust;
+
+  /// No description provided for @hubDustSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Low pulsing tone for the grille'**
+  String get hubDustSub;
+
+  /// No description provided for @hubSound.
+  ///
+  /// In en, this message translates to:
+  /// **'Sound test'**
+  String get hubSound;
+
+  /// No description provided for @hubSoundSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Left, right and sweep'**
+  String get hubSoundSub;
+
+  /// No description provided for @hubInsights.
+  ///
+  /// In en, this message translates to:
+  /// **'INSIGHTS'**
+  String get hubInsights;
+
+  /// No description provided for @hubWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Your week'**
+  String get hubWeek;
+
+  /// No description provided for @hubWeekSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Cleared space and streak'**
+  String get hubWeekSub;
+
+  /// No description provided for @hubWidgets.
+  ///
+  /// In en, this message translates to:
+  /// **'Home screen widgets'**
+  String get hubWidgets;
+
+  /// No description provided for @hubWidgetsSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Streak and daily goal'**
+  String get hubWidgetsSub;
+
+  /// No description provided for @hubSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'SETTINGS'**
+  String get hubSettings;
+
+  /// No description provided for @hubLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get hubLanguage;
+
+  /// No description provided for @langAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto'**
+  String get langAuto;
+
+  /// No description provided for @hubRemindOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Every day at {time}'**
+  String hubRemindOn(String time);
+
+  /// No description provided for @hubRemindOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get hubRemindOff;
+
+  /// No description provided for @hubAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo access'**
+  String get hubAccess;
+
+  /// No description provided for @hubAccessAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All photos and videos'**
+  String get hubAccessAll;
+
+  /// No description provided for @hubAccessLimited.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected photos only'**
+  String get hubAccessLimited;
+
+  /// No description provided for @hubAccessNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No access'**
+  String get hubAccessNone;
+
+  /// No description provided for @hubScan.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan again'**
+  String get hubScan;
+
+  /// No description provided for @hubScanSub.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{1 file indexed} other{{n} files indexed}}'**
+  String hubScanSub(int n);
+
+  /// No description provided for @hubFoot1.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything is analysed on this phone. Nothing is uploaded.'**
+  String get hubFoot1;
+
+  /// No description provided for @hubFoot2.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold the version number for the developer screen.'**
+  String get hubFoot2;
+
+  /// No description provided for @spaceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Space'**
+  String get spaceTitle;
+
+  /// No description provided for @spaceCanGo.
+  ///
+  /// In en, this message translates to:
+  /// **'{unit} can go'**
+  String spaceCanGo(String unit);
+
+  /// No description provided for @spaceFind.
+  ///
+  /// In en, this message translates to:
+  /// **'Find {size} of safest files'**
+  String spaceFind(String size);
+
+  /// No description provided for @spaceMap.
+  ///
+  /// In en, this message translates to:
+  /// **'Storage map'**
+  String get spaceMap;
+
+  /// No description provided for @spaceOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get spaceOpen;
+
+  /// No description provided for @spaceShrink.
+  ///
+  /// In en, this message translates to:
+  /// **'Shrink videos'**
+  String get spaceShrink;
+
   /// No description provided for @toolsWater.
   ///
   /// In en, this message translates to:

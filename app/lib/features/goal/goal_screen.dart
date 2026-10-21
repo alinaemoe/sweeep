@@ -17,7 +17,10 @@ import '../groups/group_widgets.dart';
 const _demo = bool.fromEnvironment('GOAL_DEMO');
 const _unit = _demo ? 1024 * 1024 : 1024 * 1024 * 1024;
 
-String _unitName() => l10n.byteUnits.split(',')[_demo ? 2 : 3];
+String _unitName() => goalUnitName();
+
+/// GB (MB in test builds): the unit goals are counted in.
+String goalUnitName() => l10n.byteUnits.split(',')[_demo ? 2 : 3];
 
 /// 5.3 GB, or the plain size when it is tiny (a few MB or KB).
 String goalSize(int bytes) => bytes < _unit * .1 ? formatBytes(bytes) : '${fmtNum(bytes / _unit, digits: 1)} ${_unitName()}';
@@ -44,7 +47,10 @@ String _ruleSub(GoalRule r) => switch (r) {
 /// groups of files first and stops once there is enough. The button opens a
 /// list to confirm, never the trash directly.
 class GoalScreen extends ConsumerStatefulWidget {
-  const GoalScreen({super.key});
+  const GoalScreen({super.key, this.initialGoal = 5});
+
+  /// 1, 3, 5 or 8 (from the Space tab).
+  final int initialGoal;
 
   @override
   ConsumerState<GoalScreen> createState() => _GoalScreenState();
@@ -52,7 +58,7 @@ class GoalScreen extends ConsumerStatefulWidget {
 
 class _GoalScreenState extends ConsumerState<GoalScreen> {
   static const goals = [1, 3, 5, 8];
-  int _goal = 5;
+  late int _goal = widget.initialGoal;
 
   Future<void> _review(GoalPlan plan) async {
     final items = plan.pickedItems(_goal * _unit);

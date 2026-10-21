@@ -6,7 +6,6 @@ import 'package:flutter/services.dart';
 import '../../core/theme.dart';
 import '../../l10n/l10n.dart';
 import '../../core/widgets.dart';
-import '../goal/goal_screen.dart';
 import 'tone_service.dart';
 
 enum _Tool { water, dust, sound }
@@ -14,7 +13,13 @@ enum _Tool { water, dust, sound }
 /// Tools tab: Water / Dust tone generators and a small Sound test.
 /// A plain sine through the speaker; results are not promised.
 class ToolsScreen extends StatefulWidget {
-  const ToolsScreen({super.key});
+  const ToolsScreen({super.key, this.initial = 0, this.pushed = false});
+
+  /// 0 Water, 1 Dust, 2 Sound test.
+  final int initial;
+
+  /// Opened from the Hub: shows a back button and needs no room for the tab bar.
+  final bool pushed;
 
   @override
   State<ToolsScreen> createState() => _ToolsScreenState();
@@ -25,7 +30,7 @@ class _ToolsScreenState extends State<ToolsScreen> with SingleTickerProviderStat
   static const _runSeconds = 30;
 
   late final AnimationController _bars = AnimationController(vsync: this, duration: const Duration(milliseconds: 1100));
-  _Tool _tool = _Tool.water;
+  late _Tool _tool = _Tool.values[widget.initial];
   bool _playing = false;
   Timer? _timer;
   int _left = _runSeconds;
@@ -122,8 +127,8 @@ class _ToolsScreenState extends State<ToolsScreen> with SingleTickerProviderStat
   Widget build(BuildContext context) {
     final (lo, hi) = _range;
     final f = _freq.clamp(lo, hi);
-    final bottom = MediaQuery.paddingOf(context).bottom + 96;
-    return ColoredBox(
+    final bottom = widget.pushed ? 24.0 : MediaQuery.paddingOf(context).bottom + 96;
+    final page = ColoredBox(
       color: SweeepColors.background,
       child: Stack(children: [
       const GlowOrb(left: 40, top: 150, width: 310, height: 250, color: Color(0x17B8A6FF), blur: 70),
@@ -132,9 +137,21 @@ class _ToolsScreenState extends State<ToolsScreen> with SingleTickerProviderStat
         child: ListView(
           padding: EdgeInsets.fromLTRB(20, 12, 20, bottom),
           children: [
+            if (widget.pushed)
+              Align(
+                alignment: Alignment.centerLeft,
+                child: GestureDetector(
+                  onTap: () => Navigator.of(context).pop(),
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    margin: const EdgeInsets.only(bottom: 10),
+                    decoration: BoxDecoration(color: SweeepColors.card, shape: BoxShape.circle, border: Border.all(color: Colors.white.withValues(alpha: .06))),
+                    child: const Icon(Icons.chevron_left_rounded, size: 22, color: SweeepColors.text),
+                  ),
+                ),
+              ),
             SizedBox(height: 40, child: Align(alignment: Alignment.centerLeft, child: Text(l10n.navTools, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w800, letterSpacing: -1)))),
-            const SizedBox(height: 14),
-            GoalEntryCard(onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const GoalScreen()))),
             const SizedBox(height: 14),
             _Segments(tool: _tool, onChanged: _pick),
             const SizedBox(height: 14),
@@ -210,6 +227,7 @@ class _ToolsScreenState extends State<ToolsScreen> with SingleTickerProviderStat
         ),
       ),
     ]));
+    return widget.pushed ? Scaffold(body: page) : page;
   }
 }
 

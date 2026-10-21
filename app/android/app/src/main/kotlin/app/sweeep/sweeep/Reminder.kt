@@ -44,7 +44,7 @@ object Reminder {
     fun arm(ctx: Context) {
         val p = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         if (!p.getBoolean("on", false)) return
-        val minutes = p.getInt("minutes", 20 * 60)
+        val minutes = p.getInt("minutes", 19 * 60)
         val at = Calendar.getInstance().apply {
             set(Calendar.HOUR_OF_DAY, minutes / 60)
             set(Calendar.MINUTE, minutes % 60)

@@ -1315,6 +1315,175 @@ class AppLocalizationsRu extends AppLocalizations {
   String get goalEntrySub => 'Задай цель, Sweeep найдёт самое надёжное';
 
   @override
+  String get navSpace => 'Место';
+
+  @override
+  String get tipHub => 'Хаб';
+
+  @override
+  String get hubTitle => 'Хаб';
+
+  @override
+  String get hubVersion => 'Sweeep 1.0';
+
+  @override
+  String get proTag => 'SWEEEP PRO';
+
+  @override
+  String get proTitle => 'Все уборщики, без лимитов';
+
+  @override
+  String get proSub => 'Сессии без лимита, быстрая уборка и сжатие видео.';
+
+  @override
+  String get proButton => 'Тарифы';
+
+  @override
+  String get proSoon => 'Тарифы скоро будут';
+
+  @override
+  String get hubMore => 'ЕЩЁ УБОРЩИКИ';
+
+  @override
+  String get cleanerEmail => 'Почта';
+
+  @override
+  String get cleanerEmailSub => 'Рассылки и мусор';
+
+  @override
+  String get cleanerApps => 'Приложения';
+
+  @override
+  String get cleanerAppsSub => 'Лишние и тяжёлые';
+
+  @override
+  String get cleanerCache => 'Кэш';
+
+  @override
+  String get cleanerCacheSub => 'Временные файлы';
+
+  @override
+  String get soonBadge => 'СКОРО';
+
+  @override
+  String get soonWord => 'Скоро';
+
+  @override
+  String get hubTools => 'УТИЛИТЫ';
+
+  @override
+  String get hubWater => 'Выгнать воду';
+
+  @override
+  String get hubWaterSub => 'Тон из динамика, 165-200 Гц';
+
+  @override
+  String get hubDust => 'Вытряхнуть пыль';
+
+  @override
+  String get hubDustSub => 'Низкий пульсирующий тон для решётки';
+
+  @override
+  String get hubSound => 'Проверка звука';
+
+  @override
+  String get hubSoundSub => 'Лево, право и свип';
+
+  @override
+  String get hubInsights => 'ИТОГИ';
+
+  @override
+  String get hubWeek => 'Твоя неделя';
+
+  @override
+  String get hubWeekSub => 'Сколько убрано и серия';
+
+  @override
+  String get hubWidgets => 'Виджеты на экран';
+
+  @override
+  String get hubWidgetsSub => 'Серия и цель дня';
+
+  @override
+  String get hubSettings => 'НАСТРОЙКИ';
+
+  @override
+  String get hubLanguage => 'Язык';
+
+  @override
+  String get langAuto => 'Авто';
+
+  @override
+  String hubRemindOn(String time) {
+    return 'Каждый день в $time';
+  }
+
+  @override
+  String get hubRemindOff => 'Выкл';
+
+  @override
+  String get hubAccess => 'Доступ к фото';
+
+  @override
+  String get hubAccessAll => 'Все фото и видео';
+
+  @override
+  String get hubAccessLimited => 'Только выбранные фото';
+
+  @override
+  String get hubAccessNone => 'Нет доступа';
+
+  @override
+  String get hubScan => 'Сканировать заново';
+
+  @override
+  String hubScanSub(int n) {
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'проиндексировано $nString файла',
+      many: 'проиндексировано $nString файлов',
+      few: 'проиндексировано $nString файла',
+      one: 'проиндексирован $nString файл',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get hubFoot1 =>
+      'Всё считается на этом телефоне. Ничего не уходит в сеть.';
+
+  @override
+  String get hubFoot2 =>
+      'Зажми номер версии, чтобы открыть экран разработчика.';
+
+  @override
+  String get spaceTitle => 'Место';
+
+  @override
+  String spaceCanGo(String unit) {
+    return '$unit можно убрать';
+  }
+
+  @override
+  String spaceFind(String size) {
+    return 'Найти $size самого надёжного';
+  }
+
+  @override
+  String get spaceMap => 'Карта места';
+
+  @override
+  String get spaceOpen => 'Открыть';
+
+  @override
+  String get spaceShrink => 'Сжать видео';
+
+  @override
   String get toolsWater => 'Вода';
 
   @override
