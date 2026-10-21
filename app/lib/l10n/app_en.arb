@@ -978,6 +978,45 @@
   },
   "wrapSaved": "Saved to Pictures/Sweeep",
   "wrapSaveFailed": "Could not save the image",
+  "goalLabel": "I NEED",
+  "goalSub": "Sweeep picks the safest files first and stops when you have enough.",
+  "goalPicked": "{size} picked",
+  "@goalPicked": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "goalReached": "goal reached",
+  "goalAllFound": "all we found, {size}",
+  "@goalAllFound": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "goalWhatFirst": "What goes first",
+  "goalSafestTop": "safest on top",
+  "goalNote": "You confirm the list first. Files go to the Sweeep trash for 30 days.",
+  "goalReview": "Review list · {size}",
+  "@goalReview": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "goalReviewTitle": "Review the list",
+  "goalSubDup": "Identical files",
+  "goalSubOldShots": "Older than 90 days",
+  "goalSubBlurry": "Check the first few",
+  "goalSubChat": "Already in a chat",
+  "goalSubRecs": "Over a minute, months old",
+  "goalSubSimilar": "Best one stays, you decide",
+  "goalEntryTitle": "I need space",
+  "goalEntrySub": "Pick a goal, Sweeep finds the safest files",
   "toolsWater": "Water",
   "toolsDust": "Dust",
   "toolsSound": "Sound test",

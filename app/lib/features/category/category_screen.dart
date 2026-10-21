@@ -26,11 +26,15 @@ String _sourceName(String s) => s.isEmpty ? s : s[0].toUpperCase() + s.substring
 /// Grid of one category (videos, screenshots, chat media). Tap to select,
 /// then move the selection to the app trash. Nothing leaves the device here.
 class CategoryScreen extends ConsumerStatefulWidget {
-  const CategoryScreen({super.key, required this.kind, this.initialSource, this.win});
+  const CategoryScreen({super.key, required this.kind, this.initialSource, this.win, this.preset});
   final CategoryKind kind;
 
   /// Quick win lists only: which rule picked these files.
   final QuickWin? win;
+
+  /// A list somebody else picked (Free by goal): every file starts selected,
+  /// the title says to check it, and there is no Swipe twin.
+  final List<CategoryItem>? preset;
 
   /// Chat only: start with this app selected.
   final String? initialSource;
@@ -49,6 +53,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
   @override
   void initState() {
     super.initState();
+    if (widget.preset != null) _selected.addAll(widget.preset!.map((e) => e.id));
     _load();
     if (widget.kind == CategoryKind.chat) {
       ref.read(reviewServiceProvider).chatSources().then((s) {
@@ -58,6 +63,12 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
   }
 
   Future<void> _load() async {
+    if (widget.preset != null) {
+      final items = await ref.read(reviewServiceProvider).itemsByIds([for (final e in widget.preset!) e.id]);
+      if (!_bySize) items.sort((a, b) => b.createdAtMs.compareTo(a.createdAtMs));
+      if (mounted) setState(() => _items = items);
+      return;
+    }
     final items = await ref.read(reviewServiceProvider).category(widget.kind, chatSource: _source, bySize: _bySize, win: widget.win);
     if (mounted) setState(() => _items = items);
   }
@@ -109,7 +120,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
           child: Stack(children: [
             Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               ListBar(
-                trailing: ModeSwitch<int>(
+                trailing: widget.preset != null ? null : ModeSwitch<int>(
                   value: 0,
                   options: [
                     ModeOption(value: 0, label: l10n.modeGrid, icon: gridModeIcon),
@@ -120,7 +131,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                   )),
                 ),
               ),
-              ListTitle(title: widget.win != null ? quickWinTitle(widget.win!) : categoryTitle(widget.kind), subtitle: items == null ? '' : '${filesLabel(items.length)} · ${formatBytes(total)}'),
+              ListTitle(title: widget.preset != null ? l10n.goalReviewTitle : (widget.win != null ? quickWinTitle(widget.win!) : categoryTitle(widget.kind)), subtitle: items == null ? '' : '${filesLabel(items.length)} · ${formatBytes(total)}'),
               ListToolbar(
                 chips: [
                   SweeepChip(l10n.sortNewest, !_bySize, () => _sort(false)),

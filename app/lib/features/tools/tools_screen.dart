@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import '../../core/theme.dart';
 import '../../l10n/l10n.dart';
 import '../../core/widgets.dart';
+import '../goal/goal_screen.dart';
 import 'tone_service.dart';
 
 enum _Tool { water, dust, sound }
@@ -132,6 +133,8 @@ class _ToolsScreenState extends State<ToolsScreen> with SingleTickerProviderStat
           padding: EdgeInsets.fromLTRB(20, 12, 20, bottom),
           children: [
             SizedBox(height: 40, child: Align(alignment: Alignment.centerLeft, child: Text(l10n.navTools, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w800, letterSpacing: -1)))),
+            const SizedBox(height: 14),
+            GoalEntryCard(onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const GoalScreen()))),
             const SizedBox(height: 14),
             _Segments(tool: _tool, onChanged: _pick),
             const SizedBox(height: 14),

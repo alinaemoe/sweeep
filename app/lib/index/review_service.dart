@@ -191,6 +191,34 @@ class ReviewService {
     ];
   }
 
+  /// These files (not in the app trash), biggest first. Used by lists a rule picked.
+  Future<List<CategoryItem>> itemsByIds(List<String> ids) async {
+    final out = <CategoryItem>[];
+    for (var i = 0; i < ids.length; i += 500) {
+      final chunk = ids.sublist(i, i + 500 > ids.length ? ids.length : i + 500);
+      final marks = List.filled(chunk.length, '?').join(',');
+      final rows = await db.customSelect(
+        '''
+        SELECT a.id AS id, a.size_bytes AS size, a.created_at_ms AS t, a.media_type AS mt, a.duration_ms AS dur, a.chat_source AS cs
+        FROM assets a WHERE a.id IN ($marks) AND a.id NOT IN (SELECT asset_id FROM trash_items)
+        ''',
+        variables: [for (final id in chunk) Variable.withString(id)],
+      ).get();
+      for (final r in rows) {
+        out.add(CategoryItem(
+          id: r.read<String>('id'),
+          sizeBytes: r.read<int>('size'),
+          createdAtMs: r.read<int>('t'),
+          isVideo: r.read<int>('mt') == 1,
+          durationMs: r.read<int?>('dur'),
+          chatSource: r.read<String?>('cs'),
+        ));
+      }
+    }
+    out.sort((a, b) => b.sizeBytes.compareTo(a.sizeBytes));
+    return out;
+  }
+
   Future<List<String>> chatSources() async {
     final rows = await db.customSelect('SELECT chat_source AS s, COUNT(*) AS n FROM assets WHERE chat_source IS NOT NULL GROUP BY chat_source ORDER BY n DESC').get();
     return [for (final r in rows) r.read<String>('s')];

@@ -1226,6 +1226,68 @@ class AppLocalizationsEn extends AppLocalizations {
   String get wrapSaveFailed => 'Could not save the image';
 
   @override
+  String get goalLabel => 'I NEED';
+
+  @override
+  String get goalSub =>
+      'Sweeep picks the safest files first and stops when you have enough.';
+
+  @override
+  String goalPicked(String size) {
+    return '$size picked';
+  }
+
+  @override
+  String get goalReached => 'goal reached';
+
+  @override
+  String goalAllFound(String size) {
+    return 'all we found, $size';
+  }
+
+  @override
+  String get goalWhatFirst => 'What goes first';
+
+  @override
+  String get goalSafestTop => 'safest on top';
+
+  @override
+  String get goalNote =>
+      'You confirm the list first. Files go to the Sweeep trash for 30 days.';
+
+  @override
+  String goalReview(String size) {
+    return 'Review list · $size';
+  }
+
+  @override
+  String get goalReviewTitle => 'Review the list';
+
+  @override
+  String get goalSubDup => 'Identical files';
+
+  @override
+  String get goalSubOldShots => 'Older than 90 days';
+
+  @override
+  String get goalSubBlurry => 'Check the first few';
+
+  @override
+  String get goalSubChat => 'Already in a chat';
+
+  @override
+  String get goalSubRecs => 'Over a minute, months old';
+
+  @override
+  String get goalSubSimilar => 'Best one stays, you decide';
+
+  @override
+  String get goalEntryTitle => 'I need space';
+
+  @override
+  String get goalEntrySub => 'Pick a goal, Sweeep finds the safest files';
+
+  @override
   String get toolsWater => 'Water';
 
   @override

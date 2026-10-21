@@ -1724,6 +1724,114 @@ abstract class AppLocalizations {
   /// **'Could not save the image'**
   String get wrapSaveFailed;
 
+  /// No description provided for @goalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'I NEED'**
+  String get goalLabel;
+
+  /// No description provided for @goalSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Sweeep picks the safest files first and stops when you have enough.'**
+  String get goalSub;
+
+  /// No description provided for @goalPicked.
+  ///
+  /// In en, this message translates to:
+  /// **'{size} picked'**
+  String goalPicked(String size);
+
+  /// No description provided for @goalReached.
+  ///
+  /// In en, this message translates to:
+  /// **'goal reached'**
+  String get goalReached;
+
+  /// No description provided for @goalAllFound.
+  ///
+  /// In en, this message translates to:
+  /// **'all we found, {size}'**
+  String goalAllFound(String size);
+
+  /// No description provided for @goalWhatFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'What goes first'**
+  String get goalWhatFirst;
+
+  /// No description provided for @goalSafestTop.
+  ///
+  /// In en, this message translates to:
+  /// **'safest on top'**
+  String get goalSafestTop;
+
+  /// No description provided for @goalNote.
+  ///
+  /// In en, this message translates to:
+  /// **'You confirm the list first. Files go to the Sweeep trash for 30 days.'**
+  String get goalNote;
+
+  /// No description provided for @goalReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Review list · {size}'**
+  String goalReview(String size);
+
+  /// No description provided for @goalReviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Review the list'**
+  String get goalReviewTitle;
+
+  /// No description provided for @goalSubDup.
+  ///
+  /// In en, this message translates to:
+  /// **'Identical files'**
+  String get goalSubDup;
+
+  /// No description provided for @goalSubOldShots.
+  ///
+  /// In en, this message translates to:
+  /// **'Older than 90 days'**
+  String get goalSubOldShots;
+
+  /// No description provided for @goalSubBlurry.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the first few'**
+  String get goalSubBlurry;
+
+  /// No description provided for @goalSubChat.
+  ///
+  /// In en, this message translates to:
+  /// **'Already in a chat'**
+  String get goalSubChat;
+
+  /// No description provided for @goalSubRecs.
+  ///
+  /// In en, this message translates to:
+  /// **'Over a minute, months old'**
+  String get goalSubRecs;
+
+  /// No description provided for @goalSubSimilar.
+  ///
+  /// In en, this message translates to:
+  /// **'Best one stays, you decide'**
+  String get goalSubSimilar;
+
+  /// No description provided for @goalEntryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'I need space'**
+  String get goalEntryTitle;
+
+  /// No description provided for @goalEntrySub.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a goal, Sweeep finds the safest files'**
+  String get goalEntrySub;
+
   /// No description provided for @toolsWater.
   ///
   /// In en, this message translates to:

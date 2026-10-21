@@ -1253,6 +1253,68 @@ class AppLocalizationsRu extends AppLocalizations {
   String get wrapSaveFailed => 'Не получилось сохранить';
 
   @override
+  String get goalLabel => 'МНЕ НУЖНО';
+
+  @override
+  String get goalSub =>
+      'Sweeep берёт самое надёжное и останавливается, когда хватит.';
+
+  @override
+  String goalPicked(String size) {
+    return 'выбрано: $size';
+  }
+
+  @override
+  String get goalReached => 'цель набрана';
+
+  @override
+  String goalAllFound(String size) {
+    return 'это всё, что нашли: $size';
+  }
+
+  @override
+  String get goalWhatFirst => 'Что уйдёт первым';
+
+  @override
+  String get goalSafestTop => 'сверху самое надёжное';
+
+  @override
+  String get goalNote =>
+      'Сначала ты проверишь список. Файлы уйдут в корзину Sweeep на 30 дней.';
+
+  @override
+  String goalReview(String size) {
+    return 'Проверить список · $size';
+  }
+
+  @override
+  String get goalReviewTitle => 'Проверь список';
+
+  @override
+  String get goalSubDup => 'Одинаковые файлы';
+
+  @override
+  String get goalSubOldShots => 'Старше 90 дней';
+
+  @override
+  String get goalSubBlurry => 'Глянь первые несколько';
+
+  @override
+  String get goalSubChat => 'Уже есть в чате';
+
+  @override
+  String get goalSubRecs => 'Дольше минуты, давно записаны';
+
+  @override
+  String get goalSubSimilar => 'Лучшая остаётся, решаешь ты';
+
+  @override
+  String get goalEntryTitle => 'Мне нужно место';
+
+  @override
+  String get goalEntrySub => 'Задай цель, Sweeep найдёт самое надёжное';
+
+  @override
   String get toolsWater => 'Вода';
 
   @override

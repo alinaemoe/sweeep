@@ -14,6 +14,7 @@ import '../../l10n/l10n.dart';
 import '../../providers.dart';
 import '../category/category_screen.dart';
 import '../groups/group_widgets.dart';
+import '../goal/goal_screen.dart';
 import '../groups/groups_screen.dart';
 import '../swipe/swipe_screen.dart';
 import 'storage_labels.dart';
@@ -163,6 +164,7 @@ class _StorageScreenState extends ConsumerState<StorageScreen> {
               SizedBox(width: double.infinity, height: 48, child: PillButton(height: 48, label: l10n.storReview, onPressed: () => _open(_reviewFor(_cut, sel)))),
             ]),
           ),
+        Padding(padding: const EdgeInsets.fromLTRB(20, 14, 20, 0), child: GoalEntryCard(onTap: () => _open(const GoalScreen()))),
         if (wins.isNotEmpty) ...[
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 28, 20, 0),

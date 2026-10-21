@@ -9,6 +9,7 @@ import 'core/gray_image.dart';
 import 'core/native_core.dart';
 import 'data/database.dart';
 import 'index/analysis_service.dart';
+import 'index/goal_service.dart';
 import 'index/group_service.dart';
 import 'index/home_service.dart';
 import 'index/index_service.dart';
@@ -65,6 +66,9 @@ final sessionOverviewProvider = FutureProvider.autoDispose<SessionOverview>((ref
 final streakProvider = FutureProvider.autoDispose<StreakInfo>((ref) => ref.watch(sessionServiceProvider).streak());
 
 final monthWrapServiceProvider = Provider<MonthWrapService>((ref) => MonthWrapService(ref.watch(databaseProvider)));
+
+/// The plan behind Free by goal, rebuilt each time the screen opens.
+final goalPlanProvider = FutureProvider.autoDispose<GoalPlan>((ref) => GoalService(ref.watch(databaseProvider)).load());
 
 final reviewServiceProvider = Provider<ReviewService>((ref) => ReviewService(ref.watch(databaseProvider)));
 
