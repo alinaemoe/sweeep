@@ -13,6 +13,9 @@ void main() {
     final ru = arb('ru').keys.where((k) => !k.startsWith('@')).toSet();
     expect(ru.difference(en), isEmpty);
     expect(en.difference(ru), isEmpty);
+    final it = arb('it').keys.where((k) => !k.startsWith('@')).toSet();
+    expect(it.difference(en), isEmpty);
+    expect(en.difference(it), isEmpty);
   });
 
   test('plural forms follow each language', () {
@@ -24,7 +27,7 @@ void main() {
   });
 
   test('placeholders are filled in both languages', () {
-    for (final lang in ['en', 'ru']) {
+    for (final lang in ['en', 'ru', 'it']) {
       final l = lookupAppLocalizations(Locale(lang));
       expect(l.pagerTrashN(2, '3 MB'), allOf(contains('2'), contains('3 MB')));
       expect(l.swipeOf(3, 9), allOf(contains('3'), contains('9')));

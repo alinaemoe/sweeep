@@ -9,8 +9,6 @@ import '../../index/review_service.dart';
 import '../../providers.dart';
 import '../groups/group_widgets.dart';
 import 'swipe_screen.dart';
-import '../../core/nav_icons.dart';
-import '../hub/hub_screen.dart';
 import '../session/session_screen.dart';
 import '../wrap/month_wrap_screen.dart';
 
@@ -81,11 +79,6 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(20, 12, 20, 22),
                         child: Column(children: [
-                          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                            const SweeepWordmark(size: 26),
-                            HubButton(onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const HubScreen()))),
-                          ]),
-                          const SizedBox(height: 10),
                           Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                           Expanded(
                             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [

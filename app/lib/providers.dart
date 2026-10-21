@@ -93,7 +93,7 @@ class LanguageController extends Notifier<String> {
   Future<void> _load() async {
     final db = ref.read(databaseProvider);
     final row = await (db.select(db.scanState)..where((s) => s.key.equals(key))).getSingleOrNull();
-    if (row != null && const ['auto', 'en', 'ru'].contains(row.value)) state = row.value;
+    if (row != null && const ['auto', 'en', 'ru', 'it'].contains(row.value)) state = row.value;
   }
 
   Future<void> set(String v) async {

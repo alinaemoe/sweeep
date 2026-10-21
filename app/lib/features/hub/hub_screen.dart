@@ -345,7 +345,7 @@ class _Lang extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final items = [('auto', l10n.langAuto), ('en', 'EN'), ('ru', 'RU')];
+    final items = [('auto', l10n.langAuto), ('en', 'EN'), ('ru', 'RU'), ('it', 'IT')];
     return Container(
       padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(color: SweeepColors.background, borderRadius: BorderRadius.circular(18), border: Border.all(color: Colors.white.withValues(alpha: .08))),
