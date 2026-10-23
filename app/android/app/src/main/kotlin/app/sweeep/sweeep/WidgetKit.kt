@@ -278,6 +278,7 @@ object WidgetRenderer {
         return bmp
     }
 
+
     private fun minute(ctx: Context, s: WidgetState, w0: Float, h0: Float, dp: Float): Bitmap {
         if (w0 / h0 > 1.3f) return minuteWide(ctx, s, w0, h0, dp)
         val (bmp, c) = base(w0, h0, dp, false)

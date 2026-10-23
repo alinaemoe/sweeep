@@ -110,12 +110,14 @@ class _WidgetsScreenState extends ConsumerState<WidgetsScreen> {
               delay: const Duration(milliseconds: 100),
               child: Padding(
                   padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
-                  child: _Preview(
-                      key: ValueKey('t$_stamp'),
-                      kind: 'today',
-                      w: w - 40,
-                      h: _rowH,
-                      onTap: () => _add('today'))),
+                  child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: _Preview(
+                          key: ValueKey('t$_stamp'),
+                          kind: 'today',
+                          w: w - 40,
+                          h: 150,
+                          onTap: () => _add('today')))),
             ),
             _label(l10n.widgetOneMin, top: 26),
             Rise(

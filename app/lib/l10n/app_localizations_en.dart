@@ -1945,7 +1945,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Widgets read numbers from the on-device database and open the app on tap. They show only counts, never photos, so nothing private sits on the home screen. Tap a widget to add it.';
 
   @override
-  String get widgetToday => 'WIDGET 4×1 · TODAY';
+  String get widgetToday => 'WIDGET 4×2 · TODAY';
 
   @override
   String get widgetOneMin => 'WIDGET 2×1 · ONE MINUTE AND CAN FREE';

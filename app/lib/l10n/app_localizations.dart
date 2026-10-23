@@ -2749,7 +2749,7 @@ abstract class AppLocalizations {
   /// No description provided for @widgetToday.
   ///
   /// In en, this message translates to:
-  /// **'WIDGET 4×1 · TODAY'**
+  /// **'WIDGET 4×2 · TODAY'**
   String get widgetToday;
 
   /// No description provided for @widgetOneMin.
