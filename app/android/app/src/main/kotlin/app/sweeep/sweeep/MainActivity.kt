@@ -12,5 +12,6 @@ class MainActivity : FlutterActivity() {
         flutterEngine.plugins.add(ReminderPlugin())
         flutterEngine.plugins.add(ImageSaverPlugin())
         flutterEngine.plugins.add(SystemPlugin())
+        flutterEngine.plugins.add(AppsPlugin())
     }
 }

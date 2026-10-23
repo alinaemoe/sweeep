@@ -102,8 +102,9 @@ class HubButton extends StatelessWidget {
 
 /// "rise": opacity 0 and 14 down to rest, 0.5 s ease-out, after [delay].
 class Rise extends StatefulWidget {
-  const Rise({super.key, this.delay = Duration.zero, required this.child});
+  const Rise({super.key, this.delay = Duration.zero, this.dy = 14, required this.child});
   final Duration delay;
+  final double dy;
   final Widget child;
 
   @override
@@ -136,7 +137,7 @@ class _RiseState extends State<Rise> with SingleTickerProviderStateMixin {
         animation: _c,
         builder: (_, child) {
           final t = Curves.easeOut.transform(_c.value);
-          return Opacity(opacity: t, child: Transform.translate(offset: Offset(0, 14 * (1 - t)), child: child));
+          return Opacity(opacity: t, child: Transform.translate(offset: Offset(0, widget.dy * (1 - t)), child: child));
         },
         child: widget.child,
       );

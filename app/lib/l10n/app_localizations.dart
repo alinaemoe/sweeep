@@ -2253,6 +2253,210 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Start at low volume and keep the phone away from your ear. Results aren\'t guaranteed.'**
   String get toolsWarning;
+
+  /// No description provided for @appsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'App cleaner'**
+  String get appsTitle;
+
+  /// No description provided for @appsHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} · {size}'**
+  String appsHeader(String count, String size);
+
+  /// No description provided for @appsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{1 app} other{{n} apps}}'**
+  String appsCount(int n);
+
+  /// No description provided for @appsUnusedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'NOT OPENED IN 60+ DAYS'**
+  String get appsUnusedLabel;
+
+  /// No description provided for @appsAllLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'ALL YOUR APPS'**
+  String get appsAllLabel;
+
+  /// No description provided for @appsUnusedIn.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{{unit} in 1 app} other{{unit} in {n} apps}}'**
+  String appsUnusedIn(int n, String unit);
+
+  /// No description provided for @appsOfTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'of {size} all apps use. Sizes include app data.'**
+  String appsOfTotal(String size);
+
+  /// No description provided for @appsOfTotalApk.
+  ///
+  /// In en, this message translates to:
+  /// **'of {size} all apps use. App files only, no data.'**
+  String appsOfTotalApk(String size);
+
+  /// No description provided for @appsSortSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Biggest'**
+  String get appsSortSize;
+
+  /// No description provided for @appsSortUnused.
+  ///
+  /// In en, this message translates to:
+  /// **'Unused'**
+  String get appsSortUnused;
+
+  /// No description provided for @appsSortRecent.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent'**
+  String get appsSortRecent;
+
+  /// No description provided for @appsAgeDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{Not opened for 1 day} other{Not opened for {n} days}}'**
+  String appsAgeDays(int n);
+
+  /// No description provided for @appsOpenedToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Opened today'**
+  String get appsOpenedToday;
+
+  /// No description provided for @appsNeverOpened.
+  ///
+  /// In en, this message translates to:
+  /// **'Not opened yet'**
+  String get appsNeverOpened;
+
+  /// No description provided for @appsOpenedYesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Opened yesterday'**
+  String get appsOpenedYesterday;
+
+  /// No description provided for @appsUninstallNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Android asks you to confirm each uninstall.'**
+  String get appsUninstallNote;
+
+  /// No description provided for @appsUninstall.
+  ///
+  /// In en, this message translates to:
+  /// **'Uninstall {n} · free {size}'**
+  String appsUninstall(int n, String size);
+
+  /// No description provided for @appsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No apps to show'**
+  String get appsEmpty;
+
+  /// No description provided for @appsNoAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Sizes only. Allow usage access to see which apps sit unused.'**
+  String get appsNoAccess;
+
+  /// No description provided for @appsAllowAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Show unused apps'**
+  String get appsAllowAccess;
+
+  /// No description provided for @appsUninstallFail.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not remove {name}'**
+  String appsUninstallFail(String name);
+
+  /// No description provided for @usageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'See which apps you forgot'**
+  String get usageTitle;
+
+  /// No description provided for @usageSub.
+  ///
+  /// In en, this message translates to:
+  /// **'To tell used apps from forgotten ones, Android needs your OK once.'**
+  String get usageSub;
+
+  /// No description provided for @usageDoneTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'All set'**
+  String get usageDoneTitle;
+
+  /// No description provided for @usageDoneSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Sweeep can now tell which apps sit unused. Nothing leaves your phone.'**
+  String get usageDoneSub;
+
+  /// No description provided for @usageReadLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'WE READ'**
+  String get usageReadLabel;
+
+  /// No description provided for @usageReadText.
+  ///
+  /// In en, this message translates to:
+  /// **'The date each app was last opened and how much space it uses.'**
+  String get usageReadText;
+
+  /// No description provided for @usageNeverLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'WE NEVER'**
+  String get usageNeverLabel;
+
+  /// No description provided for @usageNeverText.
+  ///
+  /// In en, this message translates to:
+  /// **'See what you do inside an app, send anything off the phone, or remove an app without your tap.'**
+  String get usageNeverText;
+
+  /// No description provided for @usageCanLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'YOU CAN'**
+  String get usageCanLabel;
+
+  /// No description provided for @usageCanText.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch it off any time in Android settings. Sizes still work without it.'**
+  String get usageCanText;
+
+  /// No description provided for @usageOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Android settings'**
+  String get usageOpen;
+
+  /// No description provided for @usageSee.
+  ///
+  /// In en, this message translates to:
+  /// **'See my apps'**
+  String get usageSee;
+
+  /// No description provided for @usageSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip, show sizes only'**
+  String get usageSkip;
 }
 
 class _AppLocalizationsDelegate

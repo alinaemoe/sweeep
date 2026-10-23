@@ -1520,4 +1520,162 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get toolsWarning =>
       'Start at low volume and keep the phone away from your ear. Results aren\'t guaranteed.';
+
+  @override
+  String get appsTitle => 'App cleaner';
+
+  @override
+  String appsHeader(String count, String size) {
+    return '$count · $size';
+  }
+
+  @override
+  String appsCount(int n) {
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nString apps',
+      one: '1 app',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get appsUnusedLabel => 'NOT OPENED IN 60+ DAYS';
+
+  @override
+  String get appsAllLabel => 'ALL YOUR APPS';
+
+  @override
+  String appsUnusedIn(int n, String unit) {
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$unit in $nString apps',
+      one: '$unit in 1 app',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String appsOfTotal(String size) {
+    return 'of $size all apps use. Sizes include app data.';
+  }
+
+  @override
+  String appsOfTotalApk(String size) {
+    return 'of $size all apps use. App files only, no data.';
+  }
+
+  @override
+  String get appsSortSize => 'Biggest';
+
+  @override
+  String get appsSortUnused => 'Unused';
+
+  @override
+  String get appsSortRecent => 'Recent';
+
+  @override
+  String appsAgeDays(int n) {
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Not opened for $nString days',
+      one: 'Not opened for 1 day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get appsOpenedToday => 'Opened today';
+
+  @override
+  String get appsNeverOpened => 'Not opened yet';
+
+  @override
+  String get appsOpenedYesterday => 'Opened yesterday';
+
+  @override
+  String get appsUninstallNote => 'Android asks you to confirm each uninstall.';
+
+  @override
+  String appsUninstall(int n, String size) {
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    return 'Uninstall $nString · free $size';
+  }
+
+  @override
+  String get appsEmpty => 'No apps to show';
+
+  @override
+  String get appsNoAccess =>
+      'Sizes only. Allow usage access to see which apps sit unused.';
+
+  @override
+  String get appsAllowAccess => 'Show unused apps';
+
+  @override
+  String appsUninstallFail(String name) {
+    return 'Could not remove $name';
+  }
+
+  @override
+  String get usageTitle => 'See which apps you forgot';
+
+  @override
+  String get usageSub =>
+      'To tell used apps from forgotten ones, Android needs your OK once.';
+
+  @override
+  String get usageDoneTitle => 'All set';
+
+  @override
+  String get usageDoneSub =>
+      'Sweeep can now tell which apps sit unused. Nothing leaves your phone.';
+
+  @override
+  String get usageReadLabel => 'WE READ';
+
+  @override
+  String get usageReadText =>
+      'The date each app was last opened and how much space it uses.';
+
+  @override
+  String get usageNeverLabel => 'WE NEVER';
+
+  @override
+  String get usageNeverText =>
+      'See what you do inside an app, send anything off the phone, or remove an app without your tap.';
+
+  @override
+  String get usageCanLabel => 'YOU CAN';
+
+  @override
+  String get usageCanText =>
+      'Switch it off any time in Android settings. Sizes still work without it.';
+
+  @override
+  String get usageOpen => 'Open Android settings';
+
+  @override
+  String get usageSee => 'See my apps';
+
+  @override
+  String get usageSkip => 'Skip, show sizes only';
 }

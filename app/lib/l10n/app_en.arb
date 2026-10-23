@@ -1129,5 +1129,108 @@
   "toolsBass": "Bass 60 Hz",
   "toolsTreble": "Treble 8 kHz",
   "toolsSweep": "Sweep",
-  "toolsWarning": "Start at low volume and keep the phone away from your ear. Results aren't guaranteed."
+  "toolsWarning": "Start at low volume and keep the phone away from your ear. Results aren't guaranteed.",
+  "appsTitle": "App cleaner",
+  "appsHeader": "{count} · {size}",
+  "@appsHeader": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "appsCount": "{n, plural, =1{1 app} other{{n} apps}}",
+  "@appsCount": {
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "appsUnusedLabel": "NOT OPENED IN 60+ DAYS",
+  "appsAllLabel": "ALL YOUR APPS",
+  "appsUnusedIn": "{n, plural, =1{{unit} in 1 app} other{{unit} in {n} apps}}",
+  "@appsUnusedIn": {
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "format": "decimalPattern"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "appsOfTotal": "of {size} all apps use. Sizes include app data.",
+  "@appsOfTotal": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "appsOfTotalApk": "of {size} all apps use. App files only, no data.",
+  "@appsOfTotalApk": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "appsSortSize": "Biggest",
+  "appsSortUnused": "Unused",
+  "appsSortRecent": "Recent",
+  "appsAgeDays": "{n, plural, =1{Not opened for 1 day} other{Not opened for {n} days}}",
+  "@appsAgeDays": {
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "appsOpenedToday": "Opened today",
+  "appsNeverOpened": "Not opened yet",
+  "appsOpenedYesterday": "Opened yesterday",
+  "appsUninstallNote": "Android asks you to confirm each uninstall.",
+  "appsUninstall": "Uninstall {n} · free {size}",
+  "@appsUninstall": {
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "format": "decimalPattern"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "appsEmpty": "No apps to show",
+  "appsNoAccess": "Sizes only. Allow usage access to see which apps sit unused.",
+  "appsAllowAccess": "Show unused apps",
+  "appsUninstallFail": "Could not remove {name}",
+  "@appsUninstallFail": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "usageTitle": "See which apps you forgot",
+  "usageSub": "To tell used apps from forgotten ones, Android needs your OK once.",
+  "usageDoneTitle": "All set",
+  "usageDoneSub": "Sweeep can now tell which apps sit unused. Nothing leaves your phone.",
+  "usageReadLabel": "WE READ",
+  "usageReadText": "The date each app was last opened and how much space it uses.",
+  "usageNeverLabel": "WE NEVER",
+  "usageNeverText": "See what you do inside an app, send anything off the phone, or remove an app without your tap.",
+  "usageCanLabel": "YOU CAN",
+  "usageCanText": "Switch it off any time in Android settings. Sizes still work without it.",
+  "usageOpen": "Open Android settings",
+  "usageSee": "See my apps",
+  "usageSkip": "Skip, show sizes only"
 }

@@ -1550,4 +1550,169 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get toolsWarning =>
       'Начни с тихого звука и держи телефон подальше от уха. Результат не гарантируем.';
+
+  @override
+  String get appsTitle => 'Чистка приложений';
+
+  @override
+  String appsHeader(String count, String size) {
+    return '$count · $size';
+  }
+
+  @override
+  String appsCount(int n) {
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nString приложения',
+      many: '$nString приложений',
+      few: '$nString приложения',
+      one: '$nString приложение',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get appsUnusedLabel => 'НЕ ОТКРЫВАЛИ 60+ ДНЕЙ';
+
+  @override
+  String get appsAllLabel => 'ВСЕ ПРИЛОЖЕНИЯ';
+
+  @override
+  String appsUnusedIn(int n, String unit) {
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$unit в $nString приложениях',
+      many: '$unit в $nString приложениях',
+      few: '$unit в $nString приложениях',
+      one: '$unit в $nString приложении',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String appsOfTotal(String size) {
+    return 'из $size, которые занимают все приложения. Размер вместе с данными.';
+  }
+
+  @override
+  String appsOfTotalApk(String size) {
+    return 'из $size, которые занимают все приложения. Только файлы, без данных.';
+  }
+
+  @override
+  String get appsSortSize => 'Крупные';
+
+  @override
+  String get appsSortUnused => 'Забытые';
+
+  @override
+  String get appsSortRecent => 'Свежие';
+
+  @override
+  String appsAgeDays(int n) {
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Не открывали $nString дня',
+      many: 'Не открывали $nString дней',
+      few: 'Не открывали $nString дня',
+      one: 'Не открывали $nString день',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get appsOpenedToday => 'Открывали сегодня';
+
+  @override
+  String get appsNeverOpened => 'Ещё не открывали';
+
+  @override
+  String get appsOpenedYesterday => 'Открывали вчера';
+
+  @override
+  String get appsUninstallNote =>
+      'Android спросит подтверждение для каждого приложения.';
+
+  @override
+  String appsUninstall(int n, String size) {
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    return 'Удалить $nString · освободить $size';
+  }
+
+  @override
+  String get appsEmpty => 'Приложений нет';
+
+  @override
+  String get appsNoAccess =>
+      'Только размеры. Дай доступ к статистике, чтобы увидеть забытые.';
+
+  @override
+  String get appsAllowAccess => 'Показать забытые';
+
+  @override
+  String appsUninstallFail(String name) {
+    return 'Не удалось удалить $name';
+  }
+
+  @override
+  String get usageTitle => 'Найдём забытые приложения';
+
+  @override
+  String get usageSub =>
+      'Чтобы отличить нужные приложения от забытых, Android один раз спросит твоё согласие.';
+
+  @override
+  String get usageDoneTitle => 'Готово';
+
+  @override
+  String get usageDoneSub =>
+      'Теперь Sweeep видит, какие приложения лежат без дела. Ничего не уходит с телефона.';
+
+  @override
+  String get usageReadLabel => 'МЫ ЧИТАЕМ';
+
+  @override
+  String get usageReadText =>
+      'Дату последнего запуска каждого приложения и сколько места оно занимает.';
+
+  @override
+  String get usageNeverLabel => 'МЫ НИКОГДА';
+
+  @override
+  String get usageNeverText =>
+      'Не смотрим, что ты делаешь внутри приложений, ничего не отправляем с телефона и не удаляем без твоего нажатия.';
+
+  @override
+  String get usageCanLabel => 'ТЫ МОЖЕШЬ';
+
+  @override
+  String get usageCanText =>
+      'Выключить это в любой момент в настройках Android. Размеры работают и без доступа.';
+
+  @override
+  String get usageOpen => 'Открыть настройки Android';
+
+  @override
+  String get usageSee => 'Показать мои приложения';
+
+  @override
+  String get usageSkip => 'Пропустить, только размеры';
 }

@@ -6,10 +6,13 @@ import '../../core/nav_icons.dart';
 import '../../core/theme.dart';
 import '../../index/session_service.dart';
 import '../../l10n/l10n.dart';
+import '../../platform/apps.dart';
 import '../../platform/messages.g.dart' show PermissionState;
 import '../../platform/reminder.dart';
 import '../../platform/system_settings.dart';
 import '../../providers.dart';
+import '../apps/apps_screen.dart';
+import '../apps/usage_access_screen.dart';
 import '../library/library_screen.dart';
 import '../tools/tools_screen.dart';
 
@@ -195,6 +198,8 @@ class _HubScreenState extends ConsumerState<HubScreen> with WidgetsBindingObserv
                         icon: const [Icons.mail_outline_rounded, Icons.apps_rounded, Icons.save_alt_rounded][i],
                         title: [l10n.cleanerEmail, l10n.cleanerApps, l10n.cleanerCache][i],
                         sub: [l10n.cleanerEmailSub, l10n.cleanerAppsSub, l10n.cleanerCacheSub][i],
+                        live: i == 1,
+                        onTap: i == 1 ? _openApps : null,
                       ),
                     ),
                   ),
@@ -235,6 +240,12 @@ class _HubScreenState extends ConsumerState<HubScreen> with WidgetsBindingObserv
     );
   }
 
+  Future<void> _openApps() async {
+    final granted = await AppsPlatform.usageGranted();
+    if (!mounted) return;
+    await Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => granted ? const AppsScreen(usage: true) : const UsageAccessScreen()));
+  }
+
   Widget _label(String t) => Padding(
         padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
         child: Text(t, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 2, color: _muted)),
@@ -254,15 +265,20 @@ class _HubScreenState extends ConsumerState<HubScreen> with WidgetsBindingObserv
 }
 
 class _Cleaner extends StatelessWidget {
-  const _Cleaner({required this.icon, required this.title, required this.sub});
+  const _Cleaner({required this.icon, required this.title, required this.sub, this.live = false, this.onTap});
+  final bool live;
+  final VoidCallback? onTap;
   final IconData icon;
   final String title;
   final String sub;
 
   @override
-  Widget build(BuildContext context) => Container(
+  Widget build(BuildContext context) => GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: Container(
         padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
-        decoration: BoxDecoration(color: SweeepColors.card, borderRadius: BorderRadius.circular(24), border: Border.all(color: Colors.white.withValues(alpha: .06))),
+        decoration: BoxDecoration(color: SweeepColors.card, borderRadius: BorderRadius.circular(24), border: Border.all(color: live ? SweeepColors.brand.withValues(alpha: .4) : Colors.white.withValues(alpha: .06))),
         child: Stack(children: [
           Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Container(
@@ -276,9 +292,9 @@ class _Cleaner extends StatelessWidget {
             const SizedBox(height: 2),
             Text(sub, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: _muted)),
           ]),
-          const Positioned(right: -2, top: -4, child: _Soon()),
+          if (!live) const Positioned(right: -2, top: -4, child: _Soon()),
         ]),
-      );
+      ));
 }
 
 class _Soon extends StatelessWidget {

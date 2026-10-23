@@ -1528,4 +1528,163 @@ class AppLocalizationsIt extends AppLocalizations {
   @override
   String get toolsWarning =>
       'Parti con il volume basso e tieni il telefono lontano dall\'orecchio. I risultati non sono garantiti.';
+
+  @override
+  String get appsTitle => 'Pulizia app';
+
+  @override
+  String appsHeader(String count, String size) {
+    return '$count · $size';
+  }
+
+  @override
+  String appsCount(int n) {
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nString app',
+      one: '1 app',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get appsUnusedLabel => 'NON APERTE DA 60+ GIORNI';
+
+  @override
+  String get appsAllLabel => 'TUTTE LE APP';
+
+  @override
+  String appsUnusedIn(int n, String unit) {
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$unit in $nString app',
+      one: '$unit in 1 app',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String appsOfTotal(String size) {
+    return 'su $size usati da tutte le app. Le dimensioni includono i dati.';
+  }
+
+  @override
+  String appsOfTotalApk(String size) {
+    return 'su $size usati da tutte le app. Solo i file, senza dati.';
+  }
+
+  @override
+  String get appsSortSize => 'Più grandi';
+
+  @override
+  String get appsSortUnused => 'Inutilizzate';
+
+  @override
+  String get appsSortRecent => 'Recenti';
+
+  @override
+  String appsAgeDays(int n) {
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Non aperta da $nString giorni',
+      one: 'Non aperta da 1 giorno',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get appsOpenedToday => 'Aperta oggi';
+
+  @override
+  String get appsNeverOpened => 'Mai aperta';
+
+  @override
+  String get appsOpenedYesterday => 'Aperta ieri';
+
+  @override
+  String get appsUninstallNote =>
+      'Android chiede di confermare ogni disinstallazione.';
+
+  @override
+  String appsUninstall(int n, String size) {
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    return 'Disinstalla $nString · libera $size';
+  }
+
+  @override
+  String get appsEmpty => 'Nessuna app da mostrare';
+
+  @override
+  String get appsNoAccess =>
+      'Solo dimensioni. Consenti l\'accesso all\'utilizzo per vedere quali app non usi.';
+
+  @override
+  String get appsAllowAccess => 'Mostra le app inutilizzate';
+
+  @override
+  String appsUninstallFail(String name) {
+    return 'Impossibile rimuovere $name';
+  }
+
+  @override
+  String get usageTitle => 'Scopri quali app hai dimenticato';
+
+  @override
+  String get usageSub =>
+      'Per distinguere le app usate da quelle dimenticate, Android ha bisogno del tuo OK una volta.';
+
+  @override
+  String get usageDoneTitle => 'Tutto pronto';
+
+  @override
+  String get usageDoneSub =>
+      'Ora Sweeep sa quali app restano inutilizzate. Nulla lascia il telefono.';
+
+  @override
+  String get usageReadLabel => 'LEGGIAMO';
+
+  @override
+  String get usageReadText =>
+      'La data dell\'ultima apertura di ogni app e quanto spazio occupa.';
+
+  @override
+  String get usageNeverLabel => 'NON FACCIAMO MAI';
+
+  @override
+  String get usageNeverText =>
+      'Non vediamo cosa fai dentro un\'app, non inviamo nulla fuori dal telefono e non rimuoviamo un\'app senza il tuo tocco.';
+
+  @override
+  String get usageCanLabel => 'PUOI';
+
+  @override
+  String get usageCanText =>
+      'Disattivarlo in qualsiasi momento nelle impostazioni di Android. Le dimensioni funzionano anche senza.';
+
+  @override
+  String get usageOpen => 'Apri le impostazioni di Android';
+
+  @override
+  String get usageSee => 'Vedi le mie app';
+
+  @override
+  String get usageSkip => 'Salta, mostra solo le dimensioni';
 }
