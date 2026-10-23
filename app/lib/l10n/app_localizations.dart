@@ -2743,19 +2743,19 @@ abstract class AppLocalizations {
   /// No description provided for @widgetsNote.
   ///
   /// In en, this message translates to:
-  /// **'Widgets read numbers from the on-device database and open the app on tap. They show only counts, never photos, so nothing private sits on the home screen.'**
+  /// **'Widgets read numbers from the on-device database and open the app on tap. They show only counts, never photos, so nothing private sits on the home screen. Tap a widget to add it.'**
   String get widgetsNote;
 
   /// No description provided for @widgetToday.
   ///
   /// In en, this message translates to:
-  /// **'WIDGET 4×2 · TODAY'**
+  /// **'WIDGET 4×1 · TODAY'**
   String get widgetToday;
 
   /// No description provided for @widgetOneMin.
   ///
   /// In en, this message translates to:
-  /// **'WIDGET 2×2 · ONE MINUTE'**
+  /// **'WIDGET 2×1 · ONE MINUTE AND CAN FREE'**
   String get widgetOneMin;
 
   /// No description provided for @widgetCanFree.

@@ -1951,13 +1951,13 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get widgetsNote =>
-      'I widget leggono i numeri dal database sul telefono e aprono l\'app al tocco. Mostrano solo numeri, mai foto, così sulla schermata home non resta nulla di privato.';
+      'I widget leggono i numeri dal database sul telefono e aprono l\'app al tocco. Mostrano solo numeri, mai foto, così sulla schermata home non resta nulla di privato. Tocca un widget per aggiungerlo.';
 
   @override
   String get widgetToday => 'WIDGET 4×2 · OGGI';
 
   @override
-  String get widgetOneMin => 'WIDGET 2×2 · UN MINUTO';
+  String get widgetOneMin => 'WIDGET 2×1 · UN MINUTO E PUOI LIBERARE';
 
   @override
   String get widgetCanFree => 'WIDGET 2×2 · PUOI LIBERARE';

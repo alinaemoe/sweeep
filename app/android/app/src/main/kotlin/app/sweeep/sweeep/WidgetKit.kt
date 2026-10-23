@@ -60,6 +60,9 @@ object WidgetStore {
     /// Before the app has written anything: neat defaults, no numbers.
     fun empty(goal: Int = 50) = WidgetState(false, 0, goal, 0, null, "GB", "/ $goal today", "", "No streak yet", "Continue", "Swipe 25 now", "about 2 min", "CAN FREE", "Tap to open the storage map", "Open Sweeep to start")
 
+    /// The numbers of the prototype, for the images the widget picker shows.
+    fun sample() = WidgetState(true, 31, 50, 8, "12.4", "GB", "/ 50 today", "19 left for a 9-day streak", "8 day streak", "Continue", "Swipe 25 now", "about 2 min", "CAN FREE", "Tap to open the storage map", "Open Sweeep to start")
+
     /// What to draw right now. A snapshot from an earlier day reads as a new day:
     /// zero today, the streak kept when yesterday is where it was written.
     fun read(ctx: Context, today: LocalDate = LocalDate.now()): WidgetState {
@@ -202,23 +205,33 @@ object WidgetRenderer {
 
     private fun today(ctx: Context, s: WidgetState, w0: Float, h0: Float, dp: Float): Bitmap {
         val (bmp, c) = base(w0, h0, dp, true)
-        val k = uni(w0, h0, 320f)
+        // one grid row is about 110 dp: the same card, rows packed closer
+        val compact = h0 < 130f
+        val dh = if (compact) 116f else 150f
+        val k = min(w0 / 320f, h0 / dh).coerceIn(.7f, 1.35f)
         c.scale(k, k)
         val w = w0 / k
-        val oy = max(0f, (h0 / k - 150f) / 2f)
+        val oy = max(0f, (h0 / k - dh) / 2f)
         fun y(v: Float) = v + oy
+        val yWm = if (compact) 12f else 18f
+        val yBig = if (compact) 33f else 50f
+        val yBar = if (compact) 82f else 100f
+        val yLeft = if (compact) 94f else 114f
+        val yBtn = if (compact) 22f else 38f
+        val btnH = if (compact) 44f else 48f
+        val yStreak = if (compact) 72f else 96f
         val wm = paint(ctx, 800, 15f, TEXT, -.3f)
         val ee = paint(ctx, 800, 15f, BRAND, -.3f)
         var x = 20f
         for ((t, p) in listOf("SW" to wm, "EEE" to ee, "P" to wm)) {
-            c.line(t, x, y(18f), normalH(p), p)
+            c.line(t, x, y(yWm), normalH(p), p)
             x += p.measureText(t) + p.letterSpacing * p.textSize
         }
         if (!s.has) {
             val p = paint(ctx, 700, 15f, TEXT)
             val bw = w - 40f
             fit(p, s.empty, bw)
-            c.line(s.empty, 20f, y(56f), normalH(p), p)
+            c.line(s.empty, 20f, y(yBig + 6f), normalH(p), p)
             return bmp
         }
         // 31 / 50 today
@@ -230,13 +243,13 @@ object WidgetRenderer {
         while (big.measureText(num) + small.measureText(tail) > room && small.textSize > 11f) {
             small.textSize -= .5f
         }
-        c.line(num, 20f, y(50f), 38f, big)
+        c.line(num, 20f, y(yBig), 38f, big)
         // the grey tail sits on the same baseline as the number
         val fm = big.fontMetrics
-        val baseline = y(50f) + (38f - (fm.descent - fm.ascent)) / 2f - fm.ascent
+        val baseline = y(yBig) + (38f - (fm.descent - fm.ascent)) / 2f - fm.ascent
         c.drawText(tail, 20f + big.measureText(num) + big.letterSpacing * big.textSize, baseline, small)
         // progress bar
-        val bar = RectF(20f, y(100f), w - 150f, y(100f) + 8f)
+        val bar = RectF(20f, y(yBar), w - 150f, y(yBar) + 8f)
         val tp = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = TRACK }
         c.drawRoundRect(bar, 4f, 4f, tp)
         val fw = bar.width() * s.fraction
@@ -244,13 +257,13 @@ object WidgetRenderer {
         // left for the streak
         val lp = paint(ctx, 600, 12f, MUTED)
         fit(lp, s.leftText, room)
-        c.line(s.leftText, 20f, y(114f), normalH(lp), lp)
+        c.line(s.leftText, 20f, y(yLeft), normalH(lp), lp)
         // button
         val bp = paint(ctx, 800, 15f, INK)
         val bw = bp.measureText(s.cont) + 40f
-        val br = RectF(w - 18f - bw, y(38f), w - 18f, y(38f) + 48f)
-        c.drawRoundRect(br, 24f, 24f, Paint(Paint.ANTI_ALIAS_FLAG).apply { color = BRAND })
-        c.centered(s.cont, br.centerX(), br.top, 48f, bp)
+        val br = RectF(w - 18f - bw, y(yBtn), w - 18f, y(yBtn) + btnH)
+        c.drawRoundRect(br, btnH / 2f, btnH / 2f, Paint(Paint.ANTI_ALIAS_FLAG).apply { color = BRAND })
+        c.centered(s.cont, br.centerX(), br.top, btnH, bp)
         // flame + streak
         val sp = paint(ctx, 700, 12f, BRAND)
         fit(sp, s.streakText, 112f - 19f)
@@ -258,14 +271,15 @@ object WidgetRenderer {
         val boxCx = w - 18f - 56f
         var sx = boxCx - total / 2f
         if (s.streak > 0) {
-            flame(c, sx, y(96f) + (normalH(sp) - 14f) / 2f, 14f, BRAND)
+            flame(c, sx, y(yStreak) + (normalH(sp) - 14f) / 2f, 14f, BRAND)
             sx += 19f
         }
-        c.line(s.streakText, sx, y(96f), normalH(sp), sp)
+        c.line(s.streakText, sx, y(yStreak), normalH(sp), sp)
         return bmp
     }
 
     private fun minute(ctx: Context, s: WidgetState, w0: Float, h0: Float, dp: Float): Bitmap {
+        if (w0 / h0 > 1.3f) return minuteWide(ctx, s, w0, h0, dp)
         val (bmp, c) = base(w0, h0, dp, false)
         val k = uni(w0, h0, 150f)
         c.scale(k, k)
@@ -297,6 +311,7 @@ object WidgetRenderer {
     }
 
     private fun canFree(ctx: Context, s: WidgetState, w0: Float, h0: Float, dp: Float): Bitmap {
+        if (w0 / h0 > 1.3f) return canFreeWide(ctx, s, w0, h0, dp)
         val (bmp, c) = base(w0, h0, dp, false)
         val k = uni(w0, h0, 150f)
         c.scale(k, k)
@@ -321,6 +336,65 @@ object WidgetRenderer {
         c.translate(18f, top + 34f + 8f)
         lay.draw(c)
         c.restore()
+        return bmp
+    }
+
+    /// 2x1: the ring on the left, the two lines beside it.
+    private fun minuteWide(ctx: Context, s: WidgetState, w0: Float, h0: Float, dp: Float): Bitmap {
+        val (bmp, c) = base(w0, h0, dp, false)
+        val k = min(w0 / 170f, h0 / 100f).coerceIn(.7f, 1.3f)
+        c.scale(k, k)
+        val w = w0 / k
+        val cy = h0 / k / 2f
+        val cx = 20f + 27f
+        val ring = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            style = Paint.Style.STROKE
+            strokeWidth = 8f
+            strokeCap = Paint.Cap.ROUND
+            color = TRACK
+        }
+        c.drawCircle(cx, cy, 27f, ring)
+        ring.color = BRAND
+        val sweep = 360f * s.fraction
+        if (sweep > 0f) c.drawArc(RectF(cx - 27f, cy - 27f, cx + 27f, cy + 27f), -90f, sweep, false, ring)
+        val np = paint(ctx, 800, 20f, TEXT, -.6f)
+        c.centered("25", cx, cy - 13f, 26f, np)
+        val x = cx + 27f + 14f
+        val room = w - x - 12f
+        val sp = paint(ctx, 800, 13f, TEXT)
+        fit(sp, s.swipeNow, room)
+        val ap = paint(ctx, 600, 11f, MUTED)
+        fit(ap, s.about, room)
+        val h1 = normalH(sp)
+        val h2 = normalH(ap)
+        val top = cy - (h1 + 2f + h2) / 2f
+        c.line(s.swipeNow, x, top, h1, sp)
+        c.line(s.about, x, top + h1 + 2f, h2, ap)
+        return bmp
+    }
+
+    /// 2x1: label, number and the caption on one line.
+    private fun canFreeWide(ctx: Context, s: WidgetState, w0: Float, h0: Float, dp: Float): Bitmap {
+        val (bmp, c) = base(w0, h0, dp, false)
+        val k = min(w0 / 170f, h0 / 100f).coerceIn(.7f, 1.3f)
+        c.scale(k, k)
+        val w = w0 / k
+        val inner = w - 36f
+        val lp = paint(ctx, 700, 12f, MUTED, 1.5f)
+        fit(lp, s.canFree, inner)
+        val cp = paint(ctx, 600, 12f, MUTED)
+        fit(cp, s.tapMap, inner)
+        val bp = paint(ctx, 800, 30f, TEXT, -1.2f)
+        val up = paint(ctx, 800, 15f, BRAND)
+        val total = normalH(lp) + 2f + 30f + 2f + normalH(cp)
+        var top = (h0 / k - total) / 2f
+        c.line(s.canFree, 18f, top, normalH(lp), lp)
+        top += normalH(lp) + 2f
+        val num = s.canFreeNum ?: "-"
+        c.line(num, 18f, top, 30f, bp)
+        c.line(" " + s.canFreeUnit, 18f + bp.measureText(num) + bp.letterSpacing * bp.textSize, top, 30f, up)
+        top += 30f + 2f
+        c.line(s.tapMap, 18f, top, normalH(cp), cp)
         return bmp
     }
 }

@@ -60,4 +60,13 @@ class HomeWidgets {
       return false;
     }
   }
+
+  /// Test builds: writes preview images of every widget (sample numbers) to the app's files folder.
+  static Future<void> dumpSamples() async {
+    try {
+      await _ch.invokeMethod<bool>('dumpSamples');
+    } on MissingPluginException {
+      // not on Android
+    }
+  }
 }

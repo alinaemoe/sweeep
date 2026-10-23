@@ -1985,13 +1985,13 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get widgetsNote =>
-      'Виджеты берут числа из базы на телефоне и по нажатию открывают приложение. Они показывают только числа, без фото, так что на рабочем столе ничего личного.';
+      'Виджеты берут числа из базы на телефоне и по нажатию открывают приложение. Они показывают только числа, без фото, так что на рабочем столе ничего личного. Нажми на виджет, чтобы добавить его.';
 
   @override
-  String get widgetToday => 'ВИДЖЕТ 4×2 · СЕГОДНЯ';
+  String get widgetToday => 'ВИДЖЕТ 4×1 · СЕГОДНЯ';
 
   @override
-  String get widgetOneMin => 'ВИДЖЕТ 2×2 · ОДНА МИНУТА';
+  String get widgetOneMin => 'ВИДЖЕТ 2×1 · ОДНА МИНУТА И МОЖНО ОСВОБОДИТЬ';
 
   @override
   String get widgetCanFree => 'ВИДЖЕТ 2×2 · МОЖНО ОСВОБОДИТЬ';

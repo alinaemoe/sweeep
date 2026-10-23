@@ -48,6 +48,15 @@ class WidgetsPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
                 bmp.compress(Bitmap.CompressFormat.PNG, 100, bos)
                 result.success(bos.toByteArray())
             }
+            "dumpSamples" -> {
+                val dir = ctx.getExternalFilesDir(null)
+                val sizes = mapOf("today" to (360f to 110f), "minute" to (176f to 110f), "canfree" to (176f to 110f))
+                for ((kind, wh) in sizes) {
+                    val bmp = WidgetRenderer.render(ctx, kind, WidgetStore.sample(), wh.first, wh.second, 3f)
+                    java.io.File(dir, "preview_$kind.png").outputStream().use { bmp.compress(Bitmap.CompressFormat.PNG, 100, it) }
+                }
+                result.success(true)
+            }
             "isAdded" -> result.success(Widgets.ids(ctx, call.argument<String>("kind") ?: "today").isNotEmpty())
             "pin" -> {
                 val mgr = AppWidgetManager.getInstance(ctx)

@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -11,15 +10,20 @@ import '../../index/widget_sync.dart';
 import '../../l10n/l10n.dart';
 import '../../platform/widgets.dart';
 import '../../providers.dart';
-import '../apps/apps_icons.dart';
 
 const _muted = Color(0xFF8A8F9E);
 
 /// Test builds (`--dart-define=WIDGETS_EMPTY=true`) preview the state before any data exists.
 const _empty = bool.fromEnvironment('WIDGETS_EMPTY');
 
+/// Test builds (`--dart-define=WIDGETS_SAMPLE=true`) write the preview images the system widget picker shows.
+const _sample = bool.fromEnvironment('WIDGETS_SAMPLE');
+
+/// What one launcher row of the home screen is, in dp.
+const _rowH = 106.0;
+
 /// Home screen widgets: the three widgets drawn with the real renderer and real
-/// numbers, and a button that asks the launcher to place each one.
+/// numbers; tapping one asks the launcher to place it.
 class WidgetsScreen extends ConsumerStatefulWidget {
   const WidgetsScreen({super.key});
 
@@ -27,31 +31,14 @@ class WidgetsScreen extends ConsumerStatefulWidget {
   ConsumerState<WidgetsScreen> createState() => _WidgetsScreenState();
 }
 
-class _WidgetsScreenState extends ConsumerState<WidgetsScreen>
-    with WidgetsBindingObserver {
-  static const kinds = ['today', 'minute', 'canfree'];
-  final Map<String, bool> _added = {};
-  final Set<String> _howTo = {};
+class _WidgetsScreenState extends ConsumerState<WidgetsScreen> {
+  bool _howTo = false;
   int _stamp = 0;
-  Timer? _poll;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
     _prepare();
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    _poll?.cancel();
-    super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) _check();
   }
 
   Future<void> _prepare() async {
@@ -59,36 +46,20 @@ class _WidgetsScreenState extends ConsumerState<WidgetsScreen>
     await WidgetSync(ref.read(databaseProvider)).refresh();
     if (!mounted) return;
     setState(() => _stamp++);
-    _check();
+    if (_sample) await HomeWidgets.dumpSamples();
   }
 
-  Future<void> _check() async {
-    for (final k in kinds) {
-      final v = await HomeWidgets.isAdded(k);
-      if (!mounted) return;
-      if (_added[k] != v) setState(() => _added[k] = v);
-    }
-  }
-
+  /// The widgets themselves are the controls, as in the prototype: tap one to have the launcher place it.
   Future<void> _add(String kind) async {
     final ok = await HomeWidgets.pin(kind);
     if (!mounted) return;
-    if (!ok) {
-      setState(() => _howTo.add(kind));
-      return;
-    }
-    // the launcher confirms in its own dialog; look for the new widget for a few seconds
-    var n = 0;
-    _poll?.cancel();
-    _poll = Timer.periodic(const Duration(seconds: 1), (t) {
-      _check();
-      if (++n >= 12 || (_added[kind] ?? false)) t.cancel();
-    });
+    if (!ok) setState(() => _howTo = true);
   }
 
   @override
   Widget build(BuildContext context) {
     final w = MediaQuery.sizeOf(context).width;
+    final tile = (w - 40 - 16) / 2;
     return Scaffold(
       body: Stack(children: [
         GlowOrb(
@@ -134,9 +105,40 @@ class _WidgetsScreenState extends ConsumerState<WidgetsScreen>
                       fontWeight: FontWeight.w800,
                       letterSpacing: -1)),
             ),
-            _section(0, l10n.widgetToday, 'today', w - 40, 150, delay: 100),
-            _section(1, l10n.widgetOneMin, 'minute', 150, 150, delay: 180),
-            _section(2, l10n.widgetCanFree, 'canfree', 150, 150, delay: 260),
+            _label(l10n.widgetToday, top: 24),
+            Rise(
+              delay: const Duration(milliseconds: 100),
+              child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+                  child: _Preview(
+                      key: ValueKey('t$_stamp'),
+                      kind: 'today',
+                      w: w - 40,
+                      h: _rowH,
+                      onTap: () => _add('today'))),
+            ),
+            _label(l10n.widgetOneMin, top: 26),
+            Rise(
+              delay: const Duration(milliseconds: 180),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+                child: Row(children: [
+                  _Preview(
+                      key: ValueKey('m$_stamp'),
+                      kind: 'minute',
+                      w: tile,
+                      h: _rowH,
+                      onTap: () => _add('minute')),
+                  const SizedBox(width: 16),
+                  _Preview(
+                      key: ValueKey('c$_stamp'),
+                      kind: 'canfree',
+                      w: tile,
+                      h: _rowH,
+                      onTap: () => _add('canfree')),
+                ]),
+              ),
+            ),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 26, 20, 0),
               child: CustomPaint(
@@ -144,7 +146,10 @@ class _WidgetsScreenState extends ConsumerState<WidgetsScreen>
                 child: Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(16),
-                  child: Text(l10n.widgetsNote,
+                  child: Text(
+                      _howTo
+                          ? '${l10n.widgetsNote}\n\n${l10n.widgetHowTo}'
+                          : l10n.widgetsNote,
                       style: const TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
@@ -159,81 +164,29 @@ class _WidgetsScreenState extends ConsumerState<WidgetsScreen>
     );
   }
 
-  Widget _section(int i, String label, String kind, double pw, double ph,
-      {required int delay}) {
-    final added = _added[kind] ?? false;
-    return Rise(
-      delay: Duration(milliseconds: delay),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(label,
-              style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 2,
-                  color: _muted)),
-          const SizedBox(height: 10),
-          _Preview(key: ValueKey('$kind$_stamp'), kind: kind, w: pw, h: ph),
-          const SizedBox(height: 12),
-          GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: added ? null : () => _add(kind),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 250),
-              height: 44,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: added ? Colors.transparent : SweeepColors.brand,
-                borderRadius: BorderRadius.circular(22),
-                border: added
-                    ? Border.all(color: Colors.white.withValues(alpha: .12))
-                    : null,
-                boxShadow: added
-                    ? null
-                    : [
-                        BoxShadow(
-                            color: SweeepColors.brand.withValues(alpha: .25),
-                            blurRadius: 24)
-                      ],
-              ),
-              child: Row(mainAxisSize: MainAxisSize.min, children: [
-                if (added) ...[
-                  const CheckIcon(
-                      size: 16, color: SweeepColors.brand, stroke: 3),
-                  const SizedBox(width: 8)
-                ],
-                Text(added ? l10n.widgetAdded : l10n.widgetAdd,
-                    style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w800,
-                        color: added
-                            ? SweeepColors.brand
-                            : SweeepColors.onAccent)),
-              ]),
-            ),
-          ),
-          if (_howTo.contains(kind))
-            Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: Text(l10n.widgetHowTo,
-                    style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: _muted))),
-        ]),
-      ),
-    );
-  }
+  Widget _label(String t, {required double top}) => Padding(
+        padding: EdgeInsets.fromLTRB(20, top, 20, 0),
+        child: Text(t,
+            style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 2,
+                color: _muted)),
+      );
 }
 
 /// The widget as the launcher will draw it, from the Kotlin renderer.
 class _Preview extends StatefulWidget {
   const _Preview(
-      {super.key, required this.kind, required this.w, required this.h});
+      {super.key,
+      required this.kind,
+      required this.w,
+      required this.h,
+      required this.onTap});
   final String kind;
   final double w;
   final double h;
+  final VoidCallback onTap;
 
   @override
   State<_Preview> createState() => _PreviewState();
@@ -253,7 +206,10 @@ class _PreviewState extends State<_Preview> {
   }
 
   @override
-  Widget build(BuildContext context) => Container(
+  Widget build(BuildContext context) => GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: widget.onTap,
+      child: Container(
         width: widget.w,
         height: widget.h,
         decoration:
@@ -273,7 +229,7 @@ class _PreviewState extends State<_Preview> {
                   fit: BoxFit.fill,
                   gaplessPlayback: true),
         ),
-      );
+      ));
 }
 
 class _DashedBox extends CustomPainter {

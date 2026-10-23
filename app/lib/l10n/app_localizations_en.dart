@@ -1942,13 +1942,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get widgetsNote =>
-      'Widgets read numbers from the on-device database and open the app on tap. They show only counts, never photos, so nothing private sits on the home screen.';
+      'Widgets read numbers from the on-device database and open the app on tap. They show only counts, never photos, so nothing private sits on the home screen. Tap a widget to add it.';
 
   @override
-  String get widgetToday => 'WIDGET 4×2 · TODAY';
+  String get widgetToday => 'WIDGET 4×1 · TODAY';
 
   @override
-  String get widgetOneMin => 'WIDGET 2×2 · ONE MINUTE';
+  String get widgetOneMin => 'WIDGET 2×1 · ONE MINUTE AND CAN FREE';
 
   @override
   String get widgetCanFree => 'WIDGET 2×2 · CAN FREE';
