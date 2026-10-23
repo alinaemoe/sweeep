@@ -120,6 +120,14 @@ class MonthWrapService {
     if (lo != null && hi != null) {
       final c = await db.customSelect('SELECT COUNT(*) AS n FROM sessions WHERE ended_ms >= ? AND started_ms <= ?', variables: [Variable.withInt(lo), Variable.withInt(hi)]).getSingle();
       sessions = c.read<int>('n');
+      // plain swiping counts too: every day this month was swiped on is one sitting
+      final days = await db.customSelect('''
+        SELECT COUNT(DISTINCT date(d.decided_at_ms / 1000, 'unixepoch', 'localtime')) AS n
+        FROM decisions d JOIN assets a ON a.id = d.asset_id
+        WHERE a.media_type = 0 AND a.created_at_ms >= ? AND a.created_at_ms < ?
+      ''', variables: range).getSingle();
+      final n = days.read<int>('n');
+      if (n > sessions) sessions = n;
     }
 
     return MonthWrapData(

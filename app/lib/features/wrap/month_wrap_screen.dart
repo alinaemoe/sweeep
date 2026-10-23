@@ -130,29 +130,38 @@ class _MonthWrapScreenState extends ConsumerState<MonthWrapScreen> with SingleTi
       body: Stack(children: [
         // lavender glow: 340 circle, centred, top 80
         GlowOrb(left: width / 2 - 170, top: 80, width: 340, height: 340, color: SweeepColors.brand.withValues(alpha: .2), blur: 90),
-        Positioned(top: 52, left: 20, right: 20, child: _header()),
-        Positioned(
-          top: 106,
-          left: 0,
-          right: 0,
-          child: GestureDetector(
-            onTap: wrapFreezeMs >= 0 ? _step : null,
-            child: Text(l10n.wrapLabel, textAlign: TextAlign.center, style: const TextStyle(height: 1.27, leadingDistribution: TextLeadingDistribution.even, fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 3, color: SweeepColors.textMutedSmall)),
-          ),
+        // everything above the bar scrolls together, so a short phone can still reach the note
+        SingleChildScrollView(
+          physics: const ClampingScrollPhysics(),
+          child: Stack(children: [
+            Positioned(top: 52, left: 20, right: 20, child: _header()),
+            Positioned(
+              top: 106,
+              left: 0,
+              right: 0,
+              child: GestureDetector(
+                onTap: wrapFreezeMs >= 0 ? _step : null,
+                child: Text(l10n.wrapLabel, textAlign: TextAlign.center, style: const TextStyle(height: 1.27, leadingDistribution: TextLeadingDistribution.even, fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 3, color: SweeepColors.textMutedSmall)),
+              ),
+            ),
+            if (d != null) ...[
+              // the word and the sparks sit under the card, like in the prototype
+              Positioned(top: 124, left: 12, right: 12, child: AnimatedBuilder(animation: _t, builder: (_, __) => _word(stretchMonth(fmtMonthName(y, m))))),
+              Positioned(top: 196, left: width / 2 - 4, child: AnimatedBuilder(animation: _t, builder: (_, __) => _sparks())),
+              // the card, then the note right under it, then room for the bar
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 208, 20, 124),
+                child: Column(children: [
+                  AnimatedBuilder(animation: _t, builder: (_, __) => _card(d, y, m)),
+                  const SizedBox(height: 14),
+                  Text(l10n.wrapNote, textAlign: TextAlign.center, style: const TextStyle(leadingDistribution: TextLeadingDistribution.even, fontSize: 12, fontWeight: FontWeight.w600, color: SweeepColors.textMutedSmall, height: 1.45)),
+                ]),
+              ),
+            ] else
+              const SizedBox(height: 600),
+          ]),
         ),
-        if (d != null) ...[
-          // the word and the sparks sit under the card, like in the prototype
-          Positioned(top: 124, left: 12, right: 12, child: AnimatedBuilder(animation: _t, builder: (_, __) => _word(stretchMonth(fmtMonthName(y, m))))),
-          Positioned(top: 196, left: width / 2 - 4, child: AnimatedBuilder(animation: _t, builder: (_, __) => _sparks())),
-          Positioned(top: 208, left: 20, right: 20, child: AnimatedBuilder(animation: _t, builder: (_, __) => _card(d, y, m))),
-          Positioned(
-            top: 672,
-            left: 20,
-            right: 20,
-            child: Text(l10n.wrapNote, textAlign: TextAlign.center, style: const TextStyle(leadingDistribution: TextLeadingDistribution.even, fontSize: 12, fontWeight: FontWeight.w600, color: SweeepColors.textMutedSmall, height: 1.45)),
-          ),
-          Positioned(left: 16, right: 16, bottom: 22, child: _bar(d)),
-        ],
+        if (d != null) Positioned(left: 16, right: 16, bottom: 22, child: _bar(d)),
       ]),
     );
   }
@@ -405,7 +414,7 @@ class _MonthWrapScreenState extends ConsumerState<MonthWrapScreen> with SingleTi
             ),
             child: Row(children: [
               Expanded(
-                flex: 10,
+                flex: 9,
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: _saving ? null : _save,
@@ -419,7 +428,7 @@ class _MonthWrapScreenState extends ConsumerState<MonthWrapScreen> with SingleTi
               ),
               const SizedBox(width: 10),
               Expanded(
-                flex: 14,
+                flex: 15,
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () => _next(d),
@@ -431,7 +440,7 @@ class _MonthWrapScreenState extends ConsumerState<MonthWrapScreen> with SingleTi
                       borderRadius: BorderRadius.circular(26),
                       boxShadow: [BoxShadow(color: SweeepColors.brand.withValues(alpha: .28), blurRadius: 24)],
                     ),
-                    child: Text(d.nextMonth == null ? l10n.doneDone : l10n.wrapNext(monthTitle(d.nextMonth!)), style: const TextStyle(height: 1.27, leadingDistribution: TextLeadingDistribution.even, fontSize: 16, fontWeight: FontWeight.w800, color: SweeepColors.onAccent)),
+                    child: FittedBox(fit: BoxFit.scaleDown, child: Padding(padding: const EdgeInsets.symmetric(horizontal: 12), child: Text(d.nextMonth == null ? l10n.doneDone : l10n.wrapNext(monthTitle(d.nextMonth!)), maxLines: 1, style: const TextStyle(height: 1.27, leadingDistribution: TextLeadingDistribution.even, fontSize: 16, fontWeight: FontWeight.w800, color: SweeepColors.onAccent)))),
                   ),
                 ),
               ),
