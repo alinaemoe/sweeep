@@ -102,6 +102,8 @@ class _GroupPagerState extends ConsumerState<GroupPager> {
         ..hideCurrentSnackBar()
         ..showSnackBar(SnackBar(
           behavior: SnackBarBehavior.floating,
+          persist: false,
+          duration: const Duration(seconds: 4),
           margin: const EdgeInsets.fromLTRB(16, 0, 16, 96),
           content: Text(l10n.movedToTrash(filesLabel(trash.length))),
           action: SnackBarAction(

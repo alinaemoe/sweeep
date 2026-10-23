@@ -49,6 +49,7 @@ abstract final class SweeepTheme {
         contentTextStyle: const TextStyle(fontFamily: 'PlusJakartaSans', fontFamilyFallback: ['Manrope'], color: SweeepColors.text, fontSize: 14, fontWeight: FontWeight.w600),
         actionTextColor: SweeepColors.brand,
         behavior: SnackBarBehavior.floating,
+        showCloseIcon: false,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18), side: const BorderSide(color: SweeepColors.cardBorder)),
       ),
       textTheme: base.textTheme

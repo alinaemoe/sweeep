@@ -63,7 +63,7 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
     setState(_picked.clear);
     ScaffoldMessenger.of(context)
       ..clearSnackBars()
-      ..showSnackBar(SnackBar(content: Text(l10n.movedToTrash(filesLabel(list.length)))));
+      ..showSnackBar(SnackBar(persist: false, duration: const Duration(seconds: 3), content: Text(l10n.movedToTrash(filesLabel(list.length)))));
   }
 
   /// One group stack with its select circle.

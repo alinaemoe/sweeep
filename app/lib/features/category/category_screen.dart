@@ -93,6 +93,8 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(SnackBar(
+        persist: false,
+        duration: const Duration(seconds: 4),
         content: Text(l10n.movedToTrash(filesLabel(items.length))),
         action: SnackBarAction(
           label: l10n.undo,
