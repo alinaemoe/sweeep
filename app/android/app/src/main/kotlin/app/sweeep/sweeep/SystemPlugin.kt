@@ -3,6 +3,8 @@ package app.sweeep.sweeep
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Environment
+import android.os.StatFs
 import android.provider.Settings
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodCall
@@ -25,6 +27,14 @@ class SystemPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
     }
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
+        if (call.method == "storageStat") {
+            return try {
+                val st = StatFs(Environment.getDataDirectory().path)
+                result.success(mapOf("total" to st.totalBytes, "free" to st.availableBytes))
+            } catch (e: Exception) {
+                result.success(null)
+            }
+        }
         val ctx = context ?: return result.success(false)
         if (call.method != "openAppSettings") return result.notImplemented()
         try {

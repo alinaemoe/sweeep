@@ -47,6 +47,27 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
+        <receiver android:name=".TodayWidget" android:exported="false" android:label="Sweeep Today">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_today_info" />
+        </receiver>
+        <receiver android:name=".MinuteWidget" android:exported="false" android:label="Sweeep One minute">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_minute_info" />
+        </receiver>
+        <receiver android:name=".CanFreeWidget" android:exported="false" android:label="Sweeep Can free">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_canfree_info" />
+        </receiver>
+        <receiver android:name=".WidgetRefreshReceiver" android:exported="true">
+            <intent-filter>
+                <action android:name="app.sweeep.WIDGET_REFRESH" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.DATE_CHANGED" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+                <action android:name="android.intent.action.TIME_SET" />
+            </intent-filter>
+        </receiver>
         <service
             android:name=".ScanService"
             android:exported="false"

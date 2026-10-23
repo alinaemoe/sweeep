@@ -5,6 +5,8 @@ import '../l10n/l10n.dart';
 import '../platform/media_source.dart';
 import 'group_service.dart';
 import 'home_service.dart';
+import 'stats_service.dart';
+import 'widget_sync.dart';
 import 'storage_service.dart';
 
 enum SwipeSource { all, screenshots, screenRecordings, videos, chat, blurry, quickWin }
@@ -235,7 +237,7 @@ class ReviewService {
       b.insertAllOnConflictUpdate(db.decisions, [
         for (final i in items) DecisionsCompanion.insert(assetId: i.id, decision: 1, decidedAtMs: now),
       ]);
-    });
+    });    WidgetSync.schedule(db, canFree: true);
   }
 
   static const _hintKey = 'swipe_hint_seen';
@@ -244,9 +246,12 @@ class ReviewService {
 
   Future<void> markSwipeHintSeen() => db.into(db.scanState).insertOnConflictUpdate(ScanStateCompanion.insert(key: _hintKey, value: '1'));
 
-  Future<void> keep(SwipeItem item) => db.into(db.decisions).insertOnConflictUpdate(
-        DecisionsCompanion.insert(assetId: item.id, decision: 0, decidedAtMs: DateTime.now().millisecondsSinceEpoch),
-      );
+  Future<void> keep(SwipeItem item) async {
+    await db.into(db.decisions).insertOnConflictUpdate(
+          DecisionsCompanion.insert(assetId: item.id, decision: 0, decidedAtMs: DateTime.now().millisecondsSinceEpoch),
+        );
+    WidgetSync.schedule(db);
+  }
 
   Future<void> trash(SwipeItem item) async {
     final now = DateTime.now().millisecondsSinceEpoch;
@@ -261,7 +266,7 @@ class ReviewService {
         ),
       ]);
       b.insertAllOnConflictUpdate(db.decisions, [DecisionsCompanion.insert(assetId: item.id, decision: 1, decidedAtMs: now)]);
-    });
+    });    WidgetSync.schedule(db);
   }
 
   /// Reverts a swipe decision (keep or trash).
@@ -272,7 +277,7 @@ class ReviewService {
     await db.batch((b) {
       b.deleteWhere(db.trashItems, (t) => t.assetId.isIn(ids));
       b.deleteWhere(db.decisions, (d) => d.assetId.isIn(ids));
-    });
+    });    WidgetSync.schedule(db, canFree: true);
   }
 
   /// Deletes [ids] from the device (system confirmation dialog, in chunks)
@@ -290,6 +295,8 @@ class ReviewService {
     if (deleted.isNotEmpty) {
       final rows = await (db.select(db.trashItems)..where((t) => t.assetId.isIn(deleted))).get();
       bytes = rows.fold(0, (s, r) => s + r.sizeBytes);
+      // the weekly report keeps these decisions, the cascade below drops them
+      await StatsService(db).snapshot();
       // assets cascade to hashes, groups members, trash items and decisions
       await (db.delete(db.assets)..where((a) => a.id.isIn(deleted))).go();
     }

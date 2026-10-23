@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_today_desc">Сегодня: прогресс и серия</string>
+    <string name="widget_minute_desc">Одна минута: разобрать 25 фото</string>
+    <string name="widget_canfree_desc">Можно освободить: сколько места можно очистить</string>
+</resources>

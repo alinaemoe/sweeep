@@ -102,9 +102,10 @@ class HubButton extends StatelessWidget {
 
 /// "rise": opacity 0 and 14 down to rest, 0.5 s ease-out, after [delay].
 class Rise extends StatefulWidget {
-  const Rise({super.key, this.delay = Duration.zero, this.dy = 14, required this.child});
+  const Rise({super.key, this.delay = Duration.zero, this.dy = 14, this.duration = const Duration(milliseconds: 500), required this.child});
   final Duration delay;
   final double dy;
+  final Duration duration;
   final Widget child;
 
   @override
@@ -112,7 +113,7 @@ class Rise extends StatefulWidget {
 }
 
 class _RiseState extends State<Rise> with SingleTickerProviderStateMixin {
-  late final AnimationController _c = AnimationController(vsync: this, duration: const Duration(milliseconds: 500));
+  late final AnimationController _c = AnimationController(vsync: this, duration: widget.duration);
 
   @override
   void initState() {

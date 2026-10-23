@@ -16,11 +16,13 @@ import 'index/index_service.dart';
 import 'index/month_wrap_service.dart';
 import 'index/review_service.dart';
 import 'index/session_service.dart';
+import 'index/stats_service.dart';
 import 'index/storage_service.dart';
 import 'l10n/l10n.dart';
 import 'platform/media_source.dart';
 import 'platform/messages.g.dart' show PermissionState;
 import 'platform/scan_foreground.dart';
+import 'platform/system_settings.dart';
 
 final databaseProvider = Provider<SweeepDatabase>((ref) {
   final db = SweeepDatabase(driftDatabase(name: 'sweeep'));
@@ -64,6 +66,17 @@ final sessionOverviewProvider = FutureProvider.autoDispose<SessionOverview>((ref
 
 /// Just the streak, for the entry card on the Timeline.
 final streakProvider = FutureProvider.autoDispose<StreakInfo>((ref) => ref.watch(sessionServiceProvider).streak());
+
+final statsServiceProvider = Provider<StatsService>((ref) => StatsService(ref.watch(databaseProvider)));
+
+/// This week and the one before, for the Hub row and the Space card.
+final weekSummaryProvider = FutureProvider.autoDispose<WeekReport>((ref) async {
+  final stats = ref.watch(statsServiceProvider);
+  final used = await SystemSettings.usedPercent();
+  await stats.snapshot(usedPct: used);
+  final book = await stats.book(goal: await ref.watch(sessionServiceProvider).goal(), usedNow: used);
+  return book.week(0);
+});
 
 final monthWrapServiceProvider = Provider<MonthWrapService>((ref) => MonthWrapService(ref.watch(databaseProvider)));
 

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_today_desc">Oggi: progresso e serie</string>
+    <string name="widget_minute_desc">Un minuto: sfoglia 25 foto</string>
+    <string name="widget_canfree_desc">Puoi liberare: spazio da recuperare</string>
+</resources>

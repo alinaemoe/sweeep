@@ -1715,4 +1715,303 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get usageSkip => 'Пропустить, только размеры';
+
+  @override
+  String get weekLabelNow => 'ТВОЯ НЕДЕЛЯ';
+
+  @override
+  String get weekLabelPast => 'ИТОГИ НЕДЕЛИ';
+
+  @override
+  String get weekPrev => 'Прошлая неделя';
+
+  @override
+  String get weekNext => 'Следующая неделя';
+
+  @override
+  String weekRange(String a, String b) {
+    return '$a – $b';
+  }
+
+  @override
+  String weekCleared(String unit) {
+    return '$unit очищено';
+  }
+
+  @override
+  String weekMore(int pct) {
+    final intl.NumberFormat pctNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String pctString = pctNumberFormat.format(pct);
+
+    return 'На $pctString% больше, чем неделей раньше';
+  }
+
+  @override
+  String weekLess(int pct) {
+    final intl.NumberFormat pctNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String pctString = pctNumberFormat.format(pct);
+
+    return 'На $pctString% меньше, чем неделей раньше';
+  }
+
+  @override
+  String get weekSame => 'Как неделей раньше';
+
+  @override
+  String get weekFirst => 'Первая неделя в записи';
+
+  @override
+  String get weekNothingBefore => 'Неделей раньше ничего не очищали';
+
+  @override
+  String get weekChartTitle => 'Фото разобрано за день';
+
+  @override
+  String weekGoal(int n) {
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    return 'цель $nString';
+  }
+
+  @override
+  String weekPhotosSwept(int n) {
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nString фото разобрано',
+      many: '$nString фото разобрано',
+      few: '$nString фото разобрано',
+      one: '$nString фото разобрано',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String weekSessions(int n) {
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nString сессии',
+      many: '$nString сессий',
+      few: '$nString сессии',
+      one: '$nString сессия',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String weekDaySub(String a, String b) {
+    return '$a · $b';
+  }
+
+  @override
+  String get weekNoSession => 'В этот день без сессий';
+
+  @override
+  String get weekClearedWord => 'очищено';
+
+  @override
+  String weekStreak(int n) {
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nString дня подряд',
+      many: '$nString дней подряд',
+      few: '$nString дня подряд',
+      one: '$nString день подряд',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String weekGoalsHit(int n) {
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    return '$nString из 7 дней дошли до цели';
+  }
+
+  @override
+  String get weekSwept => 'РАЗОБРАНО';
+
+  @override
+  String get weekKept => 'ОСТАВЛЕНО';
+
+  @override
+  String get weekClearedCaps => 'ОЧИЩЕНО';
+
+  @override
+  String get weekWhatWent => 'Что ушло';
+
+  @override
+  String get catDuplicates => 'Дубликаты';
+
+  @override
+  String get catSimilar => 'Похожие фото';
+
+  @override
+  String get catScreenshots => 'Скриншоты';
+
+  @override
+  String get catBlurry => 'Размытые и тёмные';
+
+  @override
+  String get catOther => 'Другое';
+
+  @override
+  String get weekStorage => 'Память телефона';
+
+  @override
+  String weekStorageFromTo(int a, int b) {
+    final intl.NumberFormat aNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String aString = aNumberFormat.format(a);
+    final intl.NumberFormat bNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String bString = bNumberFormat.format(b);
+
+    return 'с $aString% до $bString%';
+  }
+
+  @override
+  String weekStorageNow(int p) {
+    final intl.NumberFormat pNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String pString = pNumberFormat.format(p);
+
+    return 'занято $pString%';
+  }
+
+  @override
+  String weekStorageNote(String size) {
+    return 'Место освободится, только когда очистишь корзину Sweeep. Сейчас в ней $size.';
+  }
+
+  @override
+  String weekHubSub(String size, String streak) {
+    return '$size очищено, $streak';
+  }
+
+  @override
+  String weekSpaceSub(String size) {
+    return '$size очищено за неделю';
+  }
+
+  @override
+  String weekSpaceSubMore(String size, int pct) {
+    final intl.NumberFormat pctNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String pctString = pctNumberFormat.format(pct);
+
+    return '$size очищено, на $pctString% больше, чем на прошлой неделе';
+  }
+
+  @override
+  String wOfToday(int goal) {
+    final intl.NumberFormat goalNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String goalString = goalNumberFormat.format(goal);
+
+    return '/ $goalString сегодня';
+  }
+
+  @override
+  String wLeftStreak(int left, int n) {
+    final intl.NumberFormat leftNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String leftString = leftNumberFormat.format(left);
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    return 'Ещё $leftString, и серия $nString дн.';
+  }
+
+  @override
+  String get wGoalReached => 'Цель на сегодня выполнена';
+
+  @override
+  String get wStreakNone => 'Серии пока нет';
+
+  @override
+  String get wContinue => 'Продолжить';
+
+  @override
+  String wSwipeNow(int n) {
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    return 'Разобрать $nString';
+  }
+
+  @override
+  String wAbout(int n) {
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    return 'около $nString мин';
+  }
+
+  @override
+  String get wCanFree => 'МОЖНО ОСВОБОДИТЬ';
+
+  @override
+  String get wTapMap => 'Нажми, чтобы открыть карту памяти';
+
+  @override
+  String get wEmpty => 'Открой Sweeep, чтобы начать';
+
+  @override
+  String get widgetsTitle => 'Виджеты';
+
+  @override
+  String get widgetsNote =>
+      'Виджеты берут числа из базы на телефоне и по нажатию открывают приложение. Они показывают только числа, без фото, так что на рабочем столе ничего личного.';
+
+  @override
+  String get widgetToday => 'ВИДЖЕТ 4×2 · СЕГОДНЯ';
+
+  @override
+  String get widgetOneMin => 'ВИДЖЕТ 2×2 · ОДНА МИНУТА';
+
+  @override
+  String get widgetCanFree => 'ВИДЖЕТ 2×2 · МОЖНО ОСВОБОДИТЬ';
+
+  @override
+  String get widgetAdd => 'Добавить на рабочий стол';
+
+  @override
+  String get widgetAdded => 'Добавлен';
+
+  @override
+  String get widgetHowTo =>
+      'Удержи палец на рабочем столе, выбери «Виджеты», затем Sweeep';
+
+  @override
+  String wLeftGoal(int left) {
+    final intl.NumberFormat leftNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String leftString = leftNumberFormat.format(left);
+
+    return 'Ещё $leftString до цели на сегодня';
+  }
 }

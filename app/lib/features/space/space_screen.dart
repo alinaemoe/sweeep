@@ -18,6 +18,7 @@ import '../hub/hub_screen.dart';
 import '../storage/storage_labels.dart';
 import '../storage/storage_screen.dart';
 import '../storage/treemap.dart';
+import '../week/week_screen.dart';
 
 const _muted = Color(0xFF8A8F9E);
 
@@ -107,6 +108,11 @@ class _SpaceScreenState extends ConsumerState<SpaceScreen> with SingleTickerProv
   }
 
   List<Widget> _content(StorageData d, double width) {
+    final week = ref.watch(weekSummaryProvider).value;
+    final prev = week?.prevClearedBytes ?? 0;
+    final weekSub = week == null
+        ? l10n.hubWeekSub
+        : (prev > 0 && week.clearedBytes > prev ? l10n.weekSpaceSubMore(formatBytes(week.clearedBytes), ((week.clearedBytes - prev) / prev * 100).round()) : l10n.weekSpaceSub(formatBytes(week.clearedBytes)));
     final (big, unit) = _split(d.safeBytes);
     final types = {for (final t in d.cuts[StorageCut.types]!) t.key: t.bytes};
     final videos = (types['videos'] ?? 0) + (types['recordings'] ?? 0);
@@ -262,7 +268,10 @@ class _SpaceScreenState extends ConsumerState<SpaceScreen> with SingleTickerProv
         ),
       ],
       _link(Icons.videocam_outlined, l10n.spaceShrink, l10n.soonWord, topGap: 18),
-      _link(Icons.bar_chart_rounded, l10n.hubWeek, l10n.soonWord, topGap: 12),
+      _link(Icons.bar_chart_rounded, l10n.hubWeek, weekSub, topGap: 12, onTap: () async {
+        await Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const WeekScreen()));
+        ref.invalidate(weekSummaryProvider);
+      }),
     ];
   }
 
@@ -304,7 +313,10 @@ class _SpaceScreenState extends ConsumerState<SpaceScreen> with SingleTickerProv
     );
   }
 
-  Widget _link(IconData icon, String title, String sub, {required double topGap}) => Container(
+  Widget _link(IconData icon, String title, String sub, {required double topGap, VoidCallback? onTap}) => GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: Container(
         margin: EdgeInsets.fromLTRB(20, topGap, 20, 0),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(color: SweeepColors.card, borderRadius: BorderRadius.circular(26), border: Border.all(color: Colors.white.withValues(alpha: .06))),
@@ -322,15 +334,18 @@ class _SpaceScreenState extends ConsumerState<SpaceScreen> with SingleTickerProv
               Padding(padding: const EdgeInsets.only(top: 1), child: Text(sub, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: _muted))),
             ]),
           ),
-          Container(
-            height: 18,
-            padding: const EdgeInsets.symmetric(horizontal: 7),
-            alignment: Alignment.center,
-            decoration: BoxDecoration(color: Colors.white.withValues(alpha: .08), borderRadius: BorderRadius.circular(9)),
-            child: Text(l10n.soonBadge, style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w800, letterSpacing: .8, color: Color(0xFFA9AEBB))),
-          ),
+          if (onTap == null)
+            Container(
+              height: 18,
+              padding: const EdgeInsets.symmetric(horizontal: 7),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(color: Colors.white.withValues(alpha: .08), borderRadius: BorderRadius.circular(9)),
+              child: Text(l10n.soonBadge, style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w800, letterSpacing: .8, color: Color(0xFFA9AEBB))),
+            )
+          else
+            const Icon(Icons.chevron_right_rounded, size: 18, color: _muted),
         ]),
-      );
+      ));
 }
 
 class _WinCard extends StatelessWidget {

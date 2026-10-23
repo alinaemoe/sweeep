@@ -2,6 +2,7 @@ import 'package:drift/drift.dart' show Variable;
 
 import '../data/database.dart';
 import 'review_service.dart';
+import 'widget_sync.dart';
 
 DateTime _day(DateTime d) => DateTime(d.year, d.month, d.day);
 
@@ -227,7 +228,9 @@ class SessionService {
     );
   }
 
-  Future<void> record({required DateTime started, required int goal, required int swept, required int trashed, required int bytes}) =>
-      db.into(db.sessions).insert(SessionsCompanion.insert(
-          startedMs: started.millisecondsSinceEpoch, endedMs: DateTime.now().millisecondsSinceEpoch, goal: goal, swept: swept, trashed: trashed, bytes: bytes));
+  Future<void> record({required DateTime started, required int goal, required int swept, required int trashed, required int bytes}) async {
+    await db.into(db.sessions).insert(SessionsCompanion.insert(
+        startedMs: started.millisecondsSinceEpoch, endedMs: DateTime.now().millisecondsSinceEpoch, goal: goal, swept: swept, trashed: trashed, bytes: bytes));
+    WidgetSync.schedule(db, canFree: true);
+  }
 }

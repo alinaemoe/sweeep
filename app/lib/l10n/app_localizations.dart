@@ -2457,6 +2457,336 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Skip, show sizes only'**
   String get usageSkip;
+
+  /// No description provided for @weekLabelNow.
+  ///
+  /// In en, this message translates to:
+  /// **'YOUR WEEK'**
+  String get weekLabelNow;
+
+  /// No description provided for @weekLabelPast.
+  ///
+  /// In en, this message translates to:
+  /// **'WEEK REVIEW'**
+  String get weekLabelPast;
+
+  /// No description provided for @weekPrev.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous week'**
+  String get weekPrev;
+
+  /// No description provided for @weekNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next week'**
+  String get weekNext;
+
+  /// No description provided for @weekRange.
+  ///
+  /// In en, this message translates to:
+  /// **'{a} – {b}'**
+  String weekRange(String a, String b);
+
+  /// No description provided for @weekCleared.
+  ///
+  /// In en, this message translates to:
+  /// **'{unit} cleared'**
+  String weekCleared(String unit);
+
+  /// No description provided for @weekMore.
+  ///
+  /// In en, this message translates to:
+  /// **'{pct}% more than the week before'**
+  String weekMore(int pct);
+
+  /// No description provided for @weekLess.
+  ///
+  /// In en, this message translates to:
+  /// **'{pct}% less than the week before'**
+  String weekLess(int pct);
+
+  /// No description provided for @weekSame.
+  ///
+  /// In en, this message translates to:
+  /// **'Same as the week before'**
+  String get weekSame;
+
+  /// No description provided for @weekFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'First week on record'**
+  String get weekFirst;
+
+  /// No description provided for @weekNothingBefore.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing cleared the week before'**
+  String get weekNothingBefore;
+
+  /// No description provided for @weekChartTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Photos swept per day'**
+  String get weekChartTitle;
+
+  /// No description provided for @weekGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'goal {n}'**
+  String weekGoal(int n);
+
+  /// No description provided for @weekPhotosSwept.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{1 photo swept} other{{n} photos swept}}'**
+  String weekPhotosSwept(int n);
+
+  /// No description provided for @weekSessions.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{1 session} other{{n} sessions}}'**
+  String weekSessions(int n);
+
+  /// No description provided for @weekDaySub.
+  ///
+  /// In en, this message translates to:
+  /// **'{a} · {b}'**
+  String weekDaySub(String a, String b);
+
+  /// No description provided for @weekNoSession.
+  ///
+  /// In en, this message translates to:
+  /// **'No session this day'**
+  String get weekNoSession;
+
+  /// No description provided for @weekClearedWord.
+  ///
+  /// In en, this message translates to:
+  /// **'cleared'**
+  String get weekClearedWord;
+
+  /// No description provided for @weekStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{1 day streak} other{{n} day streak}}'**
+  String weekStreak(int n);
+
+  /// No description provided for @weekGoalsHit.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} of 7 days reached the goal'**
+  String weekGoalsHit(int n);
+
+  /// No description provided for @weekSwept.
+  ///
+  /// In en, this message translates to:
+  /// **'SWEPT'**
+  String get weekSwept;
+
+  /// No description provided for @weekKept.
+  ///
+  /// In en, this message translates to:
+  /// **'KEPT'**
+  String get weekKept;
+
+  /// No description provided for @weekClearedCaps.
+  ///
+  /// In en, this message translates to:
+  /// **'CLEARED'**
+  String get weekClearedCaps;
+
+  /// No description provided for @weekWhatWent.
+  ///
+  /// In en, this message translates to:
+  /// **'What went'**
+  String get weekWhatWent;
+
+  /// No description provided for @catDuplicates.
+  ///
+  /// In en, this message translates to:
+  /// **'Duplicates'**
+  String get catDuplicates;
+
+  /// No description provided for @catSimilar.
+  ///
+  /// In en, this message translates to:
+  /// **'Similar photos'**
+  String get catSimilar;
+
+  /// No description provided for @catScreenshots.
+  ///
+  /// In en, this message translates to:
+  /// **'Screenshots'**
+  String get catScreenshots;
+
+  /// No description provided for @catBlurry.
+  ///
+  /// In en, this message translates to:
+  /// **'Blurry and dark'**
+  String get catBlurry;
+
+  /// No description provided for @catOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get catOther;
+
+  /// No description provided for @weekStorage.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone storage'**
+  String get weekStorage;
+
+  /// No description provided for @weekStorageFromTo.
+  ///
+  /// In en, this message translates to:
+  /// **'{a}% to {b}%'**
+  String weekStorageFromTo(int a, int b);
+
+  /// No description provided for @weekStorageNow.
+  ///
+  /// In en, this message translates to:
+  /// **'{p}% used'**
+  String weekStorageNow(int p);
+
+  /// No description provided for @weekStorageNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Space is only freed after you empty the Sweeep trash. {size} is waiting there now.'**
+  String weekStorageNote(String size);
+
+  /// No description provided for @weekHubSub.
+  ///
+  /// In en, this message translates to:
+  /// **'{size} cleared, {streak}'**
+  String weekHubSub(String size, String streak);
+
+  /// No description provided for @weekSpaceSub.
+  ///
+  /// In en, this message translates to:
+  /// **'{size} cleared this week'**
+  String weekSpaceSub(String size);
+
+  /// No description provided for @weekSpaceSubMore.
+  ///
+  /// In en, this message translates to:
+  /// **'{size} cleared, {pct}% more than last week'**
+  String weekSpaceSubMore(String size, int pct);
+
+  /// No description provided for @wOfToday.
+  ///
+  /// In en, this message translates to:
+  /// **'/ {goal} today'**
+  String wOfToday(int goal);
+
+  /// No description provided for @wLeftStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'{left} left for a {n}-day streak'**
+  String wLeftStreak(int left, int n);
+
+  /// No description provided for @wGoalReached.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal reached today'**
+  String get wGoalReached;
+
+  /// No description provided for @wStreakNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No streak yet'**
+  String get wStreakNone;
+
+  /// No description provided for @wContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get wContinue;
+
+  /// No description provided for @wSwipeNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Swipe {n} now'**
+  String wSwipeNow(int n);
+
+  /// No description provided for @wAbout.
+  ///
+  /// In en, this message translates to:
+  /// **'about {n} min'**
+  String wAbout(int n);
+
+  /// No description provided for @wCanFree.
+  ///
+  /// In en, this message translates to:
+  /// **'CAN FREE'**
+  String get wCanFree;
+
+  /// No description provided for @wTapMap.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to open the storage map'**
+  String get wTapMap;
+
+  /// No description provided for @wEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Sweeep to start'**
+  String get wEmpty;
+
+  /// No description provided for @widgetsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Widgets'**
+  String get widgetsTitle;
+
+  /// No description provided for @widgetsNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Widgets read numbers from the on-device database and open the app on tap. They show only counts, never photos, so nothing private sits on the home screen.'**
+  String get widgetsNote;
+
+  /// No description provided for @widgetToday.
+  ///
+  /// In en, this message translates to:
+  /// **'WIDGET 4×2 · TODAY'**
+  String get widgetToday;
+
+  /// No description provided for @widgetOneMin.
+  ///
+  /// In en, this message translates to:
+  /// **'WIDGET 2×2 · ONE MINUTE'**
+  String get widgetOneMin;
+
+  /// No description provided for @widgetCanFree.
+  ///
+  /// In en, this message translates to:
+  /// **'WIDGET 2×2 · CAN FREE'**
+  String get widgetCanFree;
+
+  /// No description provided for @widgetAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to home screen'**
+  String get widgetAdd;
+
+  /// No description provided for @widgetAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Added'**
+  String get widgetAdded;
+
+  /// No description provided for @widgetHowTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Long-press the home screen, Widgets, Sweeep'**
+  String get widgetHowTo;
+
+  /// No description provided for @wLeftGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'{left} left for today\'s goal'**
+  String wLeftGoal(int left);
 }
 
 class _AppLocalizationsDelegate

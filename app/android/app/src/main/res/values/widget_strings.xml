@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_today_desc">Today: your progress and streak</string>
+    <string name="widget_minute_desc">One minute: swipe 25 photos</string>
+    <string name="widget_canfree_desc">Can free: space you can clear</string>
+</resources>

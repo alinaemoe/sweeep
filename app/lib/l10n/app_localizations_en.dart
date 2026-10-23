@@ -1678,4 +1678,296 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get usageSkip => 'Skip, show sizes only';
+
+  @override
+  String get weekLabelNow => 'YOUR WEEK';
+
+  @override
+  String get weekLabelPast => 'WEEK REVIEW';
+
+  @override
+  String get weekPrev => 'Previous week';
+
+  @override
+  String get weekNext => 'Next week';
+
+  @override
+  String weekRange(String a, String b) {
+    return '$a – $b';
+  }
+
+  @override
+  String weekCleared(String unit) {
+    return '$unit cleared';
+  }
+
+  @override
+  String weekMore(int pct) {
+    final intl.NumberFormat pctNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String pctString = pctNumberFormat.format(pct);
+
+    return '$pctString% more than the week before';
+  }
+
+  @override
+  String weekLess(int pct) {
+    final intl.NumberFormat pctNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String pctString = pctNumberFormat.format(pct);
+
+    return '$pctString% less than the week before';
+  }
+
+  @override
+  String get weekSame => 'Same as the week before';
+
+  @override
+  String get weekFirst => 'First week on record';
+
+  @override
+  String get weekNothingBefore => 'Nothing cleared the week before';
+
+  @override
+  String get weekChartTitle => 'Photos swept per day';
+
+  @override
+  String weekGoal(int n) {
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    return 'goal $nString';
+  }
+
+  @override
+  String weekPhotosSwept(int n) {
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nString photos swept',
+      one: '1 photo swept',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String weekSessions(int n) {
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nString sessions',
+      one: '1 session',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String weekDaySub(String a, String b) {
+    return '$a · $b';
+  }
+
+  @override
+  String get weekNoSession => 'No session this day';
+
+  @override
+  String get weekClearedWord => 'cleared';
+
+  @override
+  String weekStreak(int n) {
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nString day streak',
+      one: '1 day streak',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String weekGoalsHit(int n) {
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    return '$nString of 7 days reached the goal';
+  }
+
+  @override
+  String get weekSwept => 'SWEPT';
+
+  @override
+  String get weekKept => 'KEPT';
+
+  @override
+  String get weekClearedCaps => 'CLEARED';
+
+  @override
+  String get weekWhatWent => 'What went';
+
+  @override
+  String get catDuplicates => 'Duplicates';
+
+  @override
+  String get catSimilar => 'Similar photos';
+
+  @override
+  String get catScreenshots => 'Screenshots';
+
+  @override
+  String get catBlurry => 'Blurry and dark';
+
+  @override
+  String get catOther => 'Other';
+
+  @override
+  String get weekStorage => 'Phone storage';
+
+  @override
+  String weekStorageFromTo(int a, int b) {
+    final intl.NumberFormat aNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String aString = aNumberFormat.format(a);
+    final intl.NumberFormat bNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String bString = bNumberFormat.format(b);
+
+    return '$aString% to $bString%';
+  }
+
+  @override
+  String weekStorageNow(int p) {
+    final intl.NumberFormat pNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String pString = pNumberFormat.format(p);
+
+    return '$pString% used';
+  }
+
+  @override
+  String weekStorageNote(String size) {
+    return 'Space is only freed after you empty the Sweeep trash. $size is waiting there now.';
+  }
+
+  @override
+  String weekHubSub(String size, String streak) {
+    return '$size cleared, $streak';
+  }
+
+  @override
+  String weekSpaceSub(String size) {
+    return '$size cleared this week';
+  }
+
+  @override
+  String weekSpaceSubMore(String size, int pct) {
+    final intl.NumberFormat pctNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String pctString = pctNumberFormat.format(pct);
+
+    return '$size cleared, $pctString% more than last week';
+  }
+
+  @override
+  String wOfToday(int goal) {
+    final intl.NumberFormat goalNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String goalString = goalNumberFormat.format(goal);
+
+    return '/ $goalString today';
+  }
+
+  @override
+  String wLeftStreak(int left, int n) {
+    final intl.NumberFormat leftNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String leftString = leftNumberFormat.format(left);
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    return '$leftString left for a $nString-day streak';
+  }
+
+  @override
+  String get wGoalReached => 'Goal reached today';
+
+  @override
+  String get wStreakNone => 'No streak yet';
+
+  @override
+  String get wContinue => 'Continue';
+
+  @override
+  String wSwipeNow(int n) {
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    return 'Swipe $nString now';
+  }
+
+  @override
+  String wAbout(int n) {
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    return 'about $nString min';
+  }
+
+  @override
+  String get wCanFree => 'CAN FREE';
+
+  @override
+  String get wTapMap => 'Tap to open the storage map';
+
+  @override
+  String get wEmpty => 'Open Sweeep to start';
+
+  @override
+  String get widgetsTitle => 'Widgets';
+
+  @override
+  String get widgetsNote =>
+      'Widgets read numbers from the on-device database and open the app on tap. They show only counts, never photos, so nothing private sits on the home screen.';
+
+  @override
+  String get widgetToday => 'WIDGET 4×2 · TODAY';
+
+  @override
+  String get widgetOneMin => 'WIDGET 2×2 · ONE MINUTE';
+
+  @override
+  String get widgetCanFree => 'WIDGET 2×2 · CAN FREE';
+
+  @override
+  String get widgetAdd => 'Add to home screen';
+
+  @override
+  String get widgetAdded => 'Added';
+
+  @override
+  String get widgetHowTo => 'Long-press the home screen, Widgets, Sweeep';
+
+  @override
+  String wLeftGoal(int left) {
+    final intl.NumberFormat leftNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String leftString = leftNumberFormat.format(left);
+
+    return '$leftString left for today\'s goal';
+  }
 }

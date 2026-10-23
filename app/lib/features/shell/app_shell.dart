@@ -8,7 +8,10 @@ import '../../core/mode_switch.dart';
 import '../../core/nav_icons.dart';
 import '../../core/theme.dart';
 import '../../l10n/l10n.dart';
+import '../../index/widget_sync.dart';
+import '../../platform/widgets.dart';
 import '../../providers.dart';
+import '../swipe/swipe_screen.dart';
 import '../session/reminder_sheet.dart';
 import '../home/home_screen.dart';
 import '../swipe/timeline_screen.dart';
@@ -33,6 +36,36 @@ class _AppShellState extends ConsumerState<AppShell> {
     super.initState();
     // put the daily reminder back (new language, new boot, new alarm)
     applyReminder(ref.read(sessionServiceProvider));
+    // keep the weekly report's per-day totals and the phone storage reading current
+    ref.read(weekSummaryProvider.future).ignore();
+    // home screen widgets: fresh numbers now, and the tap that opened the app
+    WidgetSync(ref.read(databaseProvider)).refresh().catchError((_) {});
+    HomeWidgets.onAction(_widgetAction);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _widgetAction());
+  }
+
+  /// A widget was tapped: open the Space tab or start a Cleanup session.
+  Future<void> _widgetAction() async {
+    final action = await HomeWidgets.takeAction();
+    if (action == null || action == 'open' || !mounted) return;
+    final nav = Navigator.of(context);
+    nav.popUntil((r) => r.isFirst);
+    if (action == 'space') {
+      ref.read(shellTabProvider.notifier).set(2);
+      return;
+    }
+    if (!action.startsWith('session:')) return;
+    final goal = int.tryParse(action.substring(8)) ?? 25;
+    final svc = ref.read(sessionServiceProvider);
+    final o = await ref.read(sessionOverviewProvider.future);
+    final plan = await svc.plan(goal);
+    if (!mounted) return;
+    if (plan.items.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.sessNothing)));
+      return;
+    }
+    await nav.push(MaterialPageRoute<void>(builder: (_) => SwipeScreen.session(plan: plan, goal: goal, before: o.streak, targetPercent: o.target?.percent ?? 100)));
+    ref.invalidate(sessionOverviewProvider);
   }
 
   void _select(int i) {

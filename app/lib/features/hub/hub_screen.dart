@@ -13,8 +13,11 @@ import '../../platform/system_settings.dart';
 import '../../providers.dart';
 import '../apps/apps_screen.dart';
 import '../apps/usage_access_screen.dart';
+import '../groups/group_widgets.dart' show formatBytes;
 import '../library/library_screen.dart';
 import '../tools/tools_screen.dart';
+import '../week/week_screen.dart';
+import '../widgets/widgets_screen.dart';
 
 const _muted = Color(0xFF8A8F9E);
 const _soft = Color(0xFFA9AEBB);
@@ -113,6 +116,8 @@ class _HubScreenState extends ConsumerState<HubScreen> with WidgetsBindingObserv
     final perm = ref.watch(permissionProvider);
     final indexed = ref.watch(homeProvider).value?.libraryCount ?? ref.watch(libraryProvider).stats?.total ?? 0;
     final lang = ref.watch(languageProvider);
+    final week = ref.watch(weekSummaryProvider).value;
+    final weekSub = week == null ? l10n.hubWeekSub : l10n.weekHubSub(formatBytes(week.clearedBytes), l10n.weekStreak(week.streak));
     final accessSub = switch (perm) {
       PermissionState.granted => l10n.hubAccessAll,
       PermissionState.limited => l10n.hubAccessLimited,
@@ -216,8 +221,8 @@ class _HubScreenState extends ConsumerState<HubScreen> with WidgetsBindingObserv
           ]),
           _label(l10n.hubInsights),
           _group([
-            _Row(title: l10n.hubWeek, sub: l10n.hubWeekSub, soon: true),
-            _Row(title: l10n.hubWidgets, sub: l10n.hubWidgetsSub, soon: true),
+            _Row(title: l10n.hubWeek, sub: weekSub, onTap: _openWeek, chevron: true),
+            _Row(title: l10n.hubWidgets, sub: l10n.hubWidgetsSub, onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const WidgetsScreen())), chevron: true),
           ]),
           _label(l10n.hubSettings),
           _group([
@@ -238,6 +243,11 @@ class _HubScreenState extends ConsumerState<HubScreen> with WidgetsBindingObserv
         ],
       ),
     );
+  }
+
+  Future<void> _openWeek() async {
+    await Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const WeekScreen()));
+    ref.invalidate(weekSummaryProvider);
   }
 
   Future<void> _openApps() async {
@@ -315,18 +325,17 @@ class _Soon extends StatelessWidget {
 
 /// One row of a group: optional icon, title, subtitle, then a chevron, a SOON chip or a control.
 class _Row extends StatelessWidget {
-  const _Row({required this.title, this.sub, this.icon, this.onTap, this.trailing, this.chevron = false, this.soon = false});
+  const _Row({required this.title, this.sub, this.icon, this.onTap, this.trailing, this.chevron = false});
   final String title;
   final String? sub;
   final IconData? icon;
   final VoidCallback? onTap;
   final Widget? trailing;
   final bool chevron;
-  final bool soon;
 
   @override
   Widget build(BuildContext context) => InkWell(
-        onTap: soon ? null : onTap,
+        onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           child: Row(children: [
@@ -346,8 +355,7 @@ class _Row extends StatelessWidget {
               ]),
             ),
             if (trailing != null) ...[const SizedBox(width: 12), trailing!],
-            if (soon) const _Soon(),
-            if (trailing == null && !soon && (onTap != null || chevron)) const Icon(Icons.chevron_right_rounded, size: 18, color: _muted),
+            if (trailing == null && (onTap != null || chevron)) const Icon(Icons.chevron_right_rounded, size: 18, color: _muted),
           ]),
         ),
       );

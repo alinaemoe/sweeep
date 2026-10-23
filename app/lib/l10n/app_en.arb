@@ -1232,5 +1232,242 @@
   "usageCanText": "Switch it off any time in Android settings. Sizes still work without it.",
   "usageOpen": "Open Android settings",
   "usageSee": "See my apps",
-  "usageSkip": "Skip, show sizes only"
+  "usageSkip": "Skip, show sizes only",
+  "weekLabelNow": "YOUR WEEK",
+  "weekLabelPast": "WEEK REVIEW",
+  "weekPrev": "Previous week",
+  "weekNext": "Next week",
+  "weekRange": "{a} – {b}",
+  "@weekRange": {
+    "placeholders": {
+      "a": {
+        "type": "String"
+      },
+      "b": {
+        "type": "String"
+      }
+    }
+  },
+  "weekCleared": "{unit} cleared",
+  "@weekCleared": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "weekMore": "{pct}% more than the week before",
+  "@weekMore": {
+    "placeholders": {
+      "pct": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "weekLess": "{pct}% less than the week before",
+  "@weekLess": {
+    "placeholders": {
+      "pct": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "weekSame": "Same as the week before",
+  "weekFirst": "First week on record",
+  "weekNothingBefore": "Nothing cleared the week before",
+  "weekChartTitle": "Photos swept per day",
+  "weekGoal": "goal {n}",
+  "@weekGoal": {
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "weekPhotosSwept": "{n, plural, =1{1 photo swept} other{{n} photos swept}}",
+  "@weekPhotosSwept": {
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "weekSessions": "{n, plural, =1{1 session} other{{n} sessions}}",
+  "@weekSessions": {
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "weekDaySub": "{a} · {b}",
+  "@weekDaySub": {
+    "placeholders": {
+      "a": {
+        "type": "String"
+      },
+      "b": {
+        "type": "String"
+      }
+    }
+  },
+  "weekNoSession": "No session this day",
+  "weekClearedWord": "cleared",
+  "weekStreak": "{n, plural, =1{1 day streak} other{{n} day streak}}",
+  "@weekStreak": {
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "weekGoalsHit": "{n} of 7 days reached the goal",
+  "@weekGoalsHit": {
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "weekSwept": "SWEPT",
+  "weekKept": "KEPT",
+  "weekClearedCaps": "CLEARED",
+  "weekWhatWent": "What went",
+  "catDuplicates": "Duplicates",
+  "catSimilar": "Similar photos",
+  "catScreenshots": "Screenshots",
+  "catBlurry": "Blurry and dark",
+  "catOther": "Other",
+  "weekStorage": "Phone storage",
+  "weekStorageFromTo": "{a}% to {b}%",
+  "@weekStorageFromTo": {
+    "placeholders": {
+      "a": {
+        "type": "int",
+        "format": "decimalPattern"
+      },
+      "b": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "weekStorageNow": "{p}% used",
+  "@weekStorageNow": {
+    "placeholders": {
+      "p": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "weekStorageNote": "Space is only freed after you empty the Sweeep trash. {size} is waiting there now.",
+  "@weekStorageNote": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "weekHubSub": "{size} cleared, {streak}",
+  "@weekHubSub": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      },
+      "streak": {
+        "type": "String"
+      }
+    }
+  },
+  "weekSpaceSub": "{size} cleared this week",
+  "@weekSpaceSub": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "weekSpaceSubMore": "{size} cleared, {pct}% more than last week",
+  "@weekSpaceSubMore": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      },
+      "pct": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "wOfToday": "/ {goal} today",
+  "@wOfToday": {
+    "placeholders": {
+      "goal": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "wLeftStreak": "{left} left for a {n}-day streak",
+  "@wLeftStreak": {
+    "placeholders": {
+      "left": {
+        "type": "int",
+        "format": "decimalPattern"
+      },
+      "n": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "wGoalReached": "Goal reached today",
+  "wStreakNone": "No streak yet",
+  "wContinue": "Continue",
+  "wSwipeNow": "Swipe {n} now",
+  "@wSwipeNow": {
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "wAbout": "about {n} min",
+  "@wAbout": {
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "wCanFree": "CAN FREE",
+  "wTapMap": "Tap to open the storage map",
+  "wEmpty": "Open Sweeep to start",
+  "widgetsTitle": "Widgets",
+  "widgetsNote": "Widgets read numbers from the on-device database and open the app on tap. They show only counts, never photos, so nothing private sits on the home screen.",
+  "widgetToday": "WIDGET 4×2 · TODAY",
+  "widgetOneMin": "WIDGET 2×2 · ONE MINUTE",
+  "widgetCanFree": "WIDGET 2×2 · CAN FREE",
+  "widgetAdd": "Add to home screen",
+  "widgetAdded": "Added",
+  "widgetHowTo": "Long-press the home screen, Widgets, Sweeep",
+  "wLeftGoal": "{left} left for today's goal",
+  "@wLeftGoal": {
+    "placeholders": {
+      "left": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  }
 }

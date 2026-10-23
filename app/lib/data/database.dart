@@ -91,6 +91,27 @@ class Sessions extends Table {
 
 }
 
+/// Per-day totals that outlive the files: deleting a photo for good removes its
+/// decision row, so the weekly report reads these instead. Rows only ever grow
+/// (see StatsService.snapshot), `usedPct` is the phone storage seen that day.
+class DailyStats extends Table {
+  TextColumn get day => text()(); // local date, YYYY-MM-DD
+  IntColumn get swept => integer().withDefault(const Constant(0))();
+  IntColumn get kept => integer().withDefault(const Constant(0))();
+  IntColumn get clearedFiles => integer().withDefault(const Constant(0))();
+  IntColumn get clearedBytes => integer().withDefault(const Constant(0))();
+  IntColumn get sessions => integer().withDefault(const Constant(0))();
+  IntColumn get catDups => integer().withDefault(const Constant(0))();
+  IntColumn get catSimilar => integer().withDefault(const Constant(0))();
+  IntColumn get catShots => integer().withDefault(const Constant(0))();
+  IntColumn get catBlurry => integer().withDefault(const Constant(0))();
+  IntColumn get catOther => integer().withDefault(const Constant(0))();
+  IntColumn get usedPct => integer().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {day};
+}
+
 /// Key/value for scan checkpoints (cursor, last full scan, thresholds hash).
 class ScanState extends Table {
   TextColumn get key => text()();
@@ -100,24 +121,66 @@ class ScanState extends Table {
   Set<Column> get primaryKey => {key};
 }
 
-@DriftDatabase(tables: [Assets, Hashes, Groups, GroupMembers, Decisions, TrashItems, ScanState, Sessions])
+@DriftDatabase(tables: [Assets, Hashes, Groups, GroupMembers, Decisions, TrashItems, ScanState, Sessions, DailyStats])
 class SweeepDatabase extends _$SweeepDatabase {
   SweeepDatabase(super.e);
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
         onUpgrade: (m, from, to) async {
           if (from < 2) await m.createIndex(idxAssetsTypeCreated);
           if (from < 3) await m.createTable(sessions);
+          if (from < 4) {
+            await m.createTable(dailyStats);
+            // history that can still be read: swept, kept, trashed files and their bytes
+            await customStatement(statsSnapshotSql);
+            await customStatement(statsSessionsSql);
+          }
         },
         beforeOpen: (details) async {
           await customStatement('PRAGMA foreign_keys = ON');
         },
       );
 }
+
+/// Upserts one row per day from the live decisions. Counts only grow
+/// (max with what is stored), because deleting a file for good drops its
+/// decision and the day must not shrink then.
+const statsSnapshotSql = '''
+INSERT INTO daily_stats (day, swept, kept, cleared_files, cleared_bytes, cat_dups, cat_similar, cat_shots, cat_blurry, cat_other)
+SELECT strftime('%Y-%m-%d', d.decided_at_ms / 1000, 'unixepoch', 'localtime') AS day,
+       COUNT(*) AS swept,
+       SUM(CASE WHEN d.decision = 0 THEN 1 ELSE 0 END) AS kept,
+       SUM(CASE WHEN d.decision = 1 THEN 1 ELSE 0 END) AS cleared_files,
+       COALESCE(SUM(CASE WHEN d.decision = 1 THEN a.size_bytes ELSE 0 END), 0) AS cleared_bytes,
+       SUM(CASE WHEN d.decision = 1 AND a.id IN (SELECT gm.asset_id FROM group_members gm JOIN groups g ON g.id = gm.group_id WHERE g.kind = 0) THEN 1 ELSE 0 END),
+       SUM(CASE WHEN d.decision = 1 AND a.id NOT IN (SELECT gm.asset_id FROM group_members gm JOIN groups g ON g.id = gm.group_id WHERE g.kind = 0)
+                 AND a.id IN (SELECT gm.asset_id FROM group_members gm JOIN groups g ON g.id = gm.group_id WHERE g.kind = 1) THEN 1 ELSE 0 END),
+       SUM(CASE WHEN d.decision = 1 AND a.is_screenshot = 1
+                 AND a.id NOT IN (SELECT asset_id FROM group_members) THEN 1 ELSE 0 END),
+       SUM(CASE WHEN d.decision = 1 AND a.is_screenshot = 0 AND a.id NOT IN (SELECT asset_id FROM group_members)
+                 AND a.id IN (SELECT asset_id FROM hashes WHERE laplacian_var < 250 OR median_brightness < 40) THEN 1 ELSE 0 END),
+       SUM(CASE WHEN d.decision = 1 AND a.id NOT IN (SELECT asset_id FROM group_members) AND a.is_screenshot = 0
+                 AND a.id NOT IN (SELECT asset_id FROM hashes WHERE laplacian_var < 250 OR median_brightness < 40) THEN 1 ELSE 0 END)
+FROM decisions d JOIN assets a ON a.id = d.asset_id
+GROUP BY day
+ON CONFLICT(day) DO UPDATE SET
+  swept = MAX(swept, excluded.swept), kept = MAX(kept, excluded.kept),
+  cleared_files = MAX(cleared_files, excluded.cleared_files), cleared_bytes = MAX(cleared_bytes, excluded.cleared_bytes),
+  cat_dups = MAX(cat_dups, excluded.cat_dups), cat_similar = MAX(cat_similar, excluded.cat_similar),
+  cat_shots = MAX(cat_shots, excluded.cat_shots), cat_blurry = MAX(cat_blurry, excluded.cat_blurry),
+  cat_other = MAX(cat_other, excluded.cat_other)
+''';
+
+/// Cleanup sessions per day (the table keeps its own rows).
+const statsSessionsSql = '''
+INSERT INTO daily_stats (day, sessions)
+SELECT strftime('%Y-%m-%d', ended_ms / 1000, 'unixepoch', 'localtime') AS day, COUNT(*) AS n FROM sessions GROUP BY day
+ON CONFLICT(day) DO UPDATE SET sessions = MAX(sessions, excluded.sessions)
+''';
 
 /// Reinterpret between the core's u64 hashes and SQLite's signed ints.
 int hashToDb(BigInt u64) => u64.toSigned(64).toInt();
