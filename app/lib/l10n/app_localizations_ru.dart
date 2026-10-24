@@ -2014,4 +2014,182 @@ class AppLocalizationsRu extends AppLocalizations {
 
     return 'Ещё $leftString до цели на сегодня';
   }
+
+  @override
+  String get segMonths => 'Месяцы';
+
+  @override
+  String get segMoments => 'События';
+
+  @override
+  String get momentsTitle => 'События';
+
+  @override
+  String get momentsDesc =>
+      'Фото, снятые рядом по времени и месту, собраны в одно событие. Разбери всю поездку за одну сессию.';
+
+  @override
+  String momentsBest(int n) {
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nString лучших кадра на выбор',
+      many: '$nString лучших кадров на выбор',
+      few: '$nString лучших кадра на выбор',
+      one: '$nString лучший кадр на выбор',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String momentsTwins(int n) {
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nString почти двойника',
+      many: '$nString почти двойников',
+      few: '$nString почти двойника',
+      one: '$nString почти двойник',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get momentsSweep => 'Разобрать событие';
+
+  @override
+  String get momentsNotePlaces =>
+      'События строятся по времени съёмки и месту, записанному в каждом фото. Названия: даты и расстояние (например «4 дня в отъезде»). Их можно переименовать. Карты и сеть не используются.';
+
+  @override
+  String get momentsNoteTime =>
+      'События строятся только по времени съёмки. Названия: даты и время суток. Их можно переименовать. Ничего не уходит с телефона.';
+
+  @override
+  String get momentsEmptyTitle => 'Событий пока нет';
+
+  @override
+  String get momentsEmptySub =>
+      'Для события нужно хотя бы 12 фото, снятых с перерывами не больше пары часов.';
+
+  @override
+  String get momentsBuilding => 'Ищу события…';
+
+  @override
+  String momTripDays(int n) {
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Поездка, $nString дня в отъезде',
+      many: 'Поездка, $nString дней в отъезде',
+      few: 'Поездка, $nString дня в отъезде',
+      one: 'Поездка, $nString день в отъезде',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String momWeekendAway(int km) {
+    final intl.NumberFormat kmNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String kmString = kmNumberFormat.format(km);
+
+    return 'Выходные, $kmString км от дома';
+  }
+
+  @override
+  String momDayTrip(int km) {
+    final intl.NumberFormat kmNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String kmString = kmNumberFormat.format(km);
+
+    return 'Поездка на день, $kmString км от дома';
+  }
+
+  @override
+  String get momEveningHome => 'Вечер дома';
+
+  @override
+  String get momWeekend => 'Выходные';
+
+  @override
+  String get momEvening => 'Вечер';
+
+  @override
+  String get momDay => 'День';
+
+  @override
+  String momDays(int n) {
+    final intl.NumberFormat nNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String nString = nNumberFormat.format(n);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$nString дня',
+      many: '$nString дней',
+      few: '$nString дня',
+      one: '$nString день',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get momRenameTitle => 'Переименовать событие';
+
+  @override
+  String get momRenameHint => 'Название';
+
+  @override
+  String get momRenameSave => 'Сохранить';
+
+  @override
+  String get momRenameReset => 'Вернуть обычное название';
+
+  @override
+  String get placesTitle => 'Где сделаны фото?';
+
+  @override
+  String get placesSub =>
+      'Чтобы отличить поездки от вечеров дома, Android один раз спросит твоё согласие.';
+
+  @override
+  String get placesReadText =>
+      'Где снято каждое фото. Читаем только на этом телефоне.';
+
+  @override
+  String get placesNeverText =>
+      'Не показываем карты, не ищем адреса и ничего не отправляем с телефона.';
+
+  @override
+  String get placesCanText =>
+      'Выключить можно в любой момент: Хаб, Настройки. События работают и по одному времени.';
+
+  @override
+  String get placesAllow => 'Разрешить места';
+
+  @override
+  String get placesSkip => 'Пропустить, только время';
+
+  @override
+  String get hubPlaces => 'Места в событиях';
+
+  @override
+  String get hubPlacesOn => 'Названия по расстоянию от дома';
+
+  @override
+  String get hubPlacesOff => 'Выключено, только время';
 }

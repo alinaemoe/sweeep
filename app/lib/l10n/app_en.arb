@@ -1469,5 +1469,87 @@
         "format": "decimalPattern"
       }
     }
-  }
+  },
+  "segMonths": "Months",
+  "segMoments": "Moments",
+  "momentsTitle": "Moments",
+  "momentsDesc": "Photos taken close in time and place, grouped into one event. Clear a whole trip in a single session.",
+  "momentsBest": "{n, plural, =1{1 best frame suggested} other{{n} best frames suggested}}",
+  "@momentsBest": {
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "momentsTwins": "{n, plural, =1{1 near-twin} other{{n} near-twins}}",
+  "@momentsTwins": {
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "momentsSweep": "Sweep this moment",
+  "momentsNotePlaces": "Events come from capture time and the place saved in each photo. Names are dates and distance (for example \"4 days away\"). You can rename them. No map service is called.",
+  "momentsNoteTime": "Events come from capture time alone. Names are dates and parts of the day. You can rename them. Nothing leaves your phone.",
+  "momentsEmptyTitle": "No moments yet",
+  "momentsEmptySub": "A moment needs at least 12 photos taken within a few hours of each other.",
+  "momentsBuilding": "Looking for moments…",
+  "momTripDays": "{n, plural, =1{Trip, 1 day away} other{Trip, {n} days away}}",
+  "@momTripDays": {
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "momWeekendAway": "Weekend, {km} km away",
+  "@momWeekendAway": {
+    "placeholders": {
+      "km": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "momDayTrip": "Day trip, {km} km away",
+  "@momDayTrip": {
+    "placeholders": {
+      "km": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "momEveningHome": "Evening at home",
+  "momWeekend": "Weekend",
+  "momEvening": "Evening",
+  "momDay": "Day",
+  "momDays": "{n, plural, =1{1 day} other{{n} days}}",
+  "@momDays": {
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "momRenameTitle": "Rename moment",
+  "momRenameHint": "Name",
+  "momRenameSave": "Save",
+  "momRenameReset": "Back to the generated name",
+  "placesTitle": "Where were you?",
+  "placesSub": "To tell trips from evenings at home, Android needs your OK once.",
+  "placesReadText": "Where each photo was taken, read on this phone only.",
+  "placesNeverText": "Show maps, look up addresses, or send anything off the phone.",
+  "placesCanText": "Switch it off in Hub, Settings, any time. Moments still work from time alone.",
+  "placesAllow": "Allow places",
+  "placesSkip": "Skip, use time only",
+  "hubPlaces": "Places in Moments",
+  "hubPlacesOn": "Names trips by distance from home",
+  "hubPlacesOff": "Off, moments use time only"
 }

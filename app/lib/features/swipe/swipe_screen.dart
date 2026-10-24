@@ -29,12 +29,13 @@ String sourceTitle(SwipeSource s) => switch (s) {
       SwipeSource.chat => l10n.secChat,
       SwipeSource.blurry => l10n.secBlurry,
       SwipeSource.quickWin => '',
+      SwipeSource.event => '',
     };
 
 /// Tinder-style review: drag left = trash, right = keep. The SWIIIIPE word
 /// stretches with the drag, CLEAAAN waves after a trash.
 class SwipeScreen extends ConsumerStatefulWidget {
-  const SwipeScreen({super.key, required this.source, this.embedded = false, this.month, this.chatSource, this.startId, this.win})
+  const SwipeScreen({super.key, required this.source, this.embedded = false, this.month, this.chatSource, this.startId, this.win, this.eventId, this.eventTitle})
       : plan = null,
         goal = 0,
         before = null,
@@ -48,7 +49,9 @@ class SwipeScreen extends ConsumerStatefulWidget {
         month = null,
         chatSource = null,
         startId = null,
-        win = null;
+        win = null,
+        eventId = null,
+        eventTitle = null;
 
   final SwipeSource source;
   final SessionPlan? plan;
@@ -67,6 +70,10 @@ class SwipeScreen extends ConsumerStatefulWidget {
 
   /// Quick win decks only: which rule picked these files.
   final QuickWin? win;
+
+  /// Moments: the event to sweep, and its name for the header.
+  final int? eventId;
+  final String? eventTitle;
 
   /// Shown as a tab of the app shell (no back button, room for the nav bar).
   final bool embedded;
@@ -112,7 +119,7 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> with TickerProviderSt
       });
       return;
     }
-    svc.queue(widget.source, month: widget.month, chatSource: widget.chatSource, startId: widget.startId, win: widget.win).then((q) async {
+    svc.queue(widget.source, month: widget.month, chatSource: widget.chatSource, startId: widget.startId, win: widget.win, eventId: widget.eventId).then((q) async {
       final seen = await svc.swipeHintSeen();
       if (mounted) {
         setState(() {
@@ -351,7 +358,7 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> with TickerProviderSt
                   ),
                   Expanded(
                     child: Column(children: [
-                      Text(widget.month != null ? monthTitle(widget.month!) : (_inSession ? l10n.sessTitle : (widget.win != null ? quickWinTitle(widget.win!) : sourceTitle(widget.source))), maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+                      Text(widget.eventTitle ?? (widget.month != null ? monthTitle(widget.month!) : (_inSession ? l10n.sessTitle : (widget.win != null ? quickWinTitle(widget.win!) : sourceTitle(widget.source)))), maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
                       Text(q == null ? '' : (_inSession ? l10n.sessProgress(math.min(_swept, widget.goal), math.min(widget.goal, q.length)) : l10n.swipeOf(math.min(_i + 1, q.length), q.length)), style: const TextStyle(fontSize: 12, color: SweeepColors.textMuted, fontWeight: FontWeight.w600)),
                     ]),
                   ),

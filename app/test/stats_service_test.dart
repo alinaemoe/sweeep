@@ -82,6 +82,11 @@ void main() {
     var first = SweeepDatabase(NativeDatabase(file));
     await first.select(first.assets).get(); // creates the schema
     await first.customStatement('DROP TABLE daily_stats');
+    await first.customStatement('DROP TABLE event_members');
+    await first.customStatement('DROP TABLE events');
+    for (final c in ['lat', 'lon', 'geo_state']) {
+      await first.customStatement('ALTER TABLE assets DROP COLUMN $c');
+    }
     await first.customStatement(
         'INSERT INTO assets (id, media_type, width, height, size_bytes, created_at_ms, modified_at_ms, is_screenshot, is_screen_recording) VALUES (\'x\', 0, 1, 1, 321, 1, 1, 0, 0)');
     await first.customStatement(

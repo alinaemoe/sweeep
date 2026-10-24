@@ -13,6 +13,7 @@ import 'index/goal_service.dart';
 import 'index/group_service.dart';
 import 'index/home_service.dart';
 import 'index/index_service.dart';
+import 'index/moments_service.dart';
 import 'index/month_wrap_service.dart';
 import 'index/review_service.dart';
 import 'index/session_service.dart';
@@ -77,6 +78,8 @@ final weekSummaryProvider = FutureProvider.autoDispose<WeekReport>((ref) async {
   final book = await stats.book(goal: await ref.watch(sessionServiceProvider).goal(), usedNow: used);
   return book.week(0);
 });
+
+final momentsServiceProvider = Provider<MomentsService>((ref) => MomentsService(ref.watch(databaseProvider)));
 
 final monthWrapServiceProvider = Provider<MonthWrapService>((ref) => MonthWrapService(ref.watch(databaseProvider)));
 

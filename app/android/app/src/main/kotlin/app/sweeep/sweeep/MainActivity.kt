@@ -32,5 +32,6 @@ class MainActivity : FlutterActivity() {
         flutterEngine.plugins.add(SystemPlugin())
         flutterEngine.plugins.add(AppsPlugin())
         flutterEngine.plugins.add(WidgetsPlugin())
+        flutterEngine.plugins.add(PlacesPlugin())
     }
 }
