@@ -1,7 +1,7 @@
 # Sweeep — project context (read first)
 
 Mobile photo/video cleaner. UI text in English; docs/chat with the owner in Russian. 100% local analysis (hashes, metadata, heuristics) — NO AI, NO external APIs, nothing uploaded.
-Full spec: `docs/SPECIFICATION.md`. Dev instructions + per-phase status: `README.md`. Read both before planning.
+Full spec: `docs/SPECIFICATION.md`. Dev instructions + per-phase status: `docs/DEVLOG.md` (`README.md` is now the public project showcase). Read the spec and the dev log before planning.
 
 ## Stack
 - Flutter 3.47.7 at `D:\tools\flutter` (NOT on PATH). Git Bash: `export PATH="/d/tools/flutter/bin:$PATH"; export CI=true`.

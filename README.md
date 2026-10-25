@@ -6,6 +6,16 @@ Sweeep finds duplicate, near-identical, blurry and dark photos, screenshots and 
 lets you review them in a swipe-and-delete flow. All analysis runs **on the device**: no AI, no cloud,
 no uploads, no account. Fingerprinting is done by a native **Rust core**; the UI is **Flutter**.
 
+<p align="center"><img src="docs/screenshots/hero.png" alt="Sweeep: home feed, swipe, hub and storage map" width="100%"></p>
+
+<p align="center">
+  <img src="docs/screenshots/swipe.gif" alt="Swipe to trash: the SWIIIIPE headline stretches, then CLEAAAN" width="260">
+  &nbsp;&nbsp;
+  <img src="docs/screenshots/home-scroll.gif" alt="Home feed: the reclaimable-space oval collapses into a chip on scroll" width="260">
+</p>
+
+<sub>Screens above are the interactive design prototype the app is built from; the Flutter app on a real phone is shown further down.</sub>
+
 > Status: Android is working end to end (scan -> groups -> review -> swipe -> trash -> system delete).
 > iOS is designed but not implemented. Product spec: [`docs/SPECIFICATION.md`](docs/SPECIFICATION.md).
 
@@ -29,6 +39,24 @@ no uploads, no account. Fingerprinting is done by a native **Rust core**; the UI
   and a delta re-sync after the first scan touches only what changed.
 - English, Russian and Italian UI, dark "Obsidian + Lavender" design with a defined colour role per action.
 
+## On a real phone
+
+<p>
+  <img src="docs/p1-onboarding.png" alt="Onboarding on device" width="220">
+  <img src="docs/p1-dialog.png" alt="Android permission dialog" width="220">
+  <img src="docs/p1-resync-crop.png" alt="Index and re-sync on device" width="220">
+</p>
+
+Early device captures (Samsung S23). More captures: [`docs/goal-shots`](docs/goal-shots), [`docs/nav-shots`](docs/nav-shots), [`docs/wrap-shots`](docs/wrap-shots).
+
+## More screens
+
+<p>
+  <img src="docs/screenshots/groups.png" alt="All groups" width="190">
+  <img src="docs/screenshots/pager.png" alt="Group pager" width="190">
+  <img src="docs/screenshots/session.png" alt="Cleanup session" width="190">
+  <img src="docs/screenshots/week.png" alt="Weekly report" width="190">
+</p>
 ## Numbers (measured on a Samsung S23, Android 15, 10,658 files)
 
 | Step | Result |
