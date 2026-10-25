@@ -20,13 +20,6 @@ class Assets extends Table {
   BoolColumn get isScreenRecording => boolean().withDefault(const Constant(false))();
   TextColumn get chatSource => text().nullable()(); // telegram, whatsapp, ...
 
-  /// Where the photo was taken, rounded to about 100 m. Only filled when the
-  /// user allows places in Moments; null otherwise. `geoState`: 0 not read yet,
-  /// 1 has a place, 2 read and none.
-  RealColumn get lat => real().nullable()();
-  RealColumn get lon => real().nullable()();
-  IntColumn get geoState => integer().withDefault(const Constant(0))();
-
   @override
   Set<Column> get primaryKey => {id};
 }
@@ -119,31 +112,6 @@ class DailyStats extends Table {
   Set<Column> get primaryKey => {day};
 }
 
-/// A Moment: photos close in time (and place). `title` is a code the screen
-/// turns into words ('trip:4:62', 'weekend:30', 'evening', 'w_days:3', ...),
-/// `userTitle` is what the user typed.
-class Events extends Table {
-  IntColumn get id => integer().autoIncrement()();
-  IntColumn get startMs => integer()();
-  IntColumn get endMs => integer()();
-  TextColumn get title => text()();
-  TextColumn get userTitle => text().nullable()();
-  RealColumn get centerLat => real().nullable()();
-  RealColumn get centerLon => real().nullable()();
-  RealColumn get awayKm => real().nullable()();
-  IntColumn get count => integer()();
-  IntColumn get bytes => integer()();
-}
-
-/// Which event a photo belongs to (at most one).
-class EventMembers extends Table {
-  TextColumn get assetId => text().references(Assets, #id, onDelete: KeyAction.cascade)();
-  IntColumn get eventId => integer().references(Events, #id, onDelete: KeyAction.cascade)();
-
-  @override
-  Set<Column> get primaryKey => {assetId};
-}
-
 /// Key/value for scan checkpoints (cursor, last full scan, thresholds hash).
 class ScanState extends Table {
   TextColumn get key => text()();
@@ -153,12 +121,12 @@ class ScanState extends Table {
   Set<Column> get primaryKey => {key};
 }
 
-@DriftDatabase(tables: [Assets, Hashes, Groups, GroupMembers, Decisions, TrashItems, ScanState, Sessions, DailyStats, Events, EventMembers])
+@DriftDatabase(tables: [Assets, Hashes, Groups, GroupMembers, Decisions, TrashItems, ScanState, Sessions, DailyStats])
 class SweeepDatabase extends _$SweeepDatabase {
   SweeepDatabase(super.e);
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -171,12 +139,15 @@ class SweeepDatabase extends _$SweeepDatabase {
             await customStatement(statsSnapshotSql);
             await customStatement(statsSessionsSql);
           }
-          if (from < 5) {
-            await m.addColumn(assets, assets.lat);
-            await m.addColumn(assets, assets.lon);
-            await m.addColumn(assets, assets.geoState);
-            await m.createTable(events);
-            await m.createTable(eventMembers);
+          // Moments was removed: phones that already got its tables and columns drop them again
+          if (from >= 5) {
+            await customStatement('DROP TABLE IF EXISTS event_members');
+            await customStatement('DROP TABLE IF EXISTS events');
+            final cols = {for (final r in await customSelect('PRAGMA table_info(assets)').get()) r.read<String>('name')};
+            for (final c in ['lat', 'lon', 'geo_state']) {
+              if (cols.contains(c)) await customStatement('ALTER TABLE assets DROP COLUMN $c');
+            }
+            await customStatement("DELETE FROM scan_state WHERE key LIKE 'moments_%' OR key LIKE 'events_%'");
           }
         },
         beforeOpen: (details) async {

@@ -82,11 +82,6 @@ void main() {
     var first = SweeepDatabase(NativeDatabase(file));
     await first.select(first.assets).get(); // creates the schema
     await first.customStatement('DROP TABLE daily_stats');
-    await first.customStatement('DROP TABLE event_members');
-    await first.customStatement('DROP TABLE events');
-    for (final c in ['lat', 'lon', 'geo_state']) {
-      await first.customStatement('ALTER TABLE assets DROP COLUMN $c');
-    }
     await first.customStatement(
         'INSERT INTO assets (id, media_type, width, height, size_bytes, created_at_ms, modified_at_ms, is_screenshot, is_screen_recording) VALUES (\'x\', 0, 1, 1, 321, 1, 1, 0, 0)');
     await first.customStatement(
@@ -163,5 +158,29 @@ void main() {
       expect((b.week(0).usedFrom, b.week(0).usedTo), (61, 58));
       expect((b.week(1).usedFrom, b.week(1).usedTo), (61, 61));
     });
+  });
+
+  test('upgrading from schema 5 drops the removed Moments tables and columns', () async {
+    final dir = Directory.systemTemp.createTempSync('sweeep_v5');
+    addTearDown(() => dir.deleteSync(recursive: true));
+    final file = File('${dir.path}/db.sqlite');
+    var first = SweeepDatabase(NativeDatabase(file));
+    await first.select(first.assets).get();
+    await first.customStatement('CREATE TABLE events (id INTEGER PRIMARY KEY)');
+    await first.customStatement('CREATE TABLE event_members (asset_id TEXT, event_id INTEGER)');
+    await first.customStatement('ALTER TABLE assets ADD COLUMN lat REAL');
+    await first.customStatement('ALTER TABLE assets ADD COLUMN lon REAL');
+    await first.customStatement('ALTER TABLE assets ADD COLUMN geo_state INTEGER NOT NULL DEFAULT 0');
+    await first.customStatement("INSERT INTO assets (id, media_type, width, height, size_bytes, created_at_ms, modified_at_ms, is_screenshot, is_screen_recording) VALUES ('x', 0, 1, 1, 5, 1, 1, 0, 0)");
+    await first.customStatement('PRAGMA user_version = 5');
+    await first.close();
+
+    first = SweeepDatabase(NativeDatabase(file));
+    expect((await first.select(first.assets).getSingle()).id, 'x');
+    final tables = await first.customSelect("SELECT name FROM sqlite_master WHERE name IN ('events', 'event_members')").get();
+    expect(tables, isEmpty);
+    final cols = {for (final r in await first.customSelect('PRAGMA table_info(assets)').get()) r.read<String>('name')};
+    expect(cols.intersection({'lat', 'lon', 'geo_state'}), isEmpty);
+    await first.close();
   });
 }

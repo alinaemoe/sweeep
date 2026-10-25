@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../core/text_segment.dart';
 import '../../core/theme.dart';
 import '../../l10n/l10n.dart';
 import '../../core/widgets.dart';
@@ -10,7 +9,6 @@ import '../../index/review_service.dart';
 import '../../providers.dart';
 import '../groups/group_widgets.dart';
 import 'swipe_screen.dart';
-import '../moments/moments_screen.dart';
 import '../session/session_screen.dart';
 import '../wrap/month_wrap_screen.dart';
 
@@ -34,14 +32,6 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
     // a finished month shows its wrap instead of an empty deck
     final done = ref.read(timelineProvider).value?.where((m) => m.key == month).firstOrNull?.done ?? false;
     await Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => done ? MonthWrapScreen(monthKey: month) : SwipeScreen(source: SwipeSource.all, month: month)));
-    if (!mounted) return;
-    ref.invalidate(timelineProvider);
-    ref.invalidate(homeProvider);
-    ref.invalidate(trashSummaryProvider);
-  }
-
-  Future<void> _openMoments() async {
-    await Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const MomentsScreen()));
     if (!mounted) return;
     ref.invalidate(timelineProvider);
     ref.invalidate(homeProvider);
@@ -117,16 +107,7 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
                             ),
                           ),
                           ]),
-                          const SizedBox(height: 14),
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: TextSegment<bool>(
-                              options: [(false, l10n.segMonths), (true, l10n.segMoments)],
-                              value: false,
-                              onChanged: (_) => _openMoments(),
-                            ),
-                          ),
-                          const SizedBox(height: 14),
+                          const SizedBox(height: 16),
                           _SessionEntry(onOpen: _openSession),
                         ]),
                       ),

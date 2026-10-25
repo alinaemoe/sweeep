@@ -40,8 +40,6 @@ class _AppShellState extends ConsumerState<AppShell> {
     ref.read(weekSummaryProvider.future).ignore();
     // home screen widgets: fresh numbers now, and the tap that opened the app
     WidgetSync(ref.read(databaseProvider)).refresh().catchError((_) {});
-    // events and their places, a little later so the first screens stay quick
-    Future<void>.delayed(const Duration(seconds: 25), () => ref.read(momentsServiceProvider).refresh().catchError((_) {}));
     HomeWidgets.onAction(_widgetAction);
     WidgetsBinding.instance.addPostFrameCallback((_) => _widgetAction());
   }

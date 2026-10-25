@@ -15,7 +15,6 @@ import '../apps/apps_screen.dart';
 import '../apps/usage_access_screen.dart';
 import '../groups/group_widgets.dart' show formatBytes;
 import '../library/library_screen.dart';
-import '../moments/places_access_screen.dart';
 import '../tools/tools_screen.dart';
 import '../week/week_screen.dart';
 import '../widgets/widgets_screen.dart';
@@ -34,7 +33,6 @@ class HubScreen extends ConsumerStatefulWidget {
 
 class _HubScreenState extends ConsumerState<HubScreen> with WidgetsBindingObserver {
   bool _remindOn = false;
-  bool? _places;
   int _minutes = SessionService.defaultReminderMinutes;
 
   SessionService get _svc => ref.read(sessionServiceProvider);
@@ -44,9 +42,6 @@ class _HubScreenState extends ConsumerState<HubScreen> with WidgetsBindingObserv
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _loadReminder();
-    ref.read(momentsServiceProvider).placesOn().then((v) {
-      if (mounted) setState(() => _places = v);
-    });
   }
 
   @override
@@ -238,12 +233,6 @@ class _HubScreenState extends ConsumerState<HubScreen> with WidgetsBindingObserv
               onTap: _pickTime,
               trailing: _Toggle(on: _remindOn, onTap: _toggleReminder),
             ),
-            _Row(
-              title: l10n.hubPlaces,
-              sub: _places == true ? l10n.hubPlacesOn : l10n.hubPlacesOff,
-              onTap: _togglePlaces,
-              trailing: _Toggle(on: _places == true, onTap: _togglePlaces),
-            ),
             _Row(title: l10n.hubAccess, sub: accessSub, onTap: SystemSettings.openApp, chevron: true),
             _Row(title: l10n.hubScan, sub: l10n.hubScanSub(indexed), onTap: _scanAgain, chevron: true),
           ]),
@@ -254,20 +243,6 @@ class _HubScreenState extends ConsumerState<HubScreen> with WidgetsBindingObserv
         ],
       ),
     );
-  }
-
-  Future<void> _togglePlaces() async {
-    final svc = ref.read(momentsServiceProvider);
-    if (_places == true) {
-      await svc.setPlaces(false);
-      if (mounted) setState(() => _places = false);
-      return;
-    }
-    // turning on goes through the same calm explanation, then Android's own question
-    final on = await Navigator.of(context).push<bool>(MaterialPageRoute<bool>(builder: (_) => const PlacesAccessScreen())) ?? false;
-    if (!mounted) return;
-    setState(() => _places = on);
-    if (on) svc.refresh();
   }
 
   Future<void> _openWeek() async {

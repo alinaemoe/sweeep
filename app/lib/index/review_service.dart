@@ -9,7 +9,7 @@ import 'stats_service.dart';
 import 'widget_sync.dart';
 import 'storage_service.dart';
 
-enum SwipeSource { all, screenshots, screenRecordings, videos, chat, blurry, quickWin, event }
+enum SwipeSource { all, screenshots, screenRecordings, videos, chat, blurry, quickWin }
 
 /// '2026-10' -> 'October 2026' / 'Октябрь 2026'.
 String monthTitle(String key) => fmtMonth(int.parse(key.substring(0, 4)), int.parse(key.substring(5)));
@@ -130,9 +130,8 @@ class ReviewService {
   ///
   /// [chatSource] narrows the chat deck to one app; [startId] moves that item
   /// to the front, so tapping a tile starts the deck on it.
-  Future<List<SwipeItem>> queue(SwipeSource source, {String? month, String? chatSource, String? startId, QuickWin? win, int? eventId}) async {
+  Future<List<SwipeItem>> queue(SwipeSource source, {String? month, String? chatSource, String? startId, QuickWin? win}) async {
     final where = switch (source) {
-      SwipeSource.event => 'a.id IN (SELECT asset_id FROM event_members WHERE event_id = ${eventId ?? -1})',
       SwipeSource.quickWin => '($quickWinGuard) AND (${quickWinWhere(win ?? QuickWin.blurry, DateTime.now().millisecondsSinceEpoch)})',
       SwipeSource.all => 'a.media_type = 0',
       SwipeSource.screenshots => 'a.media_type = 0 AND a.is_screenshot = 1',
@@ -144,17 +143,13 @@ class ReviewService {
           WHERE (laplacian_var IS NOT NULL AND laplacian_var < ${HomeService.blurBelow})
              OR (median_brightness IS NOT NULL AND median_brightness < ${HomeService.darkBelow}))''',
     };
-    // an event deck starts with the near-twins (the quickest wins), then follows the clock
-    final order = source == SwipeSource.event
-        ? 'CASE WHEN a.id IN (SELECT gm.asset_id FROM group_members gm JOIN groups g ON g.id = gm.group_id WHERE g.kind IN (0, 1) AND gm.asset_id != g.best_asset_id) THEN 0 ELSE 1 END, a.created_at_ms'
-        : 'a.created_at_ms DESC';
     final rows = await db.customSelect('''
       SELECT a.id AS id, a.size_bytes AS size, a.created_at_ms AS t, a.media_type AS mt, a.duration_ms AS dur FROM assets a
       WHERE $where
         AND a.id NOT IN (SELECT asset_id FROM trash_items)
         AND a.id NOT IN (SELECT asset_id FROM decisions)
         ${month == null ? '' : "AND $_monthExpr = '$month'"}
-      ORDER BY $order LIMIT $queueLimit
+      ORDER BY a.created_at_ms DESC LIMIT $queueLimit
     ''', variables: [if (source == SwipeSource.chat && chatSource != null) Variable.withString(chatSource)]).get();
     final items = [
       for (final r in rows)
