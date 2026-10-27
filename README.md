@@ -18,15 +18,15 @@ No AI, no cloud, no uploads, no account. Fingerprinting runs in a **Rust core** 
 
 ## Why it is interesting (the 60-second version)
 
-| | |
-|---|---|
-| **Fully on-device** | MediaStore index, thumbnails, hashes, groups and decisions live in a local SQLite file. The app has no network code path for photos. |
-| **Rust analysis core** | aHash / dHash / pHash, Laplacian blur score, median brightness and SHA-256 in one FFI call (`sweeep_analyze`). 50k thumbnails hashed in 3.7 s on a desktop; ~3.2 ms per file on the phone. |
-| **Algorithm swap with numbers** | A BK-tree over 64-bit hashes took ~44 s to group 50k photos at radius 8. Multi-index hashing (split the 64 bits into r+1 segments; two hashes within r must agree on one) does the same job in **0.27 s**. Both are in [`core/src`](core/src), the BK-tree is kept and tested. |
-| **Resumable scan** | Hashes are checkpointed per batch. Killed at 2,432 of 10,658 files, the relaunch resumed from 2,432. An Android foreground service keeps the scan alive in the background; a delta re-sync with no changes takes 0.2 s. |
-| **Deletion you can trust** | Swipe left only moves a file to an in-app soft trash (30 days). "Delete forever" goes through `MediaStore.createDeleteRequest` (one system confirmation per chunk) and the app only forgets files the system really deleted. Nothing is ever deleted automatically. |
+|                                      |                                                                                                                                                                                                                                                                                                      |
+| ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Fully on-device**                  | MediaStore index, thumbnails, hashes, groups and decisions live in a local SQLite file. The app has no network code path for photos.                                                                                                                                                                 |
+| **Rust analysis core**               | aHash / dHash / pHash, Laplacian blur score, median brightness and SHA-256 in one FFI call (`sweeep_analyze`). 50k thumbnails hashed in 3.7 s on a desktop; ~3.2 ms per file on the phone.                                                                                                           |
+| **Algorithm swap with numbers**      | A BK-tree over 64-bit hashes took ~44 s to group 50k photos at radius 8. Multi-index hashing (split the 64 bits into r+1 segments; two hashes within r must agree on one) does the same job in **0.27 s**. Both are in [`core/src`](core/src), the BK-tree is kept and tested.                       |
+| **Resumable scan**                   | Hashes are checkpointed per batch. Killed at 2,432 of 10,658 files, the relaunch resumed from 2,432. An Android foreground service keeps the scan alive in the background; a delta re-sync with no changes takes 0.2 s.                                                                              |
+| **Deletion you can trust**           | Swipe left only moves a file to an in-app soft trash (30 days). "Delete forever" goes through `MediaStore.createDeleteRequest` (one system confirmation per chunk) and the app only forgets files the system really deleted. Nothing is ever deleted automatically.                                  |
 | **Product decisions backed by data** | Single-linkage grouping chained 15 dog photos from one park into a "Trash 14" suggestion. Fix: Hamming threshold 8 to 6, complete linkage, max 8 per group. Real library: largest group dropped from x15-18 to x8. Similar groups now default to **keep all**, exact duplicates to trash the extras. |
-| **Tested** | 33 Rust tests, 60 Flutter tests (Drift migrations, grouping, review service, stats, localization parity, 100k-photo benchmarks). |
+| **Tested**                           | 33 Rust tests, 60 Flutter tests (Drift migrations, grouping, review service, stats, localization parity, 100k-photo benchmarks).                                                                                                                                                                     |
 
 ## What it does
 
@@ -45,8 +45,6 @@ No AI, no cloud, no uploads, no account. Fingerprinting runs in a **Rust core** 
 - English, Russian and Italian UI (follows the phone, switchable in Hub). Dark "Obsidian + Lavender" design with one colour role per action: lime = keep, coral = trash.
 
 ## On a real phone
-
-<p align="center"><img src="docs/screenshots/device.png" alt="Real device captures of the release build: home oval, Space and Hub" width="100%"></p>
 
 <sub>Release build on a Samsung S23 with the author's own library (48 GB of photos and videos). Only screens without personal photos are shown.</sub>
 
@@ -69,13 +67,13 @@ More: [`docs/goal-shots`](docs/goal-shots), [`docs/nav-shots`](docs/nav-shots), 
 
 Samsung S23 (SM-S911B), Android 15, release build, **10,658 files**:
 
-| Step | Result |
-|---|---|
-| MediaStore full index | 2.2 s |
-| Delta re-sync, no changes | 0.2 s |
-| Gray thumbnail 128 px | ~22 ms each |
-| Perceptual hashing (Rust, FFI) | 34.5 s total, ~3.2 ms/file |
-| Found | 12 exact-duplicate groups, 766 similar groups |
+| Step                           | Result                                        |
+| ------------------------------ | --------------------------------------------- |
+| MediaStore full index          | 2.2 s                                         |
+| Delta re-sync, no changes      | 0.2 s                                         |
+| Gray thumbnail 128 px          | ~22 ms each                                   |
+| Perceptual hashing (Rust, FFI) | 34.5 s total, ~3.2 ms/file                    |
+| Found                          | 12 exact-duplicate groups, 766 similar groups |
 
 Rust core on a desktop, 50k thumbnails: hashing 3.7 s; grouping 16 ms (5 s window) or 0.27 s (global, multi-index).
 SQL side on a synthetic 100k-photo library: Home load 262 to 145 ms, Timeline 372 to 92 ms after an index and a range scan instead of a window function. Details and what is **not** measured yet: [`docs/benchmarks.md`](docs/benchmarks.md).
